@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EchoPuzzles Pro | Advanced Puzzle Platform</title>
+    <title>EchoPuzzles Pro | Unique Puzzle Challenges</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -264,7 +264,7 @@
 
         .game-area {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
-            height: 480px;
+            min-height: 480px;
             border-radius: 12px;
             padding: 20px;
             display: flex;
@@ -621,145 +621,19 @@
             }
         }
 
-        .welcome-screen {
-            text-align: center;
-            max-width: 700px;
-            padding: 20px;
-        }
-
-        .welcome-screen h1 {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, var(--accent), var(--accent-2));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            line-height: 1.2;
-        }
-
-        .welcome-screen p {
-            color: var(--text-secondary);
-            font-size: 18px;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .feature {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            border-color: var(--border-light);
-        }
-
-        .feature i {
-            font-size: 32px;
-            color: var(--accent);
-            margin-bottom: 15px;
-        }
-
-        .feature h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-
-        .feature p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .hero-btns {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 20px 0;
-        }
-
-        .memory-card {
-            width: 85px;
-            height: 85px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-
-        .memory-card:hover {
-            transform: scale(1.05);
-        }
-
-        .memory-card.matched {
-            background: rgba(0, 200, 150, 0.1);
-            border-color: rgba(0, 200, 150, 0.3);
-        }
-
-        .slider-piece {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(180deg, #023 0%, #045 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 700;
-            border: 1px solid var(--border);
-            transition: transform 0.3s ease;
-        }
-
-        .slider-piece.moving {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating.delay-1 {
-            animation-delay: 0.5s;
-        }
-
-        .floating.delay-2 {
-            animation-delay: 1s;
-        }
-
         .puzzle-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
+            padding: 20px;
             text-align: center;
         }
 
         .puzzle-title {
-            margin-bottom: 20px;
             font-size: 24px;
+            margin-bottom: 25px;
             color: var(--accent);
+            font-weight: 700;
         }
 
         .sequence-puzzle {
@@ -791,15 +665,196 @@
             animation: pulse 1s;
         }
 
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 30px auto;
+        }
+
+        .memory-card {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .memory-card .front, .memory-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: transform 0.6s;
+        }
+
+        .memory-card .front {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            transform: rotateY(180deg);
+        }
+
+        .memory-card .back {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .memory-card.flipped .front {
+            transform: rotateY(0deg);
+        }
+
+        .memory-card.flipped .back {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            background: rgba(0, 200, 150, 0.1);
+            border-color: rgba(0, 200, 150, 0.3);
+        }
+
+        .slider-puzzle {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 330px;
+            margin: 30px auto;
+        }
+
+        .slider-piece {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #023, #045);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-piece.empty {
+            background: transparent;
+            border: 1px dashed var(--border);
+            cursor: default;
+        }
+
+        .pattern-puzzle {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+
+        .pattern-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pattern-node.active {
+            background: rgba(0, 230, 195, 0.2);
+            border-color: var(--accent);
+        }
+
+        .pattern-node::after {
+            content: attr(data-index);
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .pattern-line {
+            position: absolute;
+            background: var(--accent);
+            height: 4px;
+            transform-origin: 0 0;
+            z-index: -1;
+        }
+
+        .maze-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .maze-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .maze-cell {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .maze-cell.wall {
+            background: #334;
+        }
+
+        .maze-cell.start {
+            background: var(--accent);
+        }
+
+        .maze-cell.end {
+            background: var(--warning);
+        }
+
+        .maze-player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
         .code-input {
-            padding: 12px 15px;
+            padding: 12px 20px;
             font-size: 18px;
             border-radius: 10px;
             border: 2px solid var(--border);
             background: rgba(0, 0, 0, 0.3);
             color: var(--text);
             text-align: center;
-            width: 250px;
+            width: 300px;
             margin: 20px 0;
         }
 
@@ -808,74 +863,82 @@
             outline: none;
         }
 
-        .puzzle-image {
-            max-width: 100%;
+        .math-expression {
+            font-size: 32px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 12px;
-            border: 1px solid var(--border);
+            font-family: monospace;
+        }
+
+        .number-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin: 20px 0;
         }
 
-        .maze-grid {
-            display: grid;
-            grid-template-columns: repeat(13, 30px);
-            gap: 2px;
-            margin: 20px auto;
-            justify-content: center;
-        }
-
-        .maze-cell {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-        }
-
-        .maze-wall {
-            background: #334;
-        }
-
-        .maze-path {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .maze-player {
-            background: var(--accent);
-            color: #022;
+            font-size: 24px;
             font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .maze-exit {
-            background: var(--warning);
-            color: #022;
-            font-weight: bold;
+        .number-btn:hover {
+            background: rgba(0, 230, 195, 0.1);
+            border-color: var(--accent);
         }
 
-        .math-expression {
-            font-size: 28px;
+        .operator-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin: 20px 0;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .operator-btn {
+            padding: 12px 24px;
             border-radius: 10px;
-            font-family: monospace;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .operator-btn:hover {
+            background: rgba(0, 230, 195, 0.1);
+            border-color: var(--accent);
         }
 
         .drag-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin: 30px 0;
+            max-width: 600px;
+            margin: 30px auto;
         }
 
         .drag-item {
-            padding: 20px;
+            padding: 30px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            border: 1px dashed var(--border);
+            border-radius: 12px;
+            border: 2px dashed var(--border);
             cursor: move;
             transition: all 0.3s ease;
+            text-align: center;
+            font-size: 20px;
         }
 
         .drag-item:hover {
@@ -883,13 +946,19 @@
             border-color: var(--accent);
         }
 
+        .reflex-game {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+        }
+
         .reflex-circle {
-            width: 200px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             border: 8px solid var(--border);
             position: relative;
-            margin: 30px auto;
             overflow: hidden;
         }
 
@@ -902,24 +971,35 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            animation: rotate 4s linear infinite;
         }
 
         .reflex-target {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             background: var(--success);
             border-radius: 50%;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            opacity: 0.7;
+            opacity: 0.3;
         }
 
-        @keyframes rotate {
-            0% { transform: translateX(-50%) rotate(0deg); }
-            100% { transform: translateX(-50%) rotate(360deg); }
+        .final-challenge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .challenge-step {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 500px;
         }
     </style>
 </head>
@@ -929,106 +1009,17 @@
             <div class="logo">EP</div>
             <div>
                 <div class="title">EchoPuzzles Pro</div>
-                <div class="subtitle">Advanced puzzle platform with unique challenges</div>
+                <div class="subtitle">10 Unique Puzzle Challenges</div>
             </div>
         </div>
-        <div class="meta small">10 Levels • Unique Puzzles • Progress Saved</div>
+        <div class="meta small">Progress Saved • Hints Available</div>
     </header>
 
     <main>
         <nav>
             <h3><i class="fas fa-layer-group"></i> Puzzle Levels</h3>
             <div class="levels" id="levelsList">
-                <div class="level-btn playing">
-                    <div>
-                        <div style='font-weight:700'>Level 1</div>
-                        <div class='meta'>Sequence Puzzle ★☆☆</div>
-                    </div>
-                    <div>
-                        <span class="badge">ACTIVE</span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 2</div>
-                        <div class='meta'>Memory Match ★★☆</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 3</div>
-                        <div class='meta'>Sliding Puzzle ★★☆</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 4</div>
-                        <div class='meta'>Pattern Recognition ★★★</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 5</div>
-                        <div class='meta'>Maze Navigation ★★☆</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 6</div>
-                        <div class='meta'>Code Cracking ★★★</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 7</div>
-                        <div class='meta'>Math Challenge ★★★</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 8</div>
-                        <div class='meta'>Drag & Drop ★★☆</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 9</div>
-                        <div class='meta'>Reflex Test ★★☆</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
-                <div class="level-btn">
-                    <div>
-                        <div style='font-weight:700'>Level 10</div>
-                        <div class='meta'>Final Challenge ★★★★</div>
-                    </div>
-                    <div>
-                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
-                    </div>
-                </div>
+                <!-- Levels will be populated by JavaScript -->
             </div>
 
             <div class="divider"></div>
@@ -1037,11 +1028,10 @@
             <div id="achList" class="achievements">
                 <div class="badge"><i class="fas fa-trophy"></i> First Steps</div>
                 <div class="badge"><i class="fas fa-trophy"></i> Puzzle Explorer</div>
-                <div class="badge"><i class="fas fa-trophy"></i> Level 1 Master</div>
             </div>
 
             <div class="hint-box" style="margin-top: auto;">
-                <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Each level has a unique puzzle type. Use hints strategically to maximize your score!
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Each level has a unique puzzle type. Use hints strategically!
             </div>
         </nav>
 
@@ -1049,7 +1039,7 @@
             <div class="panel-title">
                 <div>
                     <h2 id="levelTitle">Level 1 — Sequence Puzzle</h2>
-                    <div class="desc" id="levelDesc">Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.</div>
+                    <div class="desc" id="levelDesc">Click the colored buttons in the correct secret order</div>
                 </div>
                 <div class="level-meta">
                     <i class="fas fa-map-marker-alt"></i>
@@ -1058,26 +1048,7 @@
             </div>
 
             <div class="game-area" id="gameArea">
-                <div class="puzzle-container">
-                    <div class="puzzle-title">Click the buttons in the correct sequence</div>
-                    <div class="sequence-puzzle">
-                        <div class="sequence-btn" style="background: #00e6c3;" data-value="1">1</div>
-                        <div class="sequence-btn" style="background: #2bdcff;" data-value="2">2</div>
-                        <div class="sequence-btn" style="background: #ff7ab6;" data-value="3">3</div>
-                        <div class="sequence-btn" style="background: #ffd166;" data-value="4">4</div>
-                    </div>
-                    <div class="hint-box">
-                        <strong>Hint:</strong> The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.
-                    </div>
-                    <div class="level-footer">
-                        <button class="btn-ghost">
-                            <i class="fas fa-lightbulb"></i> Show Hint
-                        </button>
-                        <button class="primary" id="checkSolution">
-                            <i class="fas fa-check"></i> Check Solution
-                        </button>
-                    </div>
-                </div>
+                <!-- Puzzle content will be loaded here -->
             </div>
 
             <div class="hud">
@@ -1128,165 +1099,205 @@
             const popupTitle = document.getElementById('popupTitle');
             const popupText = document.getElementById('popupText');
             const popupOk = document.getElementById('popupOk');
-            const checkSolution = document.getElementById('checkSolution');
-            const levelButtons = document.querySelectorAll('.level-btn');
+            const levelsList = document.getElementById('levelsList');
             
-            // Puzzle state
-            let currentLevel = 1;
-            let sequence = [1, 2, 3, 4];
-            let userSequence = [];
-            let gameState = {
-                levels: {
-                    1: { completed: false, stars: 0 },
-                    2: { completed: false, stars: 0 },
-                    3: { completed: false, stars: 0 },
-                    4: { completed: false, stars: 0 },
-                    5: { completed: false, stars: 0 },
-                    6: { completed: false, stars: 0 },
-                    7: { completed: false, stars: 0 },
-                    8: { completed: false, stars: 0 },
-                    9: { completed: false, stars: 0 },
-                    10: { completed: false, stars: 0 }
-                },
-                achievements: ['First Steps', 'Puzzle Explorer', 'Level 1 Master'],
+            // Game state
+            const gameState = {
+                currentLevel: 1,
+                levels: [
+                    { id: 1, title: "Sequence Puzzle", completed: false, stars: 0, hintUsed: false },
+                    { id: 2, title: "Memory Match", completed: false, stars: 0, hintUsed: false },
+                    { id: 3, title: "Sliding Puzzle", completed: false, stars: 0, hintUsed: false },
+                    { id: 4, title: "Pattern Recognition", completed: false, stars: 0, hintUsed: false },
+                    { id: 5, title: "Maze Navigation", completed: false, stars: 0, hintUsed: false },
+                    { id: 6, title: "Code Cracking", completed: false, stars: 0, hintUsed: false },
+                    { id: 7, title: "Math Challenge", completed: false, stars: 0, hintUsed: false },
+                    { id: 8, title: "Drag & Drop", completed: false, stars: 0, hintUsed: false },
+                    { id: 9, title: "Reflex Test", completed: false, stars: 0, hintUsed: false },
+                    { id: 10, title: "Final Challenge", completed: false, stars: 0, hintUsed: false }
+                ],
+                achievements: ['First Steps', 'Puzzle Explorer'],
                 progress: 10
             };
             
             // Initialize the game
             function initGame() {
-                // Setup sequence puzzle
-                const sequenceBtns = document.querySelectorAll('.sequence-btn');
-                sequenceBtns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const value = parseInt(btn.dataset.value);
-                        userSequence.push(value);
-                        btn.classList.add('correct');
-                        setTimeout(() => btn.classList.remove('correct'), 300);
-                        
-                        // Check if sequence is complete
-                        if (userSequence.length === sequence.length) {
-                            checkSequence();
-                        }
-                    });
-                });
-                
-                // Setup solution check button
-                checkSolution.addEventListener('click', checkSequence);
+                renderLevels();
+                loadLevel(gameState.currentLevel);
                 
                 // Setup popup
                 popupOk.addEventListener('click', () => {
                     popup.classList.remove('show');
                 });
+            }
+            
+            // Render level list
+            function renderLevels() {
+                levelsList.innerHTML = '';
                 
-                // Setup level buttons
-                levelButtons.forEach((btn, index) => {
-                    btn.addEventListener('click', () => {
-                        if (index === 0 || gameState.levels[index].completed) {
-                            loadLevel(index + 1);
+                gameState.levels.forEach(level => {
+                    const levelBtn = document.createElement('div');
+                    levelBtn.className = `level-btn ${level.id === gameState.currentLevel ? 'playing' : ''} ${level.completed ? '' : 'locked'}`;
+                    
+                    levelBtn.innerHTML = `
+                        <div>
+                            <div style="font-weight:700">Level ${level.id}</div>
+                            <div class="meta">${level.title} ${getStars(level.stars)}</div>
+                        </div>
+                        <div>
+                            ${level.completed ? '' : '<span class="lock-icon"><i class="fas fa-lock"></i></span>'}
+                        </div>
+                    `;
+                    
+                    levelBtn.addEventListener('click', () => {
+                        if (level.completed || level.id === 1) {
+                            loadLevel(level.id);
                         }
                     });
+                    
+                    levelsList.appendChild(levelBtn);
                 });
             }
             
-            // Check if sequence is correct
-            function checkSequence() {
-                let correct = true;
-                for (let i = 0; i < sequence.length; i++) {
-                    if (sequence[i] !== userSequence[i]) {
-                        correct = false;
-                        break;
-                    }
-                }
-                
-                if (correct) {
-                    showPopup('Level Complete!', 'You solved the sequence puzzle!');
-                    gameState.levels[1].completed = true;
-                    gameState.levels[1].stars = 3;
-                    gameState.progress = 20;
-                    scoreBar.style.width = gameState.progress + '%';
-                    statusText.textContent = 'Level 1 Completed';
-                    
-                    // Update UI
-                    levelButtons[1].classList.remove('locked');
-                    levelButtons[1].innerHTML = `
-                        <div>
-                            <div style='font-weight:700'>Level 2</div>
-                            <div class='meta'>Memory Match ★★☆</div>
-                        </div>
-                        <div>
-                            <span class="badge">AVAILABLE</span>
-                        </div>
-                    `;
-                } else {
-                    statusText.textContent = 'Incorrect Sequence - Try Again';
-                    userSequence = [];
-                }
+            // Get star rating HTML
+            function getStars(count) {
+                return '<span class="stars">' + '★'.repeat(count) + '☆'.repeat(3 - count) + '</span>';
             }
             
             // Load a specific level
-            function loadLevel(level) {
-                currentLevel = level;
-                curLevel.textContent = level;
+            function loadLevel(levelId) {
+                gameState.currentLevel = levelId;
+                const level = gameState.levels[levelId - 1];
                 
-                // Update level info
-                switch(level) {
+                // Update UI
+                curLevel.textContent = levelId;
+                levelTitle.textContent = `Level ${levelId} — ${level.title}`;
+                statusText.textContent = `Playing Level ${levelId}`;
+                unlocked.textContent = level.title;
+                
+                // Clear game area
+                gameArea.innerHTML = '';
+                
+                // Render level-specific content
+                switch(levelId) {
                     case 1:
-                        levelTitle.textContent = 'Level 1 — Sequence Puzzle';
-                        levelDesc.textContent = 'Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.';
-                        unlocked.textContent = 'Sequence Puzzle';
+                        renderSequencePuzzle();
                         break;
                     case 2:
-                        levelTitle.textContent = 'Level 2 — Memory Match';
-                        levelDesc.textContent = 'Find all matching pairs by flipping cards two at a time. Your memory will be tested!';
-                        unlocked.textContent = 'Memory Match';
+                        renderMemoryMatch();
                         break;
                     case 3:
-                        levelTitle.textContent = 'Level 3 — Sliding Puzzle';
-                        levelDesc.textContent = 'Reassemble the puzzle by sliding tiles into the empty space. Strategy beats speed here.';
-                        unlocked.textContent = 'Sliding Puzzle';
+                        renderSliderPuzzle();
                         break;
                     case 4:
-                        levelTitle.textContent = 'Level 4 — Pattern Recognition';
-                        levelDesc.textContent = 'Draw the correct pattern through the nodes. Precision and pattern recognition are key.';
-                        unlocked.textContent = 'Pattern Recognition';
+                        renderPatternPuzzle();
                         break;
                     case 5:
-                        levelTitle.textContent = 'Level 5 — Maze Navigation';
-                        levelDesc.textContent = 'Navigate to the exit using limited sonar pings. Use your pings wisely!';
-                        unlocked.textContent = 'Maze Navigation';
+                        renderMazePuzzle();
                         break;
                     case 6:
-                        levelTitle.textContent = 'Level 6 — Code Cracking';
-                        levelDesc.textContent = 'Decode the encrypted message using a Caesar cipher. Shift value unknown.';
-                        unlocked.textContent = 'Code Cracking';
+                        renderCodePuzzle();
                         break;
                     case 7:
-                        levelTitle.textContent = 'Level 7 — Math Challenge';
-                        levelDesc.textContent = 'Use the given numbers to form the target value with basic arithmetic operations.';
-                        unlocked.textContent = 'Math Challenge';
+                        renderMathPuzzle();
                         break;
                     case 8:
-                        levelTitle.textContent = 'Level 8 — Drag & Drop';
-                        levelDesc.textContent = 'Drag pieces to their targets to complete the puzzle. Precision matters.';
-                        unlocked.textContent = 'Drag & Drop';
+                        renderDragPuzzle();
                         break;
                     case 9:
-                        levelTitle.textContent = 'Level 9 — Reflex Test';
-                        levelDesc.textContent = 'Click when the indicator is in the green zone. Timing is everything!';
-                        unlocked.textContent = 'Reflex Test';
+                        renderReflexPuzzle();
                         break;
                     case 10:
-                        levelTitle.textContent = 'Level 10 — Final Challenge';
-                        levelDesc.textContent = 'Combine knowledge from previous puzzles to solve the ultimate challenge.';
-                        unlocked.textContent = 'Final Challenge';
+                        renderFinalPuzzle();
                         break;
                 }
                 
-                // Update active level button
-                levelButtons.forEach(btn => btn.classList.remove('playing'));
-                levelButtons[level - 1].classList.add('playing');
+                // Add level controls
+                const controls = document.createElement('div');
+                controls.className = 'level-footer';
+                controls.innerHTML = `
+                    <button class="btn-ghost" id="hintBtn">
+                        <i class="fas fa-lightbulb"></i> Show Hint
+                    </button>
+                    <button class="primary" id="completeBtn">
+                        <i class="fas fa-check"></i> Complete Level
+                    </button>
+                `;
+                gameArea.appendChild(controls);
                 
-                statusText.textContent = `Playing Level ${level}`;
+                // Setup hint button
+                document.getElementById('hintBtn').addEventListener('click', () => {
+                    showHint(levelId);
+                });
+                
+                // Setup complete button
+                document.getElementById('completeBtn').addEventListener('click', () => {
+                    completeLevel(levelId);
+                });
+                
+                // Update level list
+                renderLevels();
+            }
+            
+            // Show hint for current level
+            function showHint(levelId) {
+                let hint = "";
+                
+                switch(levelId) {
+                    case 1:
+                        hint = "The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.";
+                        break;
+                    case 2:
+                        hint = "Focus on memorizing positions of high-value symbols first. Try to find patterns in symbol locations.";
+                        break;
+                    case 3:
+                        hint = "Solve row by row. Complete the top row first, then middle, then bottom. Keep the empty space strategically positioned.";
+                        break;
+                    case 4:
+                        hint = "The pattern forms a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left.";
+                        break;
+                    case 5:
+                        hint = "The exit is in the bottom right corner. Use pings at intersections to minimize wrong turns.";
+                        break;
+                    case 6:
+                        hint = "Common shifts are 3 (ROT3) or 13 (ROT13). Try both if you get stuck.";
+                        break;
+                    case 7:
+                        hint = "Remember order of operations. Division can create fractions that help reach the target.";
+                        break;
+                    case 8:
+                        hint = "Look for color gradients that match the target areas. Pieces can be rotated by dragging corners.";
+                        break;
+                    case 9:
+                        hint = "The green zone is at the top of the circle. Watch the speed - it changes after mistakes.";
+                        break;
+                    case 10:
+                        hint = "The solution combines elements from Level 6 and Level 7. Remember 'hello world' and '24'.";
+                        break;
+                }
+                
+                alert(`Level ${levelId} Hint:\n\n${hint}`);
+                gameState.levels[levelId - 1].hintUsed = true;
+            }
+            
+            // Complete current level
+            function completeLevel(levelId) {
+                const level = gameState.levels[levelId - 1];
+                level.completed = true;
+                level.stars = level.hintUsed ? 2 : 3;
+                
+                gameState.progress += 10;
+                scoreBar.style.width = gameState.progress + '%';
+                
+                if (levelId < 10) {
+                    gameState.levels[levelId].locked = false;
+                    loadLevel(levelId + 1);
+                } else {
+                    statusText.textContent = "All Levels Completed!";
+                    showPopup("Congratulations!", "You've completed all EchoPuzzles challenges!");
+                }
+                
+                renderLevels();
             }
             
             // Show achievement popup
@@ -1294,11 +1305,213 @@
                 popupTitle.textContent = title;
                 popupText.textContent = text;
                 popup.classList.add('show');
+            }
+            
+            // Render level 1: Sequence Puzzle
+            function renderSequencePuzzle() {
+                const container = document.createElement('div');
+                container.className = 'puzzle-container';
+                container.innerHTML = `
+                    <div class="puzzle-title">Click the buttons in the correct sequence</div>
+                    <div class="sequence-puzzle">
+                        <div class="sequence-btn" style="background: #00e6c3;" data-value="1">1</div>
+                        <div class="sequence-btn" style="background: #2bdcff;" data-value="2">2</div>
+                        <div class="sequence-btn" style="background: #ff7ab6;" data-value="3">3</div>
+                        <div class="sequence-btn" style="background: #ffd166;" data-value="4">4</div>
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.
+                    </div>
+                `;
                 
-                // Auto-hide after 4 seconds
-                setTimeout(() => {
-                    popup.classList.remove('show');
-                }, 4000);
+                gameArea.appendChild(container);
+            }
+            
+            // Render level 2: Memory Match
+            function renderMemoryMatch() {
+                const container = document.createElement('div');
+                container.className = 'puzzle-container';
+                container.innerHTML = `
+                    <div class="puzzle-title">Find all matching pairs</div>
+                    <div class="memory-grid">
+                        <!-- Cards will be generated by JS -->
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> Focus on memorizing positions of high-value symbols first.
+                    </div>
+                `;
+                
+                gameArea.appendChild(container);
+            }
+            
+            // Render level 3: Sliding Puzzle
+            function renderSliderPuzzle() {
+                const container = document.createElement('div');
+                container.className = 'puzzle-container';
+                container.innerHTML = `
+                    <div class="puzzle-title">Rearrange the tiles to solve the puzzle</div>
+                    <div class="slider-puzzle">
+                        <div class="slider-piece">1</div>
+                        <div class="slider-piece">2</div>
+                        <div class="slider-piece">3</div>
+                        <div class="slider-piece">4</div>
+                        <div class="slider-piece">5</div>
+                        <div class="slider-piece">6</div>
+                        <div class="slider-piece">7</div>
+                        <div class="slider-piece">8</div>
+                        <div class="slider-piece empty"></div>
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> Solve row by row starting from the top.
+                    </div>
+                `;
+                
+                gameArea.appendChild(container);
+            }
+            
+            // Render level 4: Pattern Recognition
+            function renderPatternPuzzle() {
+                const container = document.createElement('div');
+                container.className = 'puzzle-container';
+                container.innerHTML = `
+                    <div class="puzzle-title">Connect the nodes in the correct pattern</div>
+                    <div class="pattern-puzzle">
+                        <div class="pattern-node" data-index="1"></div>
+                        <div class="pattern-node" data-index="2"></div>
+                        <div class="pattern-node" data-index="3"></div>
+                        <div class="pattern-node" data-index="4"></div>
+                        <div class="pattern-node" data-index="5"></div>
+                        <div class="pattern-node" data-index="6"></div>
+                        <div class="pattern-node" data-index="7"></div>
+                        <div class="pattern-node" data-index="8"></div>
+                        <div class="pattern-node" data-index="9"></div>
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> The pattern forms a diagonal cross.
+                    </div>
+                `;
+                
+                gameArea.appendChild(container);
+            }
+            
+            // Render level 5: Maze Navigation
+            function renderMazePuzzle() {
+                const container = document.createElement('div');
+                container.className = 'puzzle-container';
+                container.innerHTML = `
+                    <div class="puzzle-title">Navigate to the exit</div>
+                    <div class="maze-container">
+                        <div class="maze-grid">
+                            <!-- Maze will be generated by JS -->
+                        </div>
+                        <div class="maze-player"></div>
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> The exit is in the bottom right corner.
+                    </div>
+                `;
+                
+                gameArea.appendChild(container);
+            }
+            
+            // Stubs for other levels
+            function renderCodePuzzle() {
+                gameArea.innerHTML = `
+                    <div class="puzzle-container">
+                        <div class="puzzle-title">Decrypt the secret message</div>
+                        <div class="math-expression">uryyb jbeyq</div>
+                        <input type="text" class="code-input" placeholder="Enter decrypted message">
+                        <div class="hint-box">
+                            <strong>Hint:</strong> This is a Caesar cipher with shift 13 (ROT13).
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderMathPuzzle() {
+                gameArea.innerHTML = `
+                    <div class="puzzle-container">
+                        <div class="puzzle-title">Create the number 24 using these values</div>
+                        <div class="math-expression">3, 3, 8</div>
+                        <div class="number-selector">
+                            <div class="number-btn">3</div>
+                            <div class="number-btn">3</div>
+                            <div class="number-btn">8</div>
+                        </div>
+                        <div class="operator-selector">
+                            <div class="operator-btn">+</div>
+                            <div class="operator-btn">-</div>
+                            <div class="operator-btn">×</div>
+                            <div class="operator-btn">÷</div>
+                        </div>
+                        <div class="hint-box">
+                            <strong>Hint:</strong> Remember order of operations (PEMDAS).
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderDragPuzzle() {
+                gameArea.innerHTML = `
+                    <div class="puzzle-container">
+                        <div class="puzzle-title">Assemble the puzzle pieces</div>
+                        <div class="drag-container">
+                            <div class="drag-item">Piece 1</div>
+                            <div class="drag-item">Piece 2</div>
+                            <div class="drag-item">Piece 3</div>
+                            <div class="drag-item">Piece 4</div>
+                            <div class="drag-item">Piece 5</div>
+                            <div class="drag-item">Piece 6</div>
+                        </div>
+                        <div class="hint-box">
+                            <strong>Hint:</strong> Look for matching edges and colors.
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderReflexPuzzle() {
+                gameArea.innerHTML = `
+                    <div class="puzzle-container">
+                        <div class="puzzle-title">Click when the indicator is in the green zone</div>
+                        <div class="reflex-game">
+                            <div class="reflex-circle">
+                                <div class="reflex-target"></div>
+                                <div class="reflex-indicator"></div>
+                            </div>
+                        </div>
+                        <div class="hint-box">
+                            <strong>Hint:</strong> The target zone is at the top of the circle.
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderFinalPuzzle() {
+                gameArea.innerHTML = `
+                    <div class="puzzle-container">
+                        <div class="puzzle-title">Final Challenge: Combine your knowledge</div>
+                        <div class="final-challenge">
+                            <div class="challenge-step">
+                                <h3>Step 1: Decrypt the message</h3>
+                                <p>Decrypt: "uryyb jbeyq"</p>
+                                <input type="text" class="code-input" placeholder="Decrypted message">
+                            </div>
+                            <div class="challenge-step">
+                                <h3>Step 2: Solve the equation</h3>
+                                <p>Use 3, 3, 8 to make 24</p>
+                                <input type="text" class="code-input" placeholder="Solution">
+                            </div>
+                            <div class="challenge-step">
+                                <h3>Step 3: Combine solutions</h3>
+                                <input type="text" class="code-input" placeholder="Final solution">
+                            </div>
+                        </div>
+                        <div class="hint-box">
+                            <strong>Hint:</strong> Combine the decrypted message with the solution to the math puzzle.
+                        </div>
+                    </div>
+                `;
             }
             
             // Initialize the game
