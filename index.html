@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EchoPuzzles — Advanced Interactive Puzzle Site</title>
+<style>
+  /*
+    Advanced EchoPuzzles - Styles
+    It's a single-file app: HTML + CSS + JS.
+  */
+
+  :root{
+    --bg-1: #071018;
+    --bg-2: #02121a;
+    --panel: rgba(255,255,255,0.03);
+    --accent: #00e6c3;
+    --accent-2: #2bdcff;
+    --muted: #8aa;
+    --glass: rgba(255,255,255,0.03);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:#dfe; background:linear-gradient(180deg,var(--bg-1),var(--bg-2));}
+
+  /* Layout */
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid rgba(255,255,255,0.02)}
+  .brand{display:flex;gap:14px;align-items:center}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#022;box-shadow:0 12px 30px rgba(0,0,0,0.65)}
+  .title{font-size:20px;font-weight:800}
+  .subtitle{font-size:12px;color:var(--muted)}
+
+  main{display:grid;grid-template-columns:320px 1fr;gap:18px;padding:22px}
+
+  nav{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;min-height:600px;border:1px solid rgba(255,255,255,0.03)}
+  .levels{display:flex;flex-direction:column;gap:10px}
+  .level-btn{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+  .level-btn.locked{opacity:0.35;filter:grayscale(0.25);}
+  .level-btn.playing{box-shadow:0 8px 30px rgba(0,230,195,0.06);border:1px solid rgba(0,230,195,0.12)}
+  .meta{font-size:12px;color:var(--muted)}
+
+  .content{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:12px;min-height:600px;border:1px solid rgba(255,255,255,0.03);position:relative}
+  .panel-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .desc{color:var(--muted);font-size:13px}
+
+  .game-area{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));height:420px;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+
+  .hud{position:absolute;right:20px;top:80px;background:rgba(0,0,0,0.45);padding:12px;border-radius:8px;color:var(--muted);font-size:13px;border:1px solid rgba(255,255,255,0.02);width:220px}
+  .achievements{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{padding:6px 8px;border-radius:8px;background:linear-gradient(180deg,#001f1a,rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.03);font-size:12px;color:var(--muted)}
+
+  button.primary{background:var(--accent);border:none;padding:10px 14px;border-radius:8px;color:#022;font-weight:800;cursor:pointer}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+
+  .popup{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:linear-gradient(180deg,#062226,#002724);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 30px 90px rgba(0,0,0,0.6);display:none;color:#cff;z-index:60}
+  .popup.show{display:block}
+
+  /* Puzzle building blocks */
+  .grid{display:grid;gap:8px}
+  .tile{background:var(--glass);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:8px;color:#cfe;font-weight:700;cursor:pointer}
+  .hint-box{margin-top:12px;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;color:var(--muted)}
+
+  .level-footer{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .small{font-size:12px}
+
+  /* Responsive */
+  @media (max-width:920px){main{grid-template-columns:1fr; padding:12px}nav{order:2} .hud{position:static;margin-top:12px;width:auto} }
+
+  /* extra styles for specific puzzles */
+  .memory-card{width:80px;height:80px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,0.02)}
+  .slider-piece{width:100px;height:100px;background:linear-gradient(180deg,#023 0%, #045 100%);border-radius:10px;display:flex;align-items:center;justify-content:center}
+
+  /* progress bar */
+  .progress{height:10px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%}
+
+  /* animation */
+  .pulse{animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">EP</div>
+    <div>
+      <div class="title">EchoPuzzles</div>
+      <div class="subtitle">A progressive puzzle site — unlock achievements & hidden content</div>
+    </div>
+  </div>
+  <div class="meta small">Progress saved locally • 10 levels • Hints available</div>
+</header>
+
+<main>
+  <nav>
+    <div style="font-weight:700;margin-bottom:10px">Levels</div>
+    <div class="levels" id="levelsList"></div>
+
+    <hr style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <div style="font-weight:700;margin-bottom:8px">Achievements</div>
+    <div id="achList" class="achievements"></div>
+
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+      Tip: Use the HINT button in each level if you get stuck. Using hints reduces your score for that level.
+    </div>
+  </nav>
+
+  <section class="content">
+    <div class="panel-title">
+      <div>
+        <div style="font-weight:800;font-size:18px" id="levelTitle">Welcome to EchoPuzzles</div>
+        <div class="desc" id="levelDesc">Select a level on the left to start. Each level has a hint and a small reward (achievement).</div>
+      </div>
+      <div class="small">Level <span id="curLevel">-</span> / 10</div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+      <div style="text-align:center;color:var(--muted)">
+        <div style="font-size:22px;font-weight:800">EchoPuzzles</div>
+        <div style="margin-top:8px">An interactive site where content unlocks as you solve puzzles.</div>
+        <div style="margin-top:14px"><button class="primary" id="startBtn">Start Level 1</button></div>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div style="font-weight:700;margin-bottom:6px">Status</div>
+      <div id="statusText">Idle</div>
+      <div style="margin-top:10px;font-weight:700">Unlocked Content</div>
+      <div id="unlocked" style="color:var(--muted);margin-top:6px">Home</div>
+      <div style="margin-top:12px;font-weight:700">Session Score</div>
+      <div style="margin-top:6px"><div class="progress"><i id="scoreBar" style="width:0%"></i></div></div>
+    </div>
+  </section>
+</main>
+
+<div class="popup" id="popup">
+  <div id="popupTitle" style="font-weight:800;font-size:18px">Achievement Unlocked!</div>
+  <div id="popupText" style="margin-top:8px;color:#cfe"></div>
+  <div style="margin-top:12px;text-align:right"><button class="primary" id="popupOk">Nice</button></div>
+</div>
+
+<script>
+/* Advanced EchoPuzzles — JavaScript
+   - 10 levels, hint system, scoring, achievements
+   - All client-side; progress stored in localStorage
+   - This file intentionally verbose (500+ lines requested)
+*/
+
+const NUM_LEVELS = 10;
+const STORAGE_KEY = 'echopuzzles_v2';
+
+// state stored locally: unlocked levels, completed, achievements, scores
+let state = loadState();
+let currentLevel = null;
+let sessionScore = 0; // normalized 0..100
+
+// Level definitions — each level provides title/meta/desc/hint/setup/check
+const levels = {};
+
+/* ----------------------------- Helpers ------------------------------ */
+function $(sel){ return document.querySelector(sel); }
+function $create(tag, props){ const el=document.createElement(tag); if(props) Object.assign(el, props); return el; }
+
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function loadState(){ try{ const s=JSON.parse(localStorage.getItem(STORAGE_KEY)); if(s) return s; }catch(e){} return { unlocked:[1], completed:[], achievements:[], hintsUsed: {}, scores:{} }; }
+
+function percentClamp(v){ return Math.max(0, Math.min(100, v)); }
+
+function showPopup(title, text){ $('#popupTitle').innerText = title; $('#popupText').innerText = text; $('#popup').classList.add('show'); }
+$('#popupOk').onclick = ()=>{ $('#popup').classList.remove('show'); };
+
+function addAchievement(key, text){ if(!state.achievements.includes(key)){ state.achievements.push(key); saveState(); renderAchievements(); showPopup('Achievement: '+key, text); } }
+
+function unlockLevel(n){ if(n<=NUM_LEVELS && !state.unlocked.includes(n)){ state.unlocked.push(n); saveState(); renderLevels(); } }
+
+function completeLevel(n, score){ if(!state.completed.includes(n)){ state.completed.push(n); state.scores[n] = score || 0; saveState(); renderLevels(); renderAchievements(); addAchievement('Level '+n+' Complete', 'You completed level '+n+' with score '+score); unlockLevel(n+1); updateScoreBar(); } }
+
+function updateScoreBar(){ const total = Object.values(state.scores).reduce((a,b)=>a+b,0); const max = NUM_LEVELS * 100; const pct = Math.round((total/max)*100); $('#scoreBar').style.width = pct+'%'; }
+
+/* -------------------------- Render UI ------------------------------- */
+function renderLevels(){ const container = $('#levelsList'); container.innerHTML='';
+  for(let i=1;i<=NUM_LEVELS;i++){
+    const btn = $create('div'); btn.className = 'level-btn';
+    const locked = !state.unlocked.includes(i);
+    if(locked) btn.classList.add('locked');
+    btn.innerHTML = `<div style='font-weight:700'>Level ${i}</div><div class='meta'>${levels[i].meta || 'Puzzle'}</div>`;
+    btn.onclick = ()=>{ if(locked){ shake(btn); } else { startLevel(i); } };
+    container.appendChild(btn);
+  }
+}
+
+function renderAchievements(){ const container = $('#achList'); container.innerHTML = '';
+  state.achievements.forEach(a=>{ const el = $create('div'); el.className='badge'; el.innerText = a; container.appendChild(el); });
+}
+
+function shake(el){ el.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}], {duration:380}); }
+
+/* ------------------------ Level Implementations --------------------- */
+// We'll implement 10 levels with increasing difficulty, hint support and scoring.
+
+/* Level 1: Click sequence (easy) */
+levels[1] = {
+  meta: 'Find the sequence',
+  title: 'First Steps',
+  desc: 'Click the colored buttons in the correct secret order.',
+  hint: 'Try noticing the accent colors in this site: green then cyan then pink then green.',
+  setup(container, done, useHint){
+    container.innerHTML = '';
+    const wrap = $create('div'); wrap.style.textAlign='center';
+    const colors = ['#00e6c3','#2bdcff','#ff7ab6','#ffd166'];
+    const secret = [0,1,2,3]; // simple increasing order
+    let idx = 0;
+    const row = $create('div'); row.style.display='flex'; row.style.justifyContent='center'; row.style.gap='12px';
+    colors.forEach((c,i)=>{
+      const b = $create('div'); b.className='tile'; b.style.width='92px'; b.style.height='92px'; b.style.background=c; b.style.border='2px solid rgba(255,255,255,0.02)'; b.style.cursor='pointer'; b.onclick = ()=>{
+        if(secret[idx]===i){ idx++; b.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:200}); if(idx===secret.length){ done(true); } }
+        else{ idx=0; flashFail(b); }
+      };
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    const hintBox = $create('div'); hintBox.className='hint-box'; hintBox.innerHTML = '<b>Hint:</b> '+this.hint; wrap.appendChild(hintBox);
+    container.appendChild(wrap);
+  }
+};
+
+/* Level 2: Memory match pairs */
+levels[2] = {
+  meta: 'Memory Match',
+  title: 'Echo Pairs',
+  desc: 'Flip tiles to match pairs. Find all pairs to proceed.',
+  hint: 'There are 8 pairs — flip two at a time. Remember positions.',
+  setup(container, done, useHint){
+    container.innerHTML = '';
+    const grid = $create('div'); grid.className = 'grid'; grid.style.gridTemplateColumns = 'repeat(4,90px)';
+    const icons = ['▲','★','●','♦','✦','✺','✶','◈'];
+    const deck = icons.concat(icons).sort(()=>Math.random()-0.5);
+    let opened = [];
+    let matches = 0;
+    deck.forEach((v,i)=>{
+      const card = $create('div'); card.className='memory-card'; card.innerText='?'; card.onclick = ()=>{
+        if(card.dataset.open) return; card.innerText = v; card.dataset.open = 1; opened.push({v,card});
+        if(opened.length===2){ if(opened[0].v===opened[1].v){ opened[0].card.style.visibility='hidden'; opened[1].card.style.visibility='hidden'; matches++; opened = []; if(matches===icons.length) done(true); } else { setTimeout(()=>{ opened[0].card.innerText='?'; opened[1].card.innerText='?'; opened[0].card.dataset.open=''; opened[1].card.dataset.open=''; opened=[]; },700); } }
+      };
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+    const hintBox = $create('div'); hintBox.className='hint-box'; hintBox.innerHTML = '<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 3: Sliding puzzle (3x3) */
+levels[3] = {
+  meta: 'Slide Puzzle', title: 'Slide Shift', desc: 'Reassemble the numbers by sliding tiles.',
+  hint: 'Slide tiles into the blank space; aim for ascending order.',
+  setup(container, done, useHint){
+    container.innerHTML = '';
+    const size = 3;
+    const grid = [];
+    for(let r=0;r<size;r++){ const row=[]; for(let c=0;c<size;c++){ row.push(r*size+c+1); } grid.push(row); }
+    grid[size-1][size-1] = 0; // blank
+    // flatten and shuffle using solvable logic
+    let arr = grid.flat();
+    function shuffle(){
+      for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+      // ensure solvable (simple parity check for 3x3)
+      let inv=0; for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) if(arr[i] && arr[j] && arr[i]>arr[j]) inv++;
+      if(inv%2===1) shuffle();
+    }
+    shuffle();
+
+    const gridEl = $create('div'); gridEl.className='grid'; gridEl.style.gridTemplateColumns = `repeat(${size},110px)`;
+    function render(){ gridEl.innerHTML=''; arr.forEach((v,i)=>{
+      const tile = $create('div'); tile.className='tile'; tile.style.width='100px'; tile.style.height='100px'; tile.style.fontSize='22px'; if(v===0){ tile.style.background='transparent'; tile.style.border='1px dashed rgba(255,255,255,0.02)'; tile.innerText=''; } else { tile.innerText=v; tile.onclick = ()=>{ const blankIdx = arr.indexOf(0); const r1=Math.floor(i/size), c1=i%size; const r2=Math.floor(blankIdx/size), c2=blankIdx%size; if((Math.abs(r1-r2)+Math.abs(c1-c2))===1){ arr[blankIdx]=v; arr[i]=0; render(); if(arr.join(',') === (function(){ let a=[]; for(let i=1;i<=size*size;i++) a.push(i); a[a.length-1]=0; return a.join(','); })()) done(true); } } }
+      gridEl.appendChild(tile);
+    }); }
+    render(); container.appendChild(gridEl);
+    const hintBox = $create('div'); hintBox.className='hint-box'; hintBox.innerHTML = '<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 4: Pattern trace */
+levels[4] = {
+  meta: 'Pattern', title: 'Trace Echo', desc: 'Draw the correct pattern through nodes.',
+  hint: 'Start at top-left and trace to bottom-right via the central node.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const canvas = $create('canvas'); canvas.width=420; canvas.height=420; canvas.style.borderRadius='10px'; canvas.style.boxShadow='0 8px 20px rgba(0,0,0,0.3)';
+    container.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const nodes=[]; const size=3; const gap=120; const offset=60;
+    for(let y=0;y<size;y++) for(let x=0;x<size;x++) nodes.push({x:offset+x*gap,y:offset+y*gap,index:y*size+x});
+    const secret=[0,1,2,5,8]; let path=[]; let drawing=false;
+    function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.lineWidth=10; ctx.strokeStyle='rgba(0,230,195,0.95)'; ctx.beginPath(); for(let i=0;i<path.length;i++){ const p=nodes[path[i]]; if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); } ctx.stroke(); nodes.forEach(n=>{ ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.beginPath(); ctx.arc(n.x,n.y,22,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#cff'; ctx.font='14px monospace'; ctx.fillText(n.index+1,n.x-6,n.y+6); }); }
+    function getMouse(e){ const rect=canvas.getBoundingClientRect(); return {x:e.clientX-rect.left,y:e.clientY-rect.top}; }
+    function hitNode(x,y){ for(let i=0;i<nodes.length;i++){ if(Math.hypot(x-nodes[i].x,y-nodes[i].y)<28) return i; } return -1; }
+    canvas.addEventListener('pointerdown', e=>{ drawing=true; path=[]; const p=getMouse(e); const h=hitNode(p.x,p.y); if(h!==-1) path.push(h); draw(); });
+    canvas.addEventListener('pointermove', e=>{ if(!drawing) return; const p=getMouse(e); const h=hitNode(p.x,p.y); if(h!==-1 && !path.includes(h)) path.push(h); draw(); });
+    canvas.addEventListener('pointerup', e=>{ drawing=false; if(arrayEquals(path,secret)) done(true); else flashFail(canvas); });
+    draw(); const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 5: Top-down maze with sonar ping (inspired by original) */
+levels[5] = {
+  meta:'Maze', title:'Silent Maze', desc:'Navigate to the exit using arrow keys. Use Ping for a short reveal.',
+  hint: 'Press space to ping (reveals nearby walls). Keep pings limited.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const cvs = $create('canvas'); cvs.width=640; cvs.height=420; cvs.style.borderRadius='10px'; container.appendChild(cvs);
+    const g = cvs.getContext('2d');
+    const grid = [ [1,1,1,1,1,1,1,1,1,1,1,1,1], [1,0,0,0,1,0,0,0,0,0,0,0,1], [1,0,1,0,1,0,1,1,1,0,1,0,1], [1,0,1,0,0,0,0,0,1,0,1,0,1], [1,0,1,1,1,1,1,0,1,0,1,0,1], [1,0,0,0,0,0,0,0,1,0,0,0,1], [1,1,1,1,1,1,1,1,1,1,1,1,1] ];
+    const tile = 40; let player = {x:1,y:1}; const exit = {x:11,y:5};
+    let ping = {active:false, r:0, max:200}; let pingsLeft = 3;
+    function draw(){ g.fillStyle='#001'; g.fillRect(0,0,cvs.width,cvs.height); for(let y=0;y<grid.length;y++) for(let x=0;x<grid[0].length;x++){ if(grid[y][x]===1){ g.fillStyle='#334'; g.fillRect(x*tile,y*tile,tile-2,tile-2); } }
+      // ping overlay
+      if(ping.active){ g.beginPath(); g.fillStyle='rgba(0,230,195,0.06)'; g.arc(player.x*tile+tile/2, player.y*tile+tile/2, ping.r, 0, Math.PI*2); g.fill(); }
+      // player
+      g.fillStyle='#0fe'; g.fillRect(player.x*tile+6,player.y*tile+6,tile-12,tile-12);
+      // exit
+      g.fillStyle='#ffd166'; g.fillRect(exit.x*tile+6,exit.y*tile+6,tile-12,tile-12);
+      // HUD
+      g.fillStyle='#cfe'; g.font='12px monospace'; g.fillText('Pings left: '+pingsLeft, 10, cvs.height-10);
+    }
+    draw(); window.addEventListener('keydown', move);
+    function move(e){ const k=e.key; let nx=player.x, ny=player.y; if(k==='ArrowUp') ny--; if(k==='ArrowDown') ny++; if(k==='ArrowLeft') nx--; if(k==='ArrowRight') nx++; if(k===' ') { if(pingsLeft>0 && !ping.active){ ping.active=true; ping.r=10; pingsLeft--; } return; } if(grid[ny] && grid[ny][nx]===0){ player.x=nx; player.y=ny; draw(); if(player.x===exit.x && player.y===exit.y){ window.removeEventListener('keydown', move); done(true); } } }
+    // ping expansion timer
+    const pingLoop = setInterval(()=>{ if(ping.active){ ping.r+=20; if(ping.r>ping.max) ping.active=false; draw(); } }, 120);
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 6: Caesar cipher decode */
+levels[6] = {
+  meta:'Cipher', title:'Caesar Clue', desc:'Decode the Caesar cipher. Shift unknown.',
+  hint: 'Try common ROT13 or brute-force shifts.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const encrypted='uryyb jbeyq'; // hello world
+    const info = $create('div'); info.className='desc'; info.innerHTML = `<div style='margin-bottom:8px'>Encrypted text:</div><pre style='background:rgba(255,255,255,0.02);padding:10px;border-radius:8px'>${encrypted}</pre>`;
+    const input = $create('input'); input.style.padding='10px'; input.style.borderRadius='8px'; input.style.border='1px solid rgba(255,255,255,0.03)'; input.placeholder='Decoded text'; input.style.width='70%';
+    const btn = $create('button'); btn.className='primary'; btn.style.marginLeft='8px'; btn.innerText='Check'; btn.onclick = ()=>{ const val = input.value.trim().toLowerCase(); if(val==='hello world'){ done(true); } else { flashFail(input); } };
+    container.appendChild(info); const row = $create('div'); row.style.marginTop='10px'; row.appendChild(input); row.appendChild(btn); container.appendChild(row);
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 7: Math puzzle (make 24) */
+levels[7] = {
+  meta:'Logic Math', title:'Echo Math', desc:'Use numbers 2,3,7 to form 24 using + - * /.',
+  hint: 'Try combining multiplication and addition; parentheses allowed.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const instr = $create('div'); instr.className='desc'; instr.innerText = 'Using numbers 3,3,8 form 24 (use each once)';
+    const input = $create('input'); input.placeholder='expression e.g. (8/ (3-...))'; input.style.padding='8px'; input.style.width='60%'; input.style.borderRadius='8px';
+    const btn = $create('button'); btn.className='primary'; btn.innerText='Check'; btn.onclick = ()=>{ try{ const res = eval(input.value); if(Math.abs(res-24)<1e-9) done(true); else flashFail(input); }catch(e){ flashFail(input); } };
+    const row = $create('div'); row.style.marginTop='12px'; row.appendChild(input); row.appendChild(btn); container.appendChild(instr); container.appendChild(row);
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 8: Drag & Drop assemble */
+levels[8] = {
+  meta:'Assemble', title:'Assemble Echo', desc:'Drag pieces to their targets to complete the puzzle.',
+  hint: 'Drag each piece to the dashed target area. Order not required.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const board = $create('div'); board.style.width='680px'; board.style.height='300px'; board.style.position='relative'; board.style.borderRadius='8px'; board.style.background='linear-gradient(180deg,#021 0%, #002 100%)';
+    container.appendChild(board);
+    const targets=[]; for(let i=0;i<6;i++){ const t = $create('div'); t.style.width='120px'; t.style.height='80px'; t.style.position='absolute'; t.style.left=20+(i%3)*180+'px'; t.style.top=20+Math.floor(i/3)*120+'px'; t.style.border='2px dashed rgba(255,255,255,0.04)'; t.style.borderRadius='8px'; board.appendChild(t); targets.push(t); }
+    const pieces=[]; for(let i=0;i<6;i++){ const p=$create('div'); p.className='tile'; p.style.width='120px'; p.style.height='80px'; p.style.position='absolute'; p.style.left=520+'px'; p.style.top=20+i*44+'px'; p.style.cursor='grab'; p.innerText=''; p.draggable=true; p.dataset.index=i; p.style.background=`linear-gradient(180deg, ${i%2? '#2bdcff':'#00e6c3'}, #023)`; board.appendChild(p); pieces.push(p);
+      p.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain',i); setTimeout(()=>p.style.visibility='hidden',50); });
+      p.addEventListener('dragend', e=>{ p.style.visibility='visible'; }); }
+    targets.forEach((t, idx)=>{ t.addEventListener('dragover', e=>e.preventDefault()); t.addEventListener('drop', e=>{ const i=parseInt(e.dataTransfer.getData('text/plain')); const piece=pieces[i]; piece.style.left = t.style.left; piece.style.top = t.style.top; piece.draggable=false; piece.style.cursor='default'; checkComplete(); }); });
+    function checkComplete(){ if(pieces.every(p=>p.draggable===false)) done(true); }
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 9: Reflex timing */
+levels[9] = {
+  meta:'Reflex', title:'Pulse', desc:'Click when the indicator is in the green zone.',
+  hint: 'Aim near the top — timing window is generous initially.',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const wrap = $create('div'); wrap.style.textAlign='center';
+    const ring = $create('div'); ring.style.width='240px'; ring.style.height='240px'; ring.style.borderRadius='50%'; ring.style.border='14px solid rgba(255,255,255,0.03)'; ring.style.position='relative'; ring.style.margin='auto';
+    const indicator = $create('div'); indicator.style.width='30px'; indicator.style.height='30px'; indicator.style.background='var(--accent)'; indicator.style.borderRadius='50%'; indicator.style.position='absolute'; indicator.style.left='50%'; indicator.style.top='8px'; indicator.style.transform='translateX(-50%)'; ring.appendChild(indicator);
+    const btn = $create('button'); btn.className='primary'; btn.innerText='Tap'; btn.style.marginTop='14px'; wrap.appendChild(ring); wrap.appendChild(btn); container.appendChild(wrap);
+    let ang=0; let speed=0.05; let running=true; let attempts=0;
+    function loop(){ ang += speed; indicator.style.transform = `translateX(-50%) rotate(${ang}rad) translateY(-102px) rotate(${-ang}rad)`; if(running) requestAnimationFrame(loop); }
+    loop(); btn.onclick = ()=>{ attempts++; const norm = ((ang%(Math.PI*2))+Math.PI*2)%(Math.PI*2); if(Math.abs(norm - 0) < 0.45 || Math.abs(norm - Math.PI*2) < 0.45){ done(true); running=false; } else { flashFail(btn); if(attempts>4) speed*=0.9; } };
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* Level 10: Final multi-step */
+levels[10] = {
+  meta:'Final', title:'Full Echo', desc:'Combine clues from previous levels to solve final.',
+  hint: 'Combine word "hello world" with number 24: hello world-24',
+  setup(container, done, useHint){
+    container.innerHTML='';
+    const info = $create('div'); info.className='desc'; info.innerHTML = 'Enter the final passphrase (word-number) assembled from earlier clues.';
+    const input = $create('input'); input.style.padding='10px'; input.style.borderRadius='8px'; input.style.width='60%';
+    const btn = $create('button'); btn.className='primary'; btn.innerText='Unlock'; btn.onclick = ()=>{ if(input.value.trim().toLowerCase()==='hello world-24') done(true); else flashFail(input); };
+    const row = $create('div'); row.style.marginTop='12px'; row.appendChild(input); row.appendChild(btn); container.appendChild(info); container.appendChild(row);
+    const hintBox=$create('div'); hintBox.className='hint-box'; hintBox.innerHTML='<b>Hint:</b> '+this.hint; container.appendChild(hintBox);
+  }
+};
+
+/* ------------------------ Common utilities -------------------------- */
+function arrayEquals(a,b){ if(!a || !b) return false; if(a.length!==b.length) return false; for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return false; return true; }
+function flashFail(el){ if(!el) return; el.animate([{transform:'scale(1)'},{transform:'scale(0.96)'},{transform:'scale(1)'}],{duration:260}); }
+
+/* ------------------------ Level runner ----------------------------- */
+function startLevel(n){
+  currentLevel = n; $('#curLevel').innerText = n; document.querySelectorAll('.level-btn').forEach(x=>x.classList.remove('playing'));
+  const list = $all('.level-btn'); if(list[n-1]) list[n-1].classList.add('playing');
+  const lvl = levels[n]; $('#levelTitle').innerText = `Level ${n} — ${lvl.title}`; $('#levelDesc').innerText = lvl.desc; $('#statusText').innerText = 'Playing'; $('#unlocked').innerText = 'Locked content visible upon completion';
+  const area = $('#gameArea'); area.innerHTML = '';
+
+  // top controls: hint + give up
+  const ctrl = $create('div'); ctrl.style.display='flex'; ctrl.style.justifyContent='space-between'; ctrl.style.width='100%'; ctrl.style.maxWidth='920px'; ctrl.style.marginBottom='8px';
+  const left = $create('div'); const hintBtn = $create('button'); hintBtn.className='btn-ghost'; hintBtn.innerText = 'Show Hint (-score)'; hintBtn.onclick = ()=>{ // mark hint used
+    state.hintsUsed[n] = (state.hintsUsed[n]||0)+1; saveState(); renderLevels(); renderAchievements(); alert('Hint: '+(levels[n].hint || 'No hint available.')); updateScoreBar(); };
+  left.appendChild(hintBtn);
+  const right = $create('div'); const giveBtn = $create('button'); giveBtn.className='btn-ghost'; giveBtn.innerText='Give Up'; giveBtn.onclick = ()=>{ if(confirm('Give up on this level? Progress will mark level incomplete.')){ $('#statusText').innerText='Given Up'; } };
+  right.appendChild(giveBtn);
+  ctrl.appendChild(left); ctrl.appendChild(right);
+  area.appendChild(ctrl);
+
+  // puzzle container
+  const puzzleWrap = $create('div'); puzzleWrap.style.width='100%'; puzzleWrap.style.maxWidth='920px'; puzzleWrap.style.display='flex'; puzzleWrap.style.justifyContent='center'; puzzleWrap.style.alignItems='center'; puzzleWrap.style.flexDirection='column';
+  area.appendChild(puzzleWrap);
+
+  // setup provides done callback
+  const startTime = performance.now();
+  const usedHint = state.hintsUsed[n] || 0;
+  levels[n].setup(puzzleWrap, (success)=>{
+    const elapsed = Math.max(0, performance.now() - startTime);
+    const timeScore = Math.max(10, Math.round(100 - elapsed/1000));
+    const penalty = usedHint * 20; // each hint reduces 20 points
+    const finalScore = percentClamp(timeScore - penalty);
+    if(success){ $('#statusText').innerText = 'Completed'; completeLevel(n, finalScore); state.hintsUsed[n] = usedHint; saveState(); }
+    else { $('#statusText').innerText = 'Failed'; }
+  }, (useHint)=>{} );
+}
+
+/* ------------------------ Initialization ---------------------------- */
+function init(){ renderLevels(); renderAchievements(); updateScoreBar(); if(!state.unlocked.includes(1)) unlockLevel(1); $('#startBtn').onclick = ()=>{ startLevel(1); };
+  // expose for testing
+  window.startLevel = startLevel; window.levels = levels; window.state = state;
+}
+
+init();
+
+/* ------------------------ Extra helpers (DOM query multiple) -------- */
+function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+/* -------------------------------------------------------------------- */
+
+</script>
+
+</body>
+</html>
