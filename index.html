@@ -1,1350 +1,1309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EchoPuzzles Pro | Advanced Interactive Puzzle Platform</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* Modern CSS Variables */
-:root {
-  --bg-1: #071018;
-  --bg-2: #02121a;
-  --panel: rgba(255, 255, 255, 0.03);
-  --accent: #00e6c3;
-  --accent-2: #2bdcff;
-  --accent-dark: #009e86;
-  --accent-hover: #00ffd9;
-  --muted: #8aa;
-  --glass: rgba(255, 255, 255, 0.03);
-  --success: #00c896;
-  --error: #ff6b6b;
-  --warning: #ffd166;
-  --text: #dfe;
-  --text-secondary: #a8c2c2;
-  --card-bg: rgba(2, 30, 36, 0.6);
-  --border: rgba(255, 255, 255, 0.06);
-  --border-light: rgba(0, 230, 195, 0.15);
-  --shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
-  --transition: all 0.3s ease;
-}
-
-/* Modern Reset & Global Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: var(--text);
-  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-body {
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 15% 50%, rgba(0, 230, 195, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 85% 30%, rgba(43, 220, 255, 0.05) 0%, transparent 20%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Layout */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 26px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(4, 18, 24, 0.8);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-main {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 22px;
-  padding: 25px;
-  min-height: calc(100vh - 85px);
-}
-
-/* Branding */
-.brand {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  transition: var(--transition);
-}
-
-.brand:hover {
-  transform: translateY(-2px);
-}
-
-.logo {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  color: #022;
-  box-shadow: var(--shadow);
-  font-size: 24px;
-  transition: var(--transition);
-}
-
-.logo:hover {
-  transform: rotate(8deg) scale(1.05);
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--muted);
-  max-width: 300px;
-}
-
-/* Navigation */
-nav {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-  padding: 20px;
-  border-radius: 16px;
-  min-height: 600px;
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-}
-
-nav h3 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.levels {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.level-btn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.level-btn:not(.locked):hover {
-  transform: translateY(-3px);
-  border-color: var(--border-light);
-  box-shadow: 0 8px 20px rgba(0, 230, 195, 0.1);
-}
-
-.level-btn.locked {
-  opacity: 0.4;
-  filter: grayscale(0.5);
-  cursor: not-allowed;
-}
-
-.level-btn.playing {
-  box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15);
-  border: 1px solid rgba(0, 230, 195, 0.25);
-  background: linear-gradient(180deg, rgba(0, 230, 195, 0.1), transparent);
-  animation: pulse 2s infinite;
-}
-
-.level-btn .badge {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.level-btn .stars {
-  color: var(--warning);
-  font-size: 12px;
-  margin-left: 5px;
-}
-
-.level-btn .meta {
-  font-size: 12px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.level-btn .lock-icon {
-  font-size: 14px;
-  margin-left: 5px;
-}
-
-/* Content Area */
-.content {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  padding: 22px;
-  border-radius: 16px;
-  min-height: 600px;
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-title {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  gap: 20px;
-}
-
-.panel-title h2 {
-  font-weight: 800;
-  font-size: 24px;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.desc {
-  color: var(--text-secondary);
-  font-size: 14px;
-  max-width: 700px;
-  line-height: 1.6;
-}
-
-.level-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  min-width: 180px;
-}
-
-.level-meta i {
-  color: var(--accent);
-  font-size: 18px;
-}
-
-/* Game Area */
-.game-area {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
-  height: 480px;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border: 1px solid var(--border);
-  margin-top: 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-.game-area::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  opacity: 0.3;
-}
-
-.game-controls {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 15px;
-  gap: 12px;
-}
-
-.game-stats {
-  display: flex;
-  gap: 15px;
-}
-
-.stat-box {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 8px 15px;
-  border-radius: 10px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-}
-
-.stat-box i {
-  color: var(--accent);
-}
-
-/* HUD */
-.hud {
-  background: rgba(1, 20, 25, 0.7);
-  padding: 18px;
-  border-radius: 12px;
-  color: var(--muted);
-  font-size: 14px;
-  border: 1px solid var(--border);
-  width: 240px;
-  backdrop-filter: blur(6px);
-  margin-top: auto;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.hud h3 {
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hud-section {
-  margin-bottom: 16px;
-}
-
-#unlocked {
-  color: var(--text-secondary);
-  margin-top: 6px;
-  line-height: 1.5;
-  min-height: 40px;
-}
-
-/* Progress bar */
-.progress {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 8px;
-  position: relative;
-}
-
-.progress > i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  width: 0%;
-  transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.progress > i::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: progressShine 2s infinite;
-}
-
-/* Buttons */
-button {
-  transition: var(--transition);
-  cursor: pointer;
-  border: none;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  outline: none;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-.primary {
-  background: var(--accent);
-  padding: 12px 22px;
-  border-radius: 10px;
-  color: #022;
-  font-weight: 700;
-  box-shadow: 0 6px 20px rgba(0, 230, 195, 0.3);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-}
-
-.primary:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 8px 25px rgba(0, 230, 195, 0.4);
-  transform: translateY(-2px);
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 10px 16px;
-  border-radius: 10px;
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.btn-ghost:hover {
-  border-color: var(--border-light);
-  color: var(--accent);
-  background: rgba(0, 230, 195, 0.05);
-}
-
-/* Achievements */
-.achievements {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.badge {
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #001f1a, rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition);
-}
-
-.badge:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 230, 195, 0.1);
-  border-color: var(--border-light);
-}
-
-.badge i {
-  color: var(--warning);
-}
-
-/* Popups */
-.popup {
-  position: fixed;
-  left: 50%;
-  top: 14%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #062226, #002724);
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
-  display: none;
-  color: #cff;
-  z-index: 100;
-  width: 90%;
-  max-width: 500px;
-  backdrop-filter: blur(10px);
-  animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-.popup.show {
-  display: block;
-}
-
-.popup h2 {
-  font-weight: 800;
-  font-size: 22px;
-  margin-bottom: 10px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.popup p {
-  margin: 15px 0;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  gap: 12px;
-}
-
-/* Puzzle elements */
-.grid {
-  display: grid;
-  gap: 10px;
-}
-
-.tile {
-  background: var(--card-bg);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  color: #cfe;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid var(--border);
-}
-
-.tile:hover {
-  transform: scale(1.03);
-  border-color: var(--border-light);
-}
-
-.hint-box {
-  margin-top: 15px;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 14px;
-  border-radius: 10px;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.hint-box strong {
-  color: var(--accent);
-}
-
-.level-footer {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-/* Animations */
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
-  50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(0, 230, 195, 0.25); }
-  100% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
-}
-
-@keyframes popIn {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@keyframes progressShine {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-  main {
-    grid-template-columns: 1fr;
-    padding: 15px;
-  }
-  
-  nav {
-    order: 2;
-  }
-  
-  .hud {
-    position: static;
-    margin-top: 20px;
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px;
-  }
-  
-  .brand {
-    width: 100%;
-  }
-  
-  .game-controls {
-    flex-direction: column;
-  }
-  
-  .game-stats {
-    flex-wrap: wrap;
-  }
-  
-  .level-meta {
-    margin-top: 15px;
-  }
-}
-
-/* Custom Elements */
-.welcome-screen {
-  text-align: center;
-  max-width: 700px;
-  padding: 20px;
-}
-
-.welcome-screen h1 {
-  font-size: 36px;
-  font-weight: 800;
-  margin-bottom: 15px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  line-height: 1.2;
-}
-
-.welcome-screen p {
-  color: var(--text-secondary);
-  font-size: 18px;
-  margin-bottom: 25px;
-  line-height: 1.6;
-}
-
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin: 30px 0;
-}
-
-.feature {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  transition: var(--transition);
-}
-
-.feature:hover {
-  transform: translateY(-5px);
-  border-color: var(--border-light);
-}
-
-.feature i {
-  font-size: 32px;
-  color: var(--accent);
-  margin-bottom: 15px;
-}
-
-.feature h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: var(--text);
-}
-
-.feature p {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.hero-btns {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 20px 0;
-}
-
-/* Level-specific styles */
-.memory-card {
-  width: 85px;
-  height: 85px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
-  transition: var(--transition);
-}
-
-.memory-card:hover {
-  transform: scale(1.05);
-}
-
-.memory-card.matched {
-  background: rgba(0, 200, 150, 0.1);
-  border-color: rgba(0, 200, 150, 0.3);
-}
-
-.slider-piece {
-  width: 100px;
-  height: 100px;
-  background: linear-gradient(180deg, #023 0%, #045 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 700;
-  border: 1px solid var(--border);
-  transition: transform 0.3s ease;
-}
-
-.slider-piece.moving {
-  transform: scale(0.98);
-  opacity: 0.9;
-}
-
-/* Floating elements for visual interest */
-.floating {
-  animation: float 6s ease-in-out infinite;
-}
-
-.floating.delay-1 {
-  animation-delay: 0.5s;
-}
-
-.floating.delay-2 {
-  animation-delay: 1s;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoPuzzles Pro | Advanced Puzzle Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #071018;
+            --bg-2: #02121a;
+            --accent: #00e6c3;
+            --accent-2: #2bdcff;
+            --accent-dark: #009e86;
+            --accent-hover: #00ffd9;
+            --muted: #8aa;
+            --glass: rgba(255, 255, 255, 0.03);
+            --success: #00c896;
+            --error: #ff6b6b;
+            --warning: #ffd166;
+            --text: #dfe;
+            --text-secondary: #a8c2c2;
+            --card-bg: rgba(2, 30, 36, 0.6);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(0, 230, 195, 0.15);
+            --shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(0, 230, 195, 0.08) 0%, transparent 20%),
+                radial-gradient(circle at 85% 30%, rgba(43, 220, 255, 0.05) 0%, transparent 20%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(4, 18, 24, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #022;
+            box-shadow: var(--shadow);
+            font-size: 24px;
+            transition: var(--transition);
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            max-width: 300px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 22px;
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        nav {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            padding: 20px;
+            border-radius: 16px;
+            min-height: 600px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .levels {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .level-btn {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn:not(.locked):hover {
+            transform: translateY(-3px);
+            border-color: var(--border-light);
+            box-shadow: 0 8px 20px rgba(0, 230, 195, 0.1);
+        }
+
+        .level-btn.locked {
+            opacity: 0.4;
+            filter: grayscale(0.5);
+            cursor: not-allowed;
+        }
+
+        .level-btn.playing {
+            box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15);
+            border: 1px solid rgba(0, 230, 195, 0.25);
+            background: linear-gradient(180deg, rgba(0, 230, 195, 0.1), transparent);
+            animation: pulse 2s infinite;
+        }
+
+        .level-btn .badge {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .level-btn .stars {
+            color: var(--warning);
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .level-btn .meta {
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .level-btn .lock-icon {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .content {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+            padding: 22px;
+            border-radius: 16px;
+            min-height: 600px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            gap: 20px;
+        }
+
+        .panel-title h2 {
+            font-weight: 800;
+            font-size: 24px;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        .level-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            min-width: 180px;
+        }
+
+        .level-meta i {
+            color: var(--accent);
+            font-size: 18px;
+        }
+
+        .game-area {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
+            height: 480px;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-area::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            opacity: 0.3;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 15px;
+            gap: 12px;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-box i {
+            color: var(--accent);
+        }
+
+        .hud {
+            background: rgba(1, 20, 25, 0.7);
+            padding: 18px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            border: 1px solid var(--border);
+            width: 240px;
+            backdrop-filter: blur(6px);
+            margin-top: auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hud h3 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-section {
+            margin-bottom: 16px;
+        }
+
+        #unlocked {
+            color: var(--text-secondary);
+            margin-top: 6px;
+            line-height: 1.5;
+            min-height: 40px;
+        }
+
+        .progress {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .progress > i {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress > i::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        button {
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .primary {
+            background: var(--accent);
+            padding: 12px 22px;
+            border-radius: 10px;
+            color: #022;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(0, 230, 195, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 8px 25px rgba(0, 230, 195, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--border-light);
+            color: var(--accent);
+            background: rgba(0, 230, 195, 0.05);
+        }
+
+        .achievements {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #001f1a, rgba(255, 255, 255, 0.02));
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 230, 195, 0.1);
+            border-color: var(--border-light);
+        }
+
+        .badge i {
+            color: var(--warning);
+        }
+
+        .popup {
+            position: fixed;
+            left: 50%;
+            top: 14%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #062226, #002724);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+            display: none;
+            color: #cff;
+            z-index: 100;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        .popup.show {
+            display: block;
+        }
+
+        .popup h2 {
+            font-weight: 800;
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popup p {
+            margin: 15px 0;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 12px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .tile {
+            background: var(--card-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            color: #cfe;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .tile:hover {
+            transform: scale(1.03);
+            border-color: var(--border-light);
+        }
+
+        .hint-box {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 14px;
+            border-radius: 10px;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .hint-box strong {
+            color: var(--accent);
+        }
+
+        .level-footer {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(0, 230, 195, 0.25); }
+            100% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes progressShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @media (max-width: 1100px) {
+            main {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            nav {
+                order: 2;
+            }
+            
+            .hud {
+                position: static;
+                margin-top: 20px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .brand {
+                width: 100%;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+            }
+            
+            .game-stats {
+                flex-wrap: wrap;
+            }
+            
+            .level-meta {
+                margin-top: 15px;
+            }
+        }
+
+        .welcome-screen {
+            text-align: center;
+            max-width: 700px;
+            padding: 20px;
+        }
+
+        .welcome-screen h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .welcome-screen p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-light);
+        }
+
+        .feature i {
+            font-size: 32px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .feature h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+
+        .memory-card {
+            width: 85px;
+            height: 85px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.matched {
+            background: rgba(0, 200, 150, 0.1);
+            border-color: rgba(0, 200, 150, 0.3);
+        }
+
+        .slider-piece {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(180deg, #023 0%, #045 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .slider-piece.moving {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating.delay-1 {
+            animation-delay: 0.5s;
+        }
+
+        .floating.delay-2 {
+            animation-delay: 1s;
+        }
+
+        .puzzle-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .puzzle-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .sequence-puzzle {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .sequence-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sequence-btn:hover {
+            transform: translateY(-5px);
+        }
+
+        .sequence-btn.correct {
+            animation: pulse 1s;
+        }
+
+        .code-input {
+            padding: 12px 15px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text);
+            text-align: center;
+            width: 250px;
+            margin: 20px 0;
+        }
+
+        .code-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .puzzle-image {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        .maze-grid {
+            display: grid;
+            grid-template-columns: repeat(13, 30px);
+            gap: 2px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+
+        .maze-cell {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .maze-wall {
+            background: #334;
+        }
+
+        .maze-path {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .maze-player {
+            background: var(--accent);
+            color: #022;
+            font-weight: bold;
+        }
+
+        .maze-exit {
+            background: var(--warning);
+            color: #022;
+            font-weight: bold;
+        }
+
+        .math-expression {
+            font-size: 28px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-family: monospace;
+        }
+
+        .drag-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .drag-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px dashed var(--border);
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .drag-item:hover {
+            background: rgba(0, 230, 195, 0.1);
+            border-color: var(--accent);
+        }
+
+        .reflex-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 8px solid var(--border);
+            position: relative;
+            margin: 30px auto;
+            overflow: hidden;
+        }
+
+        .reflex-indicator {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: rotate 4s linear infinite;
+        }
+
+        .reflex-target {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--success);
+            border-radius: 50%;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.7;
+        }
+
+        @keyframes rotate {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div class="container">
-    <div class="brand">
-      <div class="logo floating">EP</div>
-      <div>
-        <div class="title">EchoPuzzles Pro</div>
-        <div class="subtitle">An advanced interactive puzzle platform with achievements, progression, and hidden content</div>
-      </div>
-    </div>
-    <div class="meta small">Cloud Sync • 10 Challenging Levels • Adaptive Difficulty</div>
-  </div>
-</header>
-
-<main>
-  <nav>
-    <h3><i class="fas fa-layer-group"></i> Puzzle Levels</h3>
-    <div class="levels" id="levelsList"></div>
-
-    <div class="divider"></div>
-
-    <h3><i class="fas fa-trophy"></i> Achievements</h3>
-    <div id="achList" class="achievements"></div>
-
-    <div class="hint-box" style="margin-top: auto;">
-      <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Use hints strategically - they reduce your score but help when stuck. Complete levels quickly for bonus points!
-    </div>
-  </nav>
-
-  <section class="content">
-    <div class="panel-title">
-      <div>
-        <h2 id="levelTitle">Welcome to EchoPuzzles Pro</h2>
-        <div class="desc" id="levelDesc">Select a level to begin your puzzle journey. Each level offers unique challenges and rewards.</div>
-      </div>
-      <div class="level-meta">
-        <i class="fas fa-map-marker-alt"></i>
-        Level <span id="curLevel">-</span> of 10
-      </div>
-    </div>
-
-    <div class="game-area" id="gameArea">
-      <div class="welcome-screen">
-        <h1>Unlock Your Puzzle-Solving Potential</h1>
-        <p>EchoPuzzles Pro is an advanced puzzle platform with progressive challenges, achievements, and adaptive difficulty.</p>
-        
-        <div class="features">
-          <div class="feature floating delay-1">
-            <i class="fas fa-puzzle-piece"></i>
-            <h3>10 Unique Levels</h3>
-            <p>Diverse puzzle types with increasing complexity</p>
-          </div>
-          <div class="feature floating delay-2">
-            <i class="fas fa-trophy"></i>
-            <h3>Achievements</h3>
-            <p>Unlock badges and rewards for your progress</p>
-          </div>
-          <div class="feature floating">
-            <i class="fas fa-chart-line"></i>
-            <h3>Progression</h3>
-            <p>Track your scores and improve over time</p>
-          </div>
-        </div>
-        
-        <div class="hero-btns">
-          <button class="primary" id="startBtn">
-            <i class="fas fa-play"></i> Start Level 1
-          </button>
-          <button class="btn-ghost">
-            <i class="fas fa-book"></i> View Tutorial
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="hud">
-      <h3><i class="fas fa-gamepad"></i> Game Status</h3>
-      <div class="hud-section">
-        <div>Current Status:</div>
-        <div id="statusText">Ready to Play</div>
-      </div>
-      
-      <div class="hud-section">
-        <div>Unlocked Content:</div>
-        <div id="unlocked">Starter Content</div>
-      </div>
-      
-      <div class="hud-section">
-        <div>Overall Progress:</div>
-        <div class="progress"><i id="scoreBar" style="width:0%"></i></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div class="popup" id="popup">
-  <h2><i class="fas fa-trophy"></i> Achievement Unlocked!</h2>
-  <div id="popupTitle" style="font-weight:700;font-size:18px">First Steps</div>
-  <div id="popupText" style="margin-top:8px;color:#cfe">Completed Level 1 with a perfect score!</div>
-  <div class="popup-buttons">
-    <button class="btn-ghost" id="popupShare">
-      <i class="fas fa-share-alt"></i> Share
-    </button>
-    <button class="primary" id="popupOk">
-      <i class="fas fa-check"></i> Continue
-    </button>
-  </div>
-</div>
-
-<script>
-/* Enhanced EchoPuzzles Pro - JavaScript */
-const NUM_LEVELS = 10;
-const STORAGE_KEY = 'echopuzzles_pro_v1';
-
-// State management with enhanced features
-let state = loadState();
-let currentLevel = null;
-let sessionScore = 0;
-let gameTimer = null;
-let timerValue = 0;
-
-// Level definitions with enhanced descriptions
-const levels = {
-  1: {
-    meta: 'Sequence Mastery',
-    title: 'First Steps',
-    desc: 'Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.',
-    hint: 'The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.',
-    difficulty: '★☆☆'
-  },
-  2: {
-    meta: 'Memory Challenge',
-    title: 'Echo Pairs',
-    desc: 'Find all matching pairs by flipping cards two at a time. Your memory will be tested!',
-    hint: 'Focus on memorizing positions of high-value symbols first. Try to find patterns in symbol locations.',
-    difficulty: '★★☆'
-  },
-  3: {
-    meta: 'Spatial Reasoning',
-    title: 'Slide Shift',
-    desc: 'Reassemble the puzzle by sliding tiles into the empty space. Strategy beats speed here.',
-    hint: 'Solve row by row. Complete the top row first, then middle, then bottom. Keep the empty space strategically positioned.',
-    difficulty: '★★☆'
-  },
-  4: {
-    meta: 'Pattern Recognition',
-    title: 'Trace Echo',
-    desc: 'Draw the correct pattern through the nodes. Precision and pattern recognition are key.',
-    hint: 'The pattern forms a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left.',
-    difficulty: '★★★'
-  },
-  5: {
-    meta: 'Navigation',
-    title: 'Silent Maze',
-    desc: 'Navigate to the exit using limited sonar pings. Use your pings wisely!',
-    hint: 'The exit is in the bottom right corner. Use pings at intersections to minimize wrong turns.',
-    difficulty: '★★☆'
-  },
-  6: {
-    meta: 'Cryptography',
-    title: 'Caesar Clue',
-    desc: 'Decode the encrypted message using a Caesar cipher. Shift value unknown.',
-    hint: 'Common shifts are 3 (ROT3) or 13 (ROT13). Try both if you get stuck.',
-    difficulty: '★★★'
-  },
-  7: {
-    meta: 'Mathematical Logic',
-    title: 'Echo Math',
-    desc: 'Use the given numbers to form the target value with basic arithmetic operations.',
-    hint: 'Remember order of operations. Division can create fractions that help reach the target.',
-    difficulty: '★★★'
-  },
-  8: {
-    meta: 'Spatial Assembly',
-    title: 'Assemble Echo',
-    desc: 'Drag pieces to their targets to complete the puzzle. Precision matters.',
-    hint: 'Look for color gradients that match the target areas. Pieces can be rotated by dragging corners.',
-    difficulty: '★★☆'
-  },
-  9: {
-    meta: 'Reflex Training',
-    title: 'Pulse',
-    desc: 'Click when the indicator is in the green zone. Timing is everything!',
-    hint: 'The green zone is at the top of the circle. Watch the speed - it changes after mistakes.',
-    difficulty: '★★☆'
-  },
-  10: {
-    meta: 'Grand Finale',
-    title: 'Full Echo',
-    desc: 'Combine knowledge from previous puzzles to solve the ultimate challenge.',
-    hint: 'The solution combines elements from Level 6 and Level 7. Remember "hello world" and "24".',
-    difficulty: '★★★★'
-  }
-};
-
-/* ----------------------------- Helpers ------------------------------ */
-function $(sel) { return document.querySelector(sel); }
-function $create(tag, props) { 
-  const el = document.createElement(tag); 
-  if(props) Object.assign(el, props); 
-  return el; 
-}
-
-// Enhanced state management
-function saveState() { 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
-}
-
-function loadState() { 
-  try { 
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEY)); 
-    if(s) return s; 
-  } catch(e) {} 
-  
-  return { 
-    unlocked: [1], 
-    completed: [], 
-    achievements: ['Welcome!'], 
-    hintsUsed: {}, 
-    scores: {},
-    bestTimes: {}
-  }; 
-}
-
-function percentClamp(v) { return Math.max(0, Math.min(100, v)); }
-
-// Enhanced popup with animations
-function showPopup(title, text) { 
-  $('#popupTitle').innerText = title; 
-  $('#popupText').innerText = text; 
-  $('#popup').classList.add('show'); 
-  
-  // Auto-hide after 4 seconds
-  setTimeout(() => {
-    if($('#popup').classList.contains('show')) {
-      $('#popup').classList.remove('show');
-    }
-  }, 4000);
-}
-
-$('#popupOk').onclick = () => { $('#popup').classList.remove('show'); };
-
-// Achievements system
-function addAchievement(key, text) { 
-  if(!state.achievements.includes(key)) { 
-    state.achievements.push(key); 
-    saveState(); 
-    renderAchievements(); 
-    showPopup('Achievement: ' + key, text); 
-    
-    // Special unlocks for certain achievements
-    if(key === 'Level 5 Complete' && !state.unlocked.includes(6)) {
-      unlockLevel(6);
-    }
-  } 
-}
-
-function unlockLevel(n) { 
-  if(n <= NUM_LEVELS && !state.unlocked.includes(n)) { 
-    state.unlocked.push(n); 
-    saveState(); 
-    renderLevels(); 
-    
-    // Achievement for unlocking levels
-    if(n === 5) addAchievement('Halfway There', 'Unlocked the first 5 levels!');
-    if(n === 10) addAchievement('Master Unlocker', 'Unlocked all levels!');
-  } 
-}
-
-function completeLevel(n, score) { 
-  if(!state.completed.includes(n)) { 
-    state.completed.push(n); 
-    state.scores[n] = score || 0; 
-    
-    // Save completion time
-    state.bestTimes[n] = state.bestTimes[n] 
-      ? Math.min(state.bestTimes[n], timerValue) 
-      : timerValue;
-    
-    saveState(); 
-    renderLevels(); 
-    renderAchievements(); 
-    
-    // Different achievements based on performance
-    if(score >= 90) {
-      addAchievement(`Level ${n} Master`, `Completed level ${n} with ${score}% score!`);
-    } else {
-      addAchievement(`Level ${n} Complete`, `Completed level ${n} with ${score}% score`);
-    }
-    
-    unlockLevel(n + 1); 
-    updateScoreBar(); 
-  } 
-}
-
-function updateScoreBar() { 
-  const total = Object.values(state.scores).reduce((a, b) => a + b, 0); 
-  const max = NUM_LEVELS * 100; 
-  const pct = Math.round((total / max) * 100); 
-  $('#scoreBar').style.width = pct + '%'; 
-}
-
-/* -------------------------- Render UI ------------------------------- */
-function renderLevels() { 
-  const container = $('#levelsList'); 
-  container.innerHTML = ''; 
-  
-  for(let i = 1; i <= NUM_LEVELS; i++) {
-    const btn = $create('div'); 
-    btn.className = 'level-btn'; 
-    
-    const locked = !state.unlocked.includes(i);
-    const completed = state.completed.includes(i);
-    const score = state.scores[i] || 0;
-    
-    if(locked) btn.classList.add('locked');
-    
-    // Calculate stars based on score
-    let stars = 0;
-    if(completed) {
-      if(score >= 90) stars = 3;
-      else if(score >= 70) stars = 2;
-      else stars = 1;
-    }
-    
-    btn.innerHTML = `
-      <div>
-        <div style='font-weight:700'>Level ${i}</div>
-        <div class='meta'>${levels[i].meta || 'Puzzle'} ${levels[i].difficulty || ''}</div>
-      </div>
-      <div>
-        ${locked ? `<span class="lock-icon"><i class="fas fa-lock"></i></span>` : ''}
-        ${completed ? `<span class="stars">${'★'.repeat(stars)}</span>` : ''}
-        ${!locked && !completed ? '<span class="badge">NEW</span>' : ''}
-      </div>
-    `;
-    
-    btn.onclick = () => { 
-      if(locked) { 
-        shake(btn); 
-      } else { 
-        startLevel(i); 
-      } 
-    };
-    
-    container.appendChild(btn);
-  }
-}
-
-function renderAchievements() { 
-  const container = $('#achList'); 
-  container.innerHTML = ''; 
-  
-  state.achievements.forEach(a => { 
-    const el = $create('div'); 
-    el.className = 'badge'; 
-    el.innerHTML = `<i class="fas fa-trophy"></i> ${a}`; 
-    container.appendChild(el); 
-  }); 
-}
-
-function shake(el) { 
-  el.animate([
-    { transform: 'translateX(0)' },
-    { transform: 'translateX(-6px)' },
-    { transform: 'translateX(6px)' },
-    { transform: 'translateX(0)' }
-  ], { duration: 380 }); 
-}
-
-/* ------------------------ Level Setup --------------------- */
-// We'll simulate level setup without full implementation
-// due to the complexity of 10 different puzzle implementations
-
-function setupLevel1(container, done, useHint) {
-  container.innerHTML = '<div style="text-align:center; padding:30px;"><h3>Sequence Puzzle</h3><p>Click the colors in the correct order</p><div style="display:flex; gap:20px; justify-content:center; margin:30px 0;">' +
-    '<div class="tile" style="background:#00e6c3; width:80px; height:80px;"></div>' +
-    '<div class="tile" style="background:#2bdcff; width:80px; height:80px;"></div>' +
-    '<div class="tile" style="background:#ff7ab6; width:80px; height:80px;"></div>' +
-    '<div class="tile" style="background:#ffd166; width:80px; height:80px;"></div>' +
-    '</div><p>Follow the hint to solve the sequence</p></div>';
-  
-  // Simulate puzzle completion after 3 seconds
-  setTimeout(() => {
-    done(true);
-  }, 3000);
-}
-
-/* ------------------------ Level runner ----------------------------- */
-function startLevel(n) {
-  currentLevel = n; 
-  $('#curLevel').innerText = n; 
-  document.querySelectorAll('.level-btn').forEach(x => x.classList.remove('playing')); 
-  
-  const list = document.querySelectorAll('.level-btn'); 
-  if(list[n - 1]) list[n - 1].classList.add('playing'); 
-  
-  const lvl = levels[n]; 
-  $('#levelTitle').innerText = `Level ${n} — ${lvl.title}`; 
-  $('#levelDesc').innerText = lvl.desc; 
-  $('#statusText').innerText = 'Playing'; 
-  $('#unlocked').innerText = 'Solving this level will unlock new content'; 
-  
-  const area = $('#gameArea'); 
-  area.innerHTML = ''; 
-  
-  // Start game timer
-  timerValue = 0;
-  if(gameTimer) clearInterval(gameTimer);
-  gameTimer = setInterval(() => {
-    timerValue++;
-    const mins = Math.floor(timerValue / 60);
-    const secs = timerValue % 60;
-    $('#timerDisplay').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  }, 1000);
-  
-  // Create timer display
-  const timerEl = $create('div');
-  timerEl.id = 'timerDisplay';
-  timerEl.className = 'stat-box';
-  timerEl.innerHTML = '<i class="fas fa-clock"></i> Time: 0:00';
-  
-  // Create hint counter
-  const hintCounter = $create('div');
-  hintCounter.className = 'stat-box';
-  hintCounter.innerHTML = `<i class="fas fa-lightbulb"></i> Hints: ${state.hintsUsed[n] || 0}`;
-  
-  // Game controls
-  const controls = $create('div');
-  controls.className = 'game-controls';
-  controls.innerHTML = `
-    <div class="game-stats">
-      ${timerEl.outerHTML}
-      ${hintCounter.outerHTML}
-      <div class="stat-box">
-        <i class="fas fa-star"></i> Level: ${levels[n].difficulty}
-      </div>
-    </div>
-    <div>
-      <button class="btn-ghost" id="hintBtn">
-        <i class="fas fa-lightbulb"></i> Show Hint
-      </button>
-    </div>
-  `;
-  
-  area.appendChild(controls);
-  
-  // Puzzle container
-  const puzzleWrap = $create('div');
-  puzzleWrap.style.width = '100%';
-  puzzleWrap.style.display = 'flex';
-  puzzleWrap.style.justifyContent = 'center';
-  puzzleWrap.style.alignItems = 'center';
-  puzzleWrap.style.flexDirection = 'column';
-  puzzleWrap.style.padding = '20px';
-  
-  area.appendChild(puzzleWrap);
-  
-  // Setup the level
-  setupLevel1(puzzleWrap, (success) => {
-    // Stop timer
-    clearInterval(gameTimer);
-    
-    // Calculate score
-    const timeScore = Math.max(10, 100 - Math.floor(timerValue / 2));
-    const penalty = (state.hintsUsed[n] || 0) * 15;
-    const finalScore = percentClamp(timeScore - penalty);
-    
-    if(success) { 
-      $('#statusText').innerText = 'Completed!'; 
-      completeLevel(n, finalScore); 
-      state.hintsUsed[n] = state.hintsUsed[n] || 0; 
-      saveState(); 
-      
-      // Show completion message
-      puzzleWrap.innerHTML = `
-        <div style="text-align:center; padding:30px;">
-          <h3 style="font-size:32px; color:var(--success); margin-bottom:20px;">
-            <i class="fas fa-check-circle"></i> Level Complete!
-          </h3>
-          <div style="display:flex; justify-content:center; gap:30px; margin:30px 0;">
-            <div class="stat-box" style="font-size:18px;">
-              <i class="fas fa-star"></i> Score: ${finalScore}%
+    <header>
+        <div class="brand">
+            <div class="logo">EP</div>
+            <div>
+                <div class="title">EchoPuzzles Pro</div>
+                <div class="subtitle">Advanced puzzle platform with unique challenges</div>
             </div>
-            <div class="stat-box" style="font-size:18px;">
-              <i class="fas fa-clock"></i> Time: ${timerValue}s
+        </div>
+        <div class="meta small">10 Levels • Unique Puzzles • Progress Saved</div>
+    </header>
+
+    <main>
+        <nav>
+            <h3><i class="fas fa-layer-group"></i> Puzzle Levels</h3>
+            <div class="levels" id="levelsList">
+                <div class="level-btn playing">
+                    <div>
+                        <div style='font-weight:700'>Level 1</div>
+                        <div class='meta'>Sequence Puzzle ★☆☆</div>
+                    </div>
+                    <div>
+                        <span class="badge">ACTIVE</span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 2</div>
+                        <div class='meta'>Memory Match ★★☆</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 3</div>
+                        <div class='meta'>Sliding Puzzle ★★☆</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 4</div>
+                        <div class='meta'>Pattern Recognition ★★★</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 5</div>
+                        <div class='meta'>Maze Navigation ★★☆</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 6</div>
+                        <div class='meta'>Code Cracking ★★★</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 7</div>
+                        <div class='meta'>Math Challenge ★★★</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 8</div>
+                        <div class='meta'>Drag & Drop ★★☆</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 9</div>
+                        <div class='meta'>Reflex Test ★★☆</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div class="level-btn">
+                    <div>
+                        <div style='font-weight:700'>Level 10</div>
+                        <div class='meta'>Final Challenge ★★★★</div>
+                    </div>
+                    <div>
+                        <span class="lock-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
             </div>
-          </div>
-          <p>You earned ${finalScore >= 90 ? '3' : finalScore >= 70 ? '2' : '1'} stars for this level!</p>
-          <div style="margin-top:30px;">
-            <button class="primary" id="nextLevelBtn">
-              <i class="fas fa-arrow-right"></i> Next Level
+
+            <div class="divider"></div>
+
+            <h3><i class="fas fa-trophy"></i> Achievements</h3>
+            <div id="achList" class="achievements">
+                <div class="badge"><i class="fas fa-trophy"></i> First Steps</div>
+                <div class="badge"><i class="fas fa-trophy"></i> Puzzle Explorer</div>
+                <div class="badge"><i class="fas fa-trophy"></i> Level 1 Master</div>
+            </div>
+
+            <div class="hint-box" style="margin-top: auto;">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Each level has a unique puzzle type. Use hints strategically to maximize your score!
+            </div>
+        </nav>
+
+        <section class="content">
+            <div class="panel-title">
+                <div>
+                    <h2 id="levelTitle">Level 1 — Sequence Puzzle</h2>
+                    <div class="desc" id="levelDesc">Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.</div>
+                </div>
+                <div class="level-meta">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Level <span id="curLevel">1</span> of 10
+                </div>
+            </div>
+
+            <div class="game-area" id="gameArea">
+                <div class="puzzle-container">
+                    <div class="puzzle-title">Click the buttons in the correct sequence</div>
+                    <div class="sequence-puzzle">
+                        <div class="sequence-btn" style="background: #00e6c3;" data-value="1">1</div>
+                        <div class="sequence-btn" style="background: #2bdcff;" data-value="2">2</div>
+                        <div class="sequence-btn" style="background: #ff7ab6;" data-value="3">3</div>
+                        <div class="sequence-btn" style="background: #ffd166;" data-value="4">4</div>
+                    </div>
+                    <div class="hint-box">
+                        <strong>Hint:</strong> The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.
+                    </div>
+                    <div class="level-footer">
+                        <button class="btn-ghost">
+                            <i class="fas fa-lightbulb"></i> Show Hint
+                        </button>
+                        <button class="primary" id="checkSolution">
+                            <i class="fas fa-check"></i> Check Solution
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hud">
+                <h3><i class="fas fa-gamepad"></i> Game Status</h3>
+                <div class="hud-section">
+                    <div>Current Status:</div>
+                    <div id="statusText">Playing Level 1</div>
+                </div>
+                
+                <div class="hud-section">
+                    <div>Unlocked Content:</div>
+                    <div id="unlocked">Sequence Puzzle</div>
+                </div>
+                
+                <div class="hud-section">
+                    <div>Overall Progress:</div>
+                    <div class="progress"><i id="scoreBar" style="width:10%"></i></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="popup" id="popup">
+        <h2><i class="fas fa-trophy"></i> Achievement Unlocked!</h2>
+        <div id="popupTitle" style="font-weight:700;font-size:18px">Sequence Master</div>
+        <div id="popupText" style="margin-top:8px;color:#cfe">You completed the sequence puzzle with perfect timing!</div>
+        <div class="popup-buttons">
+            <button class="btn-ghost" id="popupShare">
+                <i class="fas fa-share-alt"></i> Share
             </button>
-          </div>
+            <button class="primary" id="popupOk">
+                <i class="fas fa-check"></i> Continue
+            </button>
         </div>
-      `;
-      
-      // Add event listener for next level button
-      puzzleWrap.querySelector('#nextLevelBtn').onclick = () => {
-        if(n < NUM_LEVELS) {
-          startLevel(n + 1);
-        }
-      };
-    } 
-    else { 
-      $('#statusText').innerText = 'Failed'; 
-    }
-  }, () => {} );
-  
-  // Hint button functionality
-  $('#hintBtn').onclick = () => {
-    state.hintsUsed[n] = (state.hintsUsed[n] || 0) + 1;
-    saveState();
-    renderLevels();
-    
-    // Show hint
-    alert(`Hint: ${levels[n].hint}`);
-    
-    // Update hint counter
-    hintCounter.innerHTML = `<i class="fas fa-lightbulb"></i> Hints: ${state.hintsUsed[n]}`;
-  };
-}
+    </div>
 
-/* ------------------------ Initialization ---------------------------- */
-function init() { 
-  renderLevels(); 
-  renderAchievements(); 
-  updateScoreBar(); 
-  
-  if(!state.unlocked.includes(1)) unlockLevel(1); 
-  
-  $('#startBtn').onclick = () => { 
-    startLevel(1); 
-    addAchievement('First Puzzle', 'Started your puzzle journey!');
-  };
-  
-  // Set initial progress
-  updateScoreBar();
-}
-
-init();
-
-/* ------------------------ Extra helpers ----------------------------- */
-function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
-
-// Simulate some progress for demo
-setTimeout(() => {
-  state.completed = [1, 2, 3];
-  state.scores = {1: 85, 2: 90, 3: 75};
-  state.achievements = ['Welcome!', 'Level 1 Complete', 'Level 2 Complete', 'Level 3 Complete', 'Halfway There'];
-  state.unlocked = [1, 2, 3, 4, 5];
-  saveState();
-  renderLevels();
-  renderAchievements();
-  updateScoreBar();
-}, 1000);
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const gameArea = document.getElementById('gameArea');
+            const levelTitle = document.getElementById('levelTitle');
+            const levelDesc = document.getElementById('levelDesc');
+            const curLevel = document.getElementById('curLevel');
+            const statusText = document.getElementById('statusText');
+            const unlocked = document.getElementById('unlocked');
+            const scoreBar = document.getElementById('scoreBar');
+            const popup = document.getElementById('popup');
+            const popupTitle = document.getElementById('popupTitle');
+            const popupText = document.getElementById('popupText');
+            const popupOk = document.getElementById('popupOk');
+            const checkSolution = document.getElementById('checkSolution');
+            const levelButtons = document.querySelectorAll('.level-btn');
+            
+            // Puzzle state
+            let currentLevel = 1;
+            let sequence = [1, 2, 3, 4];
+            let userSequence = [];
+            let gameState = {
+                levels: {
+                    1: { completed: false, stars: 0 },
+                    2: { completed: false, stars: 0 },
+                    3: { completed: false, stars: 0 },
+                    4: { completed: false, stars: 0 },
+                    5: { completed: false, stars: 0 },
+                    6: { completed: false, stars: 0 },
+                    7: { completed: false, stars: 0 },
+                    8: { completed: false, stars: 0 },
+                    9: { completed: false, stars: 0 },
+                    10: { completed: false, stars: 0 }
+                },
+                achievements: ['First Steps', 'Puzzle Explorer', 'Level 1 Master'],
+                progress: 10
+            };
+            
+            // Initialize the game
+            function initGame() {
+                // Setup sequence puzzle
+                const sequenceBtns = document.querySelectorAll('.sequence-btn');
+                sequenceBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const value = parseInt(btn.dataset.value);
+                        userSequence.push(value);
+                        btn.classList.add('correct');
+                        setTimeout(() => btn.classList.remove('correct'), 300);
+                        
+                        // Check if sequence is complete
+                        if (userSequence.length === sequence.length) {
+                            checkSequence();
+                        }
+                    });
+                });
+                
+                // Setup solution check button
+                checkSolution.addEventListener('click', checkSequence);
+                
+                // Setup popup
+                popupOk.addEventListener('click', () => {
+                    popup.classList.remove('show');
+                });
+                
+                // Setup level buttons
+                levelButtons.forEach((btn, index) => {
+                    btn.addEventListener('click', () => {
+                        if (index === 0 || gameState.levels[index].completed) {
+                            loadLevel(index + 1);
+                        }
+                    });
+                });
+            }
+            
+            // Check if sequence is correct
+            function checkSequence() {
+                let correct = true;
+                for (let i = 0; i < sequence.length; i++) {
+                    if (sequence[i] !== userSequence[i]) {
+                        correct = false;
+                        break;
+                    }
+                }
+                
+                if (correct) {
+                    showPopup('Level Complete!', 'You solved the sequence puzzle!');
+                    gameState.levels[1].completed = true;
+                    gameState.levels[1].stars = 3;
+                    gameState.progress = 20;
+                    scoreBar.style.width = gameState.progress + '%';
+                    statusText.textContent = 'Level 1 Completed';
+                    
+                    // Update UI
+                    levelButtons[1].classList.remove('locked');
+                    levelButtons[1].innerHTML = `
+                        <div>
+                            <div style='font-weight:700'>Level 2</div>
+                            <div class='meta'>Memory Match ★★☆</div>
+                        </div>
+                        <div>
+                            <span class="badge">AVAILABLE</span>
+                        </div>
+                    `;
+                } else {
+                    statusText.textContent = 'Incorrect Sequence - Try Again';
+                    userSequence = [];
+                }
+            }
+            
+            // Load a specific level
+            function loadLevel(level) {
+                currentLevel = level;
+                curLevel.textContent = level;
+                
+                // Update level info
+                switch(level) {
+                    case 1:
+                        levelTitle.textContent = 'Level 1 — Sequence Puzzle';
+                        levelDesc.textContent = 'Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.';
+                        unlocked.textContent = 'Sequence Puzzle';
+                        break;
+                    case 2:
+                        levelTitle.textContent = 'Level 2 — Memory Match';
+                        levelDesc.textContent = 'Find all matching pairs by flipping cards two at a time. Your memory will be tested!';
+                        unlocked.textContent = 'Memory Match';
+                        break;
+                    case 3:
+                        levelTitle.textContent = 'Level 3 — Sliding Puzzle';
+                        levelDesc.textContent = 'Reassemble the puzzle by sliding tiles into the empty space. Strategy beats speed here.';
+                        unlocked.textContent = 'Sliding Puzzle';
+                        break;
+                    case 4:
+                        levelTitle.textContent = 'Level 4 — Pattern Recognition';
+                        levelDesc.textContent = 'Draw the correct pattern through the nodes. Precision and pattern recognition are key.';
+                        unlocked.textContent = 'Pattern Recognition';
+                        break;
+                    case 5:
+                        levelTitle.textContent = 'Level 5 — Maze Navigation';
+                        levelDesc.textContent = 'Navigate to the exit using limited sonar pings. Use your pings wisely!';
+                        unlocked.textContent = 'Maze Navigation';
+                        break;
+                    case 6:
+                        levelTitle.textContent = 'Level 6 — Code Cracking';
+                        levelDesc.textContent = 'Decode the encrypted message using a Caesar cipher. Shift value unknown.';
+                        unlocked.textContent = 'Code Cracking';
+                        break;
+                    case 7:
+                        levelTitle.textContent = 'Level 7 — Math Challenge';
+                        levelDesc.textContent = 'Use the given numbers to form the target value with basic arithmetic operations.';
+                        unlocked.textContent = 'Math Challenge';
+                        break;
+                    case 8:
+                        levelTitle.textContent = 'Level 8 — Drag & Drop';
+                        levelDesc.textContent = 'Drag pieces to their targets to complete the puzzle. Precision matters.';
+                        unlocked.textContent = 'Drag & Drop';
+                        break;
+                    case 9:
+                        levelTitle.textContent = 'Level 9 — Reflex Test';
+                        levelDesc.textContent = 'Click when the indicator is in the green zone. Timing is everything!';
+                        unlocked.textContent = 'Reflex Test';
+                        break;
+                    case 10:
+                        levelTitle.textContent = 'Level 10 — Final Challenge';
+                        levelDesc.textContent = 'Combine knowledge from previous puzzles to solve the ultimate challenge.';
+                        unlocked.textContent = 'Final Challenge';
+                        break;
+                }
+                
+                // Update active level button
+                levelButtons.forEach(btn => btn.classList.remove('playing'));
+                levelButtons[level - 1].classList.add('playing');
+                
+                statusText.textContent = `Playing Level ${level}`;
+            }
+            
+            // Show achievement popup
+            function showPopup(title, text) {
+                popupTitle.textContent = title;
+                popupText.textContent = text;
+                popup.classList.add('show');
+                
+                // Auto-hide after 4 seconds
+                setTimeout(() => {
+                    popup.classList.remove('show');
+                }, 4000);
+            }
+            
+            // Initialize the game
+            initGame();
+        });
+    </script>
 </body>
 </html>
