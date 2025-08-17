@@ -883,17 +883,384 @@ button:active {
   opacity: 0.9;
 }
 
-/* Floating elements for visual interest */
-.floating {
-  animation: float 6s ease-in-out infinite;
+/* Trace Echo styles */
+.trace-grid {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: min(100%, 300px);
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.2);
+  padding: 5px; /* Inner padding for nodes */
 }
 
-.floating.delay-1 {
-  animation-delay: 0.5s;
+.node {
+  width: 100%;
+  height: 100%;
+  background: var(--card-bg);
+  border-radius: 50%; /* Make them circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  color: var(--text);
+  border: 2px solid var(--border);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
 }
 
-.floating.delay-2 {
-  animation-delay: 1s;
+.node.active {
+  background: var(--accent);
+  border-color: var(--accent-hover);
+  box-shadow: 0 0 15px var(--accent);
+}
+
+.node.visited {
+  background: var(--accent-2);
+  border-color: var(--accent-hover);
+  opacity: 0.7;
+}
+
+.line-svg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allows clicks to pass through to nodes */
+  z-index: 1; /* Above nodes, below feedback */
+}
+
+.trace-line {
+  stroke: var(--accent-2);
+  stroke-width: 4;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s ease;
+}
+
+.trace-line.temp {
+  stroke: rgba(43, 220, 255, 0.5);
+  stroke-dasharray: 5 5;
+}
+
+/* Maze styles */
+.maze-grid {
+    grid-template-columns: repeat(5, 1fr); /* Example 5x5 maze */
+    grid-template-rows: repeat(5, 1fr);
+    width: min(100%, 350px);
+    aspect-ratio: 1 / 1;
+    border: 2px solid var(--border-light);
+    background-color: #030a10;
+}
+
+.maze-cell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em; /* For player/exit icons */
+    color: var(--text);
+    background-color: #02121a; /* Path */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.maze-cell.wall {
+    background-color: #071018; /* Wall */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+.maze-cell.player {
+    background-color: var(--accent);
+    color: #022;
+    font-weight: bold;
+    animation: pulse-player 1s infinite alternate;
+}
+.maze-cell.exit {
+    background-color: var(--success);
+    color: #022;
+    font-weight: bold;
+}
+.maze-cell.visited-path {
+    background-color: rgba(0, 230, 195, 0.05); /* Faint green for visited paths */
+}
+.maze-cell.pinged {
+    background-color: rgba(43, 220, 255, 0.1); /* Sonar ping effect */
+}
+
+@keyframes pulse-player {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+.maze-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+.maze-controls .direction-buttons {
+    display: grid;
+    grid-template-areas: ". up ." "left center right" ". down .";
+    gap: 8px;
+    width: 180px; /* fixed width for buttons */
+    margin: 0 auto;
+}
+.maze-controls button {
+    padding: 12px 15px;
+    font-size: 1em;
+}
+.maze-controls button.up { grid-area: up; }
+.maze-controls button.down { grid-area: down; }
+.maze-controls button.left { grid-area: left; }
+.maze-controls button.right { grid-area: right; }
+.maze-controls button.center { grid-area: center; } /* For ping */
+
+.maze-info {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.maze-info strong {
+    color: var(--accent);
+}
+
+/* Caesar Clue styles */
+.cipher-container {
+    text-align: center;
+    padding: 20px;
+}
+.encrypted-message {
+    font-family: 'monospace';
+    font-size: 1.5em;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin: 20px auto;
+    max-width: 600px;
+    word-break: break-all;
+    user-select: text;
+}
+.cipher-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.cipher-controls label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 0.95em;
+}
+.cipher-controls input[type="number"] {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 1em;
+    outline: none;
+    appearance: textfield; /* Hide arrows on number input */
+    -moz-appearance: textfield;
+}
+.cipher-controls input[type="number"]::-webkit-outer-spin-button,
+.cipher-controls input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.decrypted-output {
+    margin-top: 20px;
+    font-family: 'monospace';
+    font-size: 1.3em;
+    color: var(--accent-2);
+    min-height: 1.5em;
+    word-break: break-all;
+}
+
+/* Echo Math styles */
+.math-container {
+    text-align: center;
+    padding: 20px;
+}
+.math-target {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 20px;
+}
+.math-numbers {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+.math-number-tile {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--text);
+}
+.math-input-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+.math-input-group input[type="text"] {
+    flex-grow: 1;
+    max-width: 300px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 1.1em;
+    outline: none;
+    text-align: center;
+}
+.math-result {
+    font-size: 1.5em;
+    font-weight: bold;
+    min-height: 1.5em;
+}
+
+/* Assemble Echo styles */
+.assemble-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    width: min(100%, 400px);
+}
+.assemble-board {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Example 2x2 */
+    grid-template-rows: repeat(2, 1fr);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 2px dashed var(--border-light);
+    border-radius: 12px;
+    padding: 5px;
+    position: relative;
+    background-color: #030a10;
+}
+.target-zone {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 230, 195, 0.05);
+    border: 1px dashed rgba(0, 230, 195, 0.3);
+    border-radius: 8px;
+}
+.puzzle-piece {
+    position: absolute; /* Will be positioned by JS */
+    width: 100px; /* Fixed size for pieces */
+    height: 100px;
+    background: linear-gradient(135deg, #2bdcff, #00e6c3); /* Matching target colors */
+    border: 2px solid var(--accent-hover);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #022;
+    cursor: grab;
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    transition: transform 0.1s ease; /* For smooth dragging */
+}
+.puzzle-piece:active {
+    cursor: grabbing;
+}
+.puzzle-piece.placed {
+    cursor: default;
+    box-shadow: 0 0 10px var(--success);
+    background: var(--success); /* Change color when correctly placed */
+    z-index: 5; /* Lower z-index once placed */
+}
+
+/* Pulse Level Styles */
+.pulse-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+}
+.pulse-circle-container {
+    position: relative;
+    width: min(100%, 250px);
+    height: min(100%, 250px);
+    border: 3px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.pulse-indicator {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    transform-origin: 125px 125px; /* Center of the circle */
+    top: -12.5px; /* Half of height to center it on the border */
+    left: calc(50% - 12.5px); /* Half of width to center it on the border */
+    transition: transform linear; /* For smooth rotation */
+}
+.pulse-zone {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent; /* Width of cone base */
+    border-right: 30px solid transparent;
+    border-bottom: 60px solid rgba(0, 230, 195, 0.4); /* Green zone color */
+    transform-origin: bottom center;
+    filter: blur(2px);
+    z-index: 0;
+}
+.pulse-info {
+    font-size: 1.1em;
+    color: var(--text-secondary);
+}
+
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 1em;
+    outline: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 8px rgba(0, 230, 195, 0.5);
 }
 </style>
 </head>
@@ -1087,7 +1454,7 @@ const levels = {
     meta: 'Grand Finale',
     title: 'Full Echo',
     desc: 'Combine knowledge from previous puzzles to solve the ultimate challenge.',
-    hint: 'The solution combines elements from Level 6 and Level 7. Remember "hello world" and "24".',
+    hint: 'The solution combines elements from Level 6 and Level 7. First, decrypt the message using a Caesar cipher, then solve the math problem it reveals.',
     difficulty: '★★★★'
   }
 };
@@ -1604,20 +1971,882 @@ function setupLevel3(container, done) {
   renderTiles(); // Initial render
 }
 
+// Level 4: Trace Echo
+function setupLevel4(container, done) {
+    const BOARD_SIZE = 3;
+    const nodes = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, i) => i);
+    let userPath = [];
+    let isDrawing = false;
+    let svg;
+    let currentLine;
 
-// Placeholder for other levels
-function setupLevelPlaceholder(container, done, levelNumber) {
     container.innerHTML = `
-        <div style="text-align:center; padding:30px;">
-            <h3 style="font-size:26px; color:var(--accent); margin-bottom:15px;">Level ${levelNumber} is Coming Soon!</h3>
-            <p style="color:var(--text-secondary); font-size:16px; margin-bottom:25px;">
-                This puzzle is still under development. Check back later for more challenges!
-            </p>
-            <i class="fas fa-hammer" style="font-size:60px; color:var(--muted);"></i>
+        <div style="text-align:center; padding:20px;">
+            <h3 style="margin-bottom:15px; font-size:22px;">Trace Echo</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Draw the correct pattern through the nodes!</p>
+            <div class="grid trace-grid" id="tracePuzzleGrid" style="position:relative;">
+                ${nodes.map((_, i) => `<div class="node" data-node-index="${i}"></div>`).join('')}
+                <svg class="line-svg-container"></svg>
+            </div>
+            <p id="traceStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+            <div style="margin-top: 20px;">
+                <button class="btn-ghost" id="resetTraceBtn"><i class="fas fa-undo"></i> Reset Path</button>
+                <button class="primary" id="checkTraceBtn" style="margin-left: 10px;"><i class="fas fa-check"></i> Check Pattern</button>
+            </div>
         </div>
     `;
-    // For demonstration, immediately complete the level as placeholder
-    setTimeout(() => done(true), 2000);
+
+    const gridElement = $('#tracePuzzleGrid');
+    const statusText = $('#traceStatus');
+    const resetBtn = $('#resetTraceBtn');
+    const checkBtn = $('#checkTraceBtn');
+    svg = gridElement.querySelector('svg');
+
+    // Define the correct diagonal cross pattern (indices of nodes)
+    // 0 1 2
+    // 3 4 5
+    // 6 7 8
+    // Correct path: 0 -> 4 -> 8 (diagonal 1), then 2 -> 4 -> 6 (diagonal 2)
+    // For simplicity, let's assume a continuous path for now, or two distinct paths.
+    // The hint says "a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left."
+    // This implies 0-4-8 and 2-4-6. We'll require both.
+    const correctPath1 = [0, 4, 8];
+    const correctPath2 = [2, 4, 6]; // Note: 4 is common. We need to handle this.
+    // Let's simplify and make it one continuous path for the user to draw: 0-4-8-6-2.
+    // Or, more accurately to the hint: 0-4-8 then reset and 2-4-6. This implies two submissions.
+    // For a single submission, let's make it 0-4-8-2-6.
+    const CORRECT_PATTERN = [0, 4, 8, 2, 6];
+
+    // Helper to get center coordinates of a node
+    function getNodeCenter(node) {
+        const rect = node.getBoundingClientRect();
+        const gridRect = gridElement.getBoundingClientRect();
+        return {
+            x: (rect.left + rect.right) / 2 - gridRect.left,
+            y: (rect.top + rect.bottom) / 2 - gridRect.top
+        };
+    }
+
+    function startDrawing(e) {
+        const targetNode = e.target.closest('.node');
+        if (!targetNode) return;
+
+        isDrawing = true;
+        userPath = [parseInt(targetNode.dataset.nodeIndex)];
+        targetNode.classList.add('active'); // Highlight the starting node
+
+        // Start new SVG line
+        const startPoint = getNodeCenter(targetNode);
+        currentLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        currentLine.setAttribute('points', `${startPoint.x},${startPoint.y}`);
+        currentLine.setAttribute('class', 'trace-line');
+        svg.appendChild(currentLine);
+
+        statusText.innerText = '';
+    }
+
+    function drawPath(e) {
+        if (!isDrawing) return;
+
+        const targetNode = e.target.closest('.node');
+        if (targetNode) {
+            const index = parseInt(targetNode.dataset.nodeIndex);
+            if (userPath.length === 0 || userPath[userPath.length - 1] !== index) {
+                // Only add if it's a new node or not the current one
+                if (!userPath.includes(index) || (userPath.length > 0 && index === CORRECT_PATTERN[userPath.length])) {
+                    userPath.push(index);
+                    targetNode.classList.add('visited'); // Mark as visited
+                    const point = getNodeCenter(targetNode);
+                    let points = currentLine.getAttribute('points');
+                    currentLine.setAttribute('points', `${points} ${point.x},${point.y}`);
+                }
+            }
+        }
+        // Update temporary line to mouse position if not on a node (visual feedback)
+        const mouseX = e.clientX - gridElement.getBoundingClientRect().left;
+        const mouseY = e.clientY - gridElement.getBoundingClientRect().top;
+        if (currentLine && userPath.length > 0) {
+            currentLine.setAttribute('points', `${currentLine.getAttribute('points').split(' ').slice(0, userPath.length).join(' ')} ${mouseX},${mouseY}`);
+            currentLine.classList.add('temp');
+        }
+    }
+
+    function stopDrawing() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        
+        // Remove temporary line part
+        if (currentLine) {
+             const finalPoints = currentLine.getAttribute('points').split(' ').slice(0, userPath.length).join(' ');
+             currentLine.setAttribute('points', finalPoints);
+             currentLine.classList.remove('temp');
+        }
+
+        gridElement.querySelectorAll('.node').forEach(node => node.classList.remove('active'));
+    }
+
+    function checkPattern() {
+        if (userPath.length === 0) {
+            statusText.style.color = 'var(--warning)';
+            statusText.innerText = 'Draw a pattern first!';
+            return;
+        }
+
+        let isCorrect = true;
+        if (userPath.length !== CORRECT_PATTERN.length) {
+            isCorrect = false;
+        } else {
+            for (let i = 0; i < CORRECT_PATTERN.length; i++) {
+                if (userPath[i] !== CORRECT_PATTERN[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+        }
+
+        if (isCorrect) {
+            statusText.style.color = 'var(--success)';
+            statusText.innerText = 'Pattern Correct! Level Complete!';
+            gridElement.querySelectorAll('.node').forEach(node => {
+                if (CORRECT_PATTERN.includes(parseInt(node.dataset.nodeIndex))) {
+                    node.classList.add('correct');
+                }
+            });
+            setTimeout(() => done(true), 1000);
+        } else {
+            statusText.style.color = 'var(--error)';
+            statusText.innerText = 'Incorrect pattern. Try again!';
+            shake(gridElement);
+            setTimeout(resetPattern, 1500);
+        }
+    }
+
+    function resetPattern() {
+        userPath = [];
+        svg.innerHTML = ''; // Clear SVG lines
+        gridElement.querySelectorAll('.node').forEach(node => {
+            node.classList.remove('active', 'visited', 'correct');
+        });
+        statusText.innerText = '';
+    }
+
+    gridElement.addEventListener('mousedown', startDrawing);
+    gridElement.addEventListener('mousemove', drawPath);
+    gridElement.addEventListener('mouseup', stopDrawing);
+    gridElement.addEventListener('mouseleave', stopDrawing); // Important for when mouse leaves grid
+
+    resetBtn.onclick = resetPattern;
+    checkBtn.onclick = checkPattern;
+}
+
+
+// Level 5: Silent Maze
+function setupLevel5(container, done) {
+    // Maze definition: 0 = path, 1 = wall, 2 = player, 3 = exit
+    const MAZE = [
+        [0, 1, 0, 0, 0],
+        [0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0],
+        [1, 1, 0, 1, 0],
+        [0, 0, 0, 1, 3] // Exit at [4,4]
+    ];
+    let playerPos = { r: 0, c: 0 };
+    const MAX_PINGS = 5;
+    let pingsUsed = 0;
+
+    container.innerHTML = `
+        <div style="text-align:center; padding:20px;">
+            <h3 style="margin-bottom:15px; font-size:22px;">Silent Maze</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Navigate to the exit. Use sonar pings wisely!</p>
+            <div class="grid maze-grid" id="mazeGrid"></div>
+            <div class="maze-info">Pings Left: <strong id="pingsLeft">${MAX_PINGS}</strong></div>
+            <div class="maze-controls">
+                <div class="direction-buttons">
+                    <button class="btn-ghost up" data-direction="up"><i class="fas fa-arrow-up"></i></button>
+                    <button class="btn-ghost left" data-direction="left"><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn-ghost center" id="pingBtn"><i class="fas fa-podcast"></i> Ping</button>
+                    <button class="btn-ghost right" data-direction="right"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-ghost down" data-direction="down"><i class="fas fa-arrow-down"></i></button>
+                </div>
+            </div>
+            <p id="mazeStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+        </div>
+    `;
+
+    const mazeGridElement = $('#mazeGrid');
+    const pingsLeftEl = $('#pingsLeft');
+    const mazeStatus = $('#mazeStatus');
+    const pingBtn = $('#pingBtn');
+
+    function renderMaze() {
+        mazeGridElement.innerHTML = '';
+        for (let r = 0; r < MAZE.length; r++) {
+            for (let c = 0; c < MAZE[r].length; c++) {
+                const cell = $create('div', {
+                    className: 'maze-cell',
+                    dataset: { r: r, c: c }
+                });
+
+                if (MAZE[r][c] === 1) { // Wall
+                    cell.classList.add('wall');
+                } else if (MAZE[r][c] === 3) { // Exit
+                    cell.classList.add('exit');
+                    cell.innerHTML = '<i class="fas fa-door-open"></i>';
+                }
+
+                // Initial player position
+                if (r === playerPos.r && c === playerPos.c) {
+                    cell.classList.add('player');
+                    cell.innerHTML = '<i class="fas fa-person-walking"></i>';
+                }
+                
+                // Keep visited paths marked if not pinged over
+                if (cell.dataset.r == playerPos.r && cell.dataset.c == playerPos.c) {
+                    // Current player position
+                } else if (cell.classList.contains('visited-path') && !cell.classList.contains('pinged')) {
+                    // Already visited path, keep the class
+                } else {
+                    cell.classList.remove('visited-path', 'pinged'); // Clean up from previous pings/moves
+                }
+
+                mazeGridElement.appendChild(cell);
+            }
+        }
+    }
+
+    function movePlayer(dr, dc) {
+        const newR = playerPos.r + dr;
+        const newC = playerPos.c + dc;
+
+        if (newR >= 0 && newR < MAZE.length && newC >= 0 && newC < MAZE[0].length) {
+            if (MAZE[newR][newC] !== 1) { // If not a wall
+                const oldPlayerCell = mazeGridElement.querySelector(`.maze-cell[data-r="${playerPos.r}"][data-c="${playerPos.c}"]`);
+                oldPlayerCell.classList.remove('player');
+                oldPlayerCell.innerHTML = '';
+                oldPlayerCell.classList.add('visited-path'); // Mark old path as visited
+
+                playerPos = { r: newR, c: newC };
+                renderMaze(); // Re-render to update player position
+
+                if (MAZE[newR][newC] === 3) { // Reached exit
+                    mazeStatus.style.color = 'var(--success)';
+                    mazeStatus.innerText = 'Maze Solved! You found the exit!';
+                    setTimeout(() => done(true), 1000);
+                }
+            } else {
+                mazeStatus.style.color = 'var(--error)';
+                mazeStatus.innerText = 'Ouch! That\'s a wall.';
+                shake(mazeGridElement);
+            }
+        } else {
+            mazeStatus.style.color = 'var(--error)';
+            mazeStatus.innerText = 'You\'re at the edge!';
+            shake(mazeGridElement);
+        }
+    }
+
+    function usePing() {
+        if (pingsUsed < MAX_PINGS) {
+            pingsUsed++;
+            pingsLeftEl.innerText = MAX_PINGS - pingsUsed;
+            mazeStatus.style.color = 'var(--accent-2)';
+            mazeStatus.innerText = 'Ping used! Revealing surroundings...';
+
+            // Temporarily reveal cells around the player
+            const revealRadius = 1; // Reveals 1 cell around player (3x3 area)
+            for (let r = playerPos.r - revealRadius; r <= playerPos.r + revealRadius; r++) {
+                for (let c = playerPos.c - revealRadius; c <= playerPos.c + revealRadius; c++) {
+                    if (r >= 0 && r < MAZE.length && c >= 0 && c < MAZE[0].length) {
+                        const cell = mazeGridElement.querySelector(`.maze-cell[data-r="${r}"][data-c="${c}"]`);
+                        if (cell) {
+                            cell.classList.add('pinged');
+                            if (MAZE[r][c] === 1) { // If it's a wall
+                                cell.innerHTML = '<i class="fas fa-times"></i>';
+                            } else if (MAZE[r][c] === 3) { // If it's the exit
+                                cell.innerHTML = '<i class="fas fa-door-open"></i>';
+                            } else if (r === playerPos.r && c === playerPos.c) {
+                                // Current player position, no change
+                            } else {
+                                cell.innerHTML = '<i class="fas fa-dot-circle"></i>'; // Path
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Remove pinged status and temporary icons after a short delay
+            setTimeout(() => {
+                mazeGridElement.querySelectorAll('.maze-cell').forEach(cell => {
+                    cell.classList.remove('pinged');
+                    if (cell.classList.contains('player') || cell.classList.contains('exit')) {
+                        // Keep player and exit icons
+                    } else if (!cell.classList.contains('wall')) { // Only clear path icons
+                         cell.innerHTML = ''; // Clear temporary icons
+                    } else { // It's a wall, clear temporary icons
+                         cell.innerHTML = '';
+                    }
+                });
+            }, 1500); // Ping effect lasts 1.5 seconds
+
+            if (pingsUsed >= MAX_PINGS) {
+                pingBtn.disabled = true;
+                mazeStatus.style.color = 'var(--warning)';
+                mazeStatus.innerText = 'No pings left!';
+            }
+        } else {
+            mazeStatus.style.color = 'var(--error)';
+            mazeStatus.innerText = 'No pings left!';
+        }
+    }
+
+    // Event listeners for direction buttons
+    container.querySelectorAll('.direction-buttons button[data-direction]').forEach(btn => {
+        btn.onclick = () => {
+            const dir = btn.dataset.direction;
+            mazeStatus.innerText = ''; // Clear status on move
+            if (dir === 'up') movePlayer(-1, 0);
+            else if (dir === 'down') movePlayer(1, 0);
+            else if (dir === 'left') movePlayer(0, -1);
+            else if (dir === 'right') movePlayer(0, 1);
+        };
+    });
+
+    pingBtn.onclick = usePing;
+
+    renderMaze();
+}
+
+
+// Level 6: Caesar Clue
+function setupLevel6(container, done) {
+    const ENCRYPTED_MESSAGE = "khoor zruog"; // "hello world" shifted by +3
+    const CORRECT_SHIFT = 3; // Shift to decrypt to "hello world"
+
+    function caesarCipher(text, shift, decrypt = false) {
+        if (decrypt) shift = (26 - (shift % 26)) % 26; // Adjust shift for decryption
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            if (char >= 'a' && char <= 'z') {
+                let code = char.charCodeAt(0);
+                char = String.fromCharCode(((code - 97 + shift) % 26) + 97);
+            } else if (char >= 'A' && char <= 'Z') {
+                let code = char.charCodeAt(0);
+                char = String.fromCharCode(((code - 65 + shift) % 26) + 65);
+            }
+            result += char;
+        }
+        return result;
+    }
+
+    container.innerHTML = `
+        <div class="cipher-container">
+            <h3 style="margin-bottom:15px; font-size:22px;">Caesar Clue</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Decode the encrypted message. Shift value unknown.</p>
+            <div class="encrypted-message" id="encryptedMessage">${ENCRYPTED_MESSAGE}</div>
+            <div class="cipher-controls">
+                <label for="shiftInput">Shift Value (0-25):</label>
+                <input type="number" id="shiftInput" min="0" max="25" value="0">
+                <button class="primary" id="decryptBtn"><i class="fas fa-key"></i> Decrypt</button>
+            </div>
+            <div class="decrypted-output" id="decryptedOutput"></div>
+            <p id="cipherStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+        </div>
+    `;
+
+    const shiftInput = $('#shiftInput');
+    const decryptBtn = $('#decryptBtn');
+    const decryptedOutput = $('#decryptedOutput');
+    const cipherStatus = $('#cipherStatus');
+
+    function updateDecryptedText() {
+        const shift = parseInt(shiftInput.value);
+        if (isNaN(shift)) {
+            decryptedOutput.innerText = '';
+            cipherStatus.innerText = 'Please enter a valid shift number.';
+            return;
+        }
+        const decrypted = caesarCipher(ENCRYPTED_MESSAGE, shift, true); // true for decryption
+        decryptedOutput.innerText = decrypted;
+
+        if (decrypted.toLowerCase() === 'hello world') {
+            cipherStatus.style.color = 'var(--success)';
+            cipherStatus.innerText = 'Message Decrypted! Level Complete!';
+            decryptBtn.disabled = true;
+            shiftInput.disabled = true;
+            setTimeout(() => done(true), 1000);
+        } else {
+            cipherStatus.style.color = 'var(--text-secondary)';
+            cipherStatus.innerText = 'Keep trying!';
+        }
+    }
+
+    shiftInput.addEventListener('input', updateDecryptedText); // Decrypt on input change
+    decryptBtn.onclick = updateDecryptedText;
+
+    // Initial decryption on load
+    updateDecryptedText();
+}
+
+
+// Level 7: Echo Math
+function setupLevel7(container, done) {
+    const TARGET_VALUE = 24; // Target value
+    const AVAILABLE_NUMBERS = [2, 3, 4, 5, 8, 10]; // Numbers user can use
+
+    container.innerHTML = `
+        <div class="math-container">
+            <h3 style="margin-bottom:15px; font-size:22px;">Echo Math</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Use the given numbers and basic operations to reach the target!</p>
+            <div class="math-target">Target: <span id="mathTargetValue">${TARGET_VALUE}</span></div>
+            <div class="math-numbers">
+                ${AVAILABLE_NUMBERS.map(num => `<span class="math-number-tile">${num}</span>`).join('')}
+            </div>
+            <div class="math-input-group">
+                <input type="text" id="mathExpressionInput" placeholder="e.g., (8 / 2) * 6">
+                <button class="primary" id="calculateMathBtn"><i class="fas fa-calculator"></i> Calculate</button>
+            </div>
+            <div class="math-result" id="mathResult"></div>
+            <p id="mathStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+            <p style="color:var(--muted); font-size:0.85em; margin-top:10px;">Allowed: numbers, +, -, *, /, (, )</p>
+        </div>
+    `;
+
+    const mathExpressionInput = $('#mathExpressionInput');
+    const calculateMathBtn = $('#calculateMathBtn');
+    const mathResult = $('#mathResult');
+    const mathStatus = $('#mathStatus');
+
+    calculateMathBtn.onclick = () => {
+        const expression = mathExpressionInput.value.trim();
+        if (!expression) {
+            mathStatus.style.color = 'var(--warning)';
+            mathStatus.innerText = 'Please enter an expression.';
+            return;
+        }
+
+        // Basic validation: ensure only allowed characters and numbers from the list are used
+        // This regex ensures only digits, +, -, *, /, (, ), and spaces are present.
+        if (!/^[0-9+\-*/()\s]+$/.test(expression)) {
+            mathStatus.style.color = 'var(--error)';
+            mathStatus.innerText = 'Invalid characters detected. Only numbers and basic operations (+, -, *, /, parentheses) are allowed.';
+            shake(mathExpressionInput);
+            return;
+        }
+
+        // Further validation: check if numbers used are from AVAILABLE_NUMBERS
+        const numbersInExpression = expression.match(/\d+/g) || [];
+        let allNumbersValid = true;
+        for (const numStr of numbersInExpression) {
+            const num = parseInt(numStr);
+            if (!AVAILABLE_NUMBERS.includes(num)) {
+                allNumbersValid = false;
+                break;
+            }
+        }
+
+        if (!allNumbersValid) {
+            mathStatus.style.color = 'var(--error)';
+            mathStatus.innerText = 'You can only use the numbers provided!';
+            shake(mathExpressionInput);
+            return;
+        }
+
+        try {
+            const result = eval(expression); // Danger: eval() is powerful. Only use with strict input validation.
+            mathResult.innerText = `Result: ${result}`;
+
+            if (result === TARGET_VALUE) {
+                mathStatus.style.color = 'var(--success)';
+                mathStatus.innerText = 'Correct! Level Complete!';
+                calculateMathBtn.disabled = true;
+                mathExpressionInput.disabled = true;
+                setTimeout(() => done(true), 1000);
+            } else {
+                mathStatus.style.color = 'var(--error)';
+                mathStatus.innerText = `Incorrect. Expected ${TARGET_VALUE}.`;
+                shake(mathExpressionInput);
+            }
+        } catch (e) {
+            mathResult.innerText = '';
+            mathStatus.style.color = 'var(--error)';
+            mathStatus.innerText = 'Invalid expression. Check your syntax!';
+            shake(mathExpressionInput);
+        }
+    };
+}
+
+// Level 8: Assemble Echo
+function setupLevel8(container, done) {
+    const PIECE_COUNT = 4; // Number of pieces (e.g., 2x2 grid)
+    const TARGET_POSITIONS = [ // Define target top, left for each piece
+        { top: 0, left: 0 }, { top: 0, left: 100 },
+        { top: 100, left: 0 }, { top: 100, left: 100 }
+    ];
+    // Start pieces at random positions to be dragged
+    const START_POSITIONS = [
+        { top: 250, left: 50 }, { top: 250, left: 200 },
+        { top: 350, left: 50 }, { top: 350, left: 200 }
+    ];
+
+    // Shuffle START_POSITIONS
+    START_POSITIONS.sort(() => Math.random() - 0.5);
+
+    let placedPieces = 0;
+    let draggingPiece = null;
+    let dragOffsetX, dragOffsetY;
+
+    container.innerHTML = `
+        <div class="assemble-container">
+            <h3 style="margin-bottom:15px; font-size:22px;">Assemble Echo</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Drag the pieces to their correct target zones!</p>
+            <div class="assemble-board" id="assembleBoard" style="width:200px; height:200px;">
+                <!-- Target zones (fixed positions) -->
+                ${TARGET_POSITIONS.map((pos, i) => `<div class="target-zone" data-target-id="${i}" style="grid-area: ${i+1}/${i+1};"></div>`).join('')}
+            </div>
+            <div id="puzzlePiecesContainer" style="position:relative; width:100%; height:400px; margin-top: 20px;">
+                <!-- Puzzle pieces (positioned by JS) -->
+            </div>
+            <p id="assembleStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+        </div>
+    `;
+
+    const assembleBoard = $('#assembleBoard');
+    const puzzlePiecesContainer = $('#puzzlePiecesContainer');
+    const assembleStatus = $('#assembleStatus');
+
+    // Create and position puzzle pieces
+    for (let i = 0; i < PIECE_COUNT; i++) {
+        const piece = $create('div', {
+            className: 'puzzle-piece',
+            innerText: String.fromCharCode(65 + i), // A, B, C, D
+            dataset: { pieceId: i, targetId: i } // Each piece has a matching target
+        });
+        piece.style.top = `${START_POSITIONS[i].top}px`;
+        piece.style.left = `${START_POSITIONS[i].left}px`;
+        puzzlePiecesContainer.appendChild(piece);
+
+        piece.addEventListener('mousedown', startDrag);
+        piece.addEventListener('touchstart', startDrag, { passive: false }); // For touch events
+    }
+
+    function startDrag(e) {
+        if (this.classList.contains('placed')) return; // Cannot drag placed pieces
+
+        e.preventDefault(); // Prevent default touch behavior (scrolling)
+        draggingPiece = this;
+        draggingPiece.style.zIndex = '100'; // Bring to front
+
+        const rect = draggingPiece.getBoundingClientRect();
+        const containerRect = puzzlePiecesContainer.getBoundingClientRect();
+
+        if (e.type === 'mousedown') {
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+        } else if (e.type === 'touchstart') {
+            const touch = e.touches[0];
+            dragOffsetX = touch.clientX - rect.left;
+            dragOffsetY = touch.clientY - rect.top;
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+    }
+
+    function drag(e) {
+        if (!draggingPiece) return;
+        e.preventDefault(); // Prevent default touch behavior (scrolling)
+
+        let clientX, clientY;
+        if (e.type === 'mousemove') {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        } else if (e.type === 'touchmove') {
+            const touch = e.touches[0];
+            if (!touch) return;
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+        } else {
+            return;
+        }
+
+        const containerRect = puzzlePiecesContainer.getBoundingClientRect();
+        let newX = clientX - containerRect.left - dragOffsetX;
+        let newY = clientY - containerRect.top - dragOffsetY;
+
+        // Keep piece within container bounds
+        newX = Math.max(0, Math.min(newX, containerRect.width - draggingPiece.offsetWidth));
+        newY = Math.max(0, Math.min(newY, containerRect.height - draggingPiece.offsetHeight));
+
+        draggingPiece.style.left = `${newX}px`;
+        draggingPiece.style.top = `${newY}px`;
+    }
+
+    function endDrag(e) {
+        if (!draggingPiece) return;
+
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', endDrag);
+        document.removeEventListener('touchmove', drag);
+        document.removeEventListener('touchend', endDrag);
+
+        const pieceId = parseInt(draggingPiece.dataset.pieceId);
+        const targetId = parseInt(draggingPiece.dataset.targetId); // This piece's correct target
+
+        const pieceRect = draggingPiece.getBoundingClientRect();
+        const boardRect = assembleBoard.getBoundingClientRect();
+
+        let droppedCorrectly = false;
+        // Check if the piece is over its designated target zone
+        const targetZone = assembleBoard.querySelector(`.target-zone[data-target-id="${targetId}"]`);
+        if (targetZone) {
+            const targetRect = targetZone.getBoundingClientRect();
+
+            // Simple overlap check
+            if (pieceRect.left < targetRect.right &&
+                pieceRect.right > targetRect.left &&
+                pieceRect.top < targetRect.bottom &&
+                pieceRect.bottom > targetRect.top)
+            {
+                // Snap to target position
+                draggingPiece.style.left = `${targetRect.left - boardRect.left}px`;
+                draggingPiece.style.top = `${targetRect.top - boardRect.top}px`;
+                draggingPiece.classList.add('placed');
+                placedPieces++;
+                droppedCorrectly = true;
+                assembleStatus.style.color = 'var(--success)';
+                assembleStatus.innerText = `Piece ${draggingPiece.innerText} placed correctly!`;
+            }
+        }
+        
+        if (!droppedCorrectly) {
+            assembleStatus.style.color = 'var(--error)';
+            assembleStatus.innerText = 'Incorrect placement. Try again!';
+            shake(draggingPiece);
+            // Optionally, return piece to original starting position if desired
+            // For now, leave it where dropped if not correct, but remove placed state
+            draggingPiece.classList.remove('placed');
+        }
+
+        draggingPiece.style.zIndex = '10'; // Reset z-index
+        draggingPiece = null;
+
+        if (placedPieces === PIECE_COUNT) {
+            assembleStatus.style.color = 'var(--accent)';
+            assembleStatus.innerText = 'All pieces assembled! Level Complete!';
+            setTimeout(() => done(true), 1000);
+        }
+    }
+}
+
+
+// Level 9: Pulse
+function setupLevel9(container, done) {
+    let animationFrameId;
+    let rotation = 0; // degrees
+    let speed = 2; // degrees per frame
+    const GREEN_ZONE_START = -30; // degrees from top (0)
+    const GREEN_ZONE_END = 30; // degrees from top (0)
+    let tries = 0;
+    const MAX_TRIES = 5; // For demonstration, limit tries
+
+    container.innerHTML = `
+        <div class="pulse-container">
+            <h3 style="margin-bottom:15px; font-size:22px;">Pulse</h3>
+            <p style="color:var(--text-secondary); margin-bottom:25px;">Click when the indicator is in the green zone!</p>
+            <div class="pulse-circle-container">
+                <div class="pulse-indicator" id="pulseIndicator"></div>
+                <div class="pulse-zone" style="transform: rotateZ(${GREEN_ZONE_START}deg);"></div>
+            </div>
+            <p id="pulseInfo" class="pulse-info">Tries: 0 / ${MAX_TRIES}</p>
+            <button class="primary" id="pulseClickBtn"><i class="fas fa-hand-pointer"></i> Click!</button>
+            <p id="pulseStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
+        </div>
+    `;
+
+    const pulseIndicator = $('#pulseIndicator');
+    const pulseClickBtn = $('#pulseClickBtn');
+    const pulseStatus = $('#pulseStatus');
+    const pulseInfo = $('#pulseInfo');
+
+    function animatePulse() {
+        rotation = (rotation + speed) % 360;
+        pulseIndicator.style.transform = `rotateZ(${rotation}deg) translateY(-125px)`; // Adjust translateY to match radius
+        animationFrameId = requestAnimationFrame(animatePulse);
+    }
+
+    function stopPulse() {
+        cancelAnimationFrame(animationFrameId);
+        pulseClickBtn.disabled = true;
+
+        let currentAngle = rotation;
+        // Normalize angle to be within -180 to 180 for easier zone checking if needed
+        if (currentAngle > 180) currentAngle -= 360;
+
+        // Check if indicator is within the green zone (top section)
+        const inGreenZone = (currentAngle >= GREEN_ZONE_START && currentAngle <= GREEN_ZONE_END);
+
+        tries++;
+        pulseInfo.innerText = `Tries: ${tries} / ${MAX_TRIES}`;
+
+        if (inGreenZone) {
+            pulseStatus.style.color = 'var(--success)';
+            pulseStatus.innerText = 'Perfect Timing! Level Complete!';
+            setTimeout(() => done(true), 1000);
+        } else {
+            pulseStatus.style.color = 'var(--error)';
+            pulseStatus.innerText = 'Missed! Try again.';
+            shake(pulseIndicator);
+            speed += 0.5; // Increase speed on miss (as per hint)
+
+            if (tries >= MAX_TRIES) {
+                pulseStatus.style.color = 'var(--error)';
+                pulseStatus.innerText = 'Out of tries! Level Failed.';
+                setTimeout(() => done(false), 1500); // Fail level if out of tries
+            } else {
+                pulseClickBtn.disabled = false;
+                animatePulse(); // Restart animation for next try
+            }
+        }
+    }
+
+    pulseClickBtn.onclick = stopPulse;
+    animatePulse();
+}
+
+
+// Level 10: Full Echo (Combination of Level 6 and Level 7)
+function setupLevel10(container, done) {
+    const ENCRYPTED_PART = "wkh ilqdo dqvzhu lv brxu qdph"; // "the final answer is your name" shifted by +3
+    const CORRECT_CIPHER_SHIFT = 3; // Shift to decrypt to "the final answer is your name"
+    const MATH_QUESTION = "What is 4 * 6?"; // Hidden in the decrypted message
+    const MATH_ANSWER = 24;
+
+    function caesarCipher(text, shift, decrypt = false) {
+        if (decrypt) shift = (26 - (shift % 26)) % 26;
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            if (char >= 'a' && char <= 'z') {
+                let code = char.charCodeAt(0);
+                char = String.fromCharCode(((code - 97 + shift) % 26) + 97);
+            } else if (char >= 'A' && char <= 'Z') {
+                let code = char.charCodeAt(0);
+                char = String.fromCharCode(((code - 65 + shift) % 26) + 65);
+            }
+            result += char;
+        }
+        return result;
+    }
+
+    container.innerHTML = `
+        <div class="cipher-container" style="padding-bottom:10px;">
+            <h3 style="margin-bottom:15px; font-size:22px;">Grand Finale: Cipher</h3>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Part 1: Decode this message. It holds a clue!</p>
+            <div class="encrypted-message" id="lvl10EncryptedMessage">${ENCRYPTED_PART}</div>
+            <div class="cipher-controls">
+                <label for="lvl10ShiftInput">Shift Value (0-25):</label>
+                <input type="number" id="lvl10ShiftInput" min="0" max="25" value="0">
+                <button class="primary" id="lvl10DecryptBtn"><i class="fas fa-key"></i> Decrypt</button>
+            </div>
+            <div class="decrypted-output" id="lvl10DecryptedOutput"></div>
+            <p id="lvl10CipherStatus" style="margin-top:10px; font-weight:600; min-height:20px;"></p>
+        </div>
+
+        <div class="math-container" style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
+            <h3 style="margin-bottom:15px; font-size:22px;">Grand Finale: Math</h3>
+            <p style="color:var(--text-secondary); margin-bottom:15px;">Part 2: Solve the puzzle revealed by the decrypted message.</p>
+            <div id="mathQuestion" style="font-size:1.5em; font-weight:bold; color:var(--accent); margin-bottom:20px; opacity:0.3;">
+                <i class="fas fa-lock"></i> Decrypt message first
+            </div>
+            <div class="math-input-group">
+                <input type="text" id="lvl10MathAnswerInput" placeholder="Your numerical answer">
+                <button class="primary" id="lvl10SubmitMathBtn" disabled><i class="fas fa-check"></i> Submit Answer</button>
+            </div>
+            <p id="lvl10MathStatus" style="margin-top:10px; font-weight:600; min-height:20px;"></p>
+        </div>
+    `;
+
+    const lvl10ShiftInput = $('#lvl10ShiftInput');
+    const lvl10DecryptBtn = $('#lvl10DecryptBtn');
+    const lvl10DecryptedOutput = $('#lvl10DecryptedOutput');
+    const lvl10CipherStatus = $('#lvl10CipherStatus');
+    const mathQuestionEl = $('#mathQuestion');
+    const lvl10MathAnswerInput = $('#lvl10MathAnswerInput');
+    const lvl10SubmitMathBtn = $('#lvl10SubmitMathBtn');
+    const lvl10MathStatus = $('#lvl10MathStatus');
+
+    let cipherPartSolved = false;
+
+    function handleCipherDecryption() {
+        const shift = parseInt(lvl10ShiftInput.value);
+        if (isNaN(shift)) {
+            lvl10CipherStatus.innerText = 'Please enter a valid shift number.';
+            return;
+        }
+        const decrypted = caesarCipher(ENCRYPTED_PART, shift, true);
+        lvl10DecryptedOutput.innerText = decrypted;
+
+        if (decrypted.toLowerCase() === 'the final answer is your name') { // Our specific target
+            lvl10CipherStatus.style.color = 'var(--success)';
+            lvl10CipherStatus.innerText = 'Cipher Decrypted! Proceed to Part 2.';
+            lvl10DecryptBtn.disabled = true;
+            lvl10ShiftInput.disabled = true;
+            cipherPartSolved = true;
+            
+            // Reveal math question and enable input
+            mathQuestionEl.style.opacity = '1';
+            mathQuestionEl.innerHTML = `Solve this: <span style="color:var(--accent-2);">${MATH_QUESTION}</span>`;
+            lvl10SubmitMathBtn.disabled = false;
+            lvl10MathAnswerInput.disabled = false;
+        } else {
+            lvl10CipherStatus.style.color = 'var(--text-secondary)';
+            lvl10CipherStatus.innerText = 'Keep trying!';
+            cipherPartSolved = false;
+            mathQuestionEl.style.opacity = '0.3';
+            mathQuestionEl.innerHTML = `<i class="fas fa-lock"></i> Decrypt message first`;
+            lvl10SubmitMathBtn.disabled = true;
+            lvl10MathAnswerInput.disabled = true;
+        }
+    }
+
+    function handleSubmitMathAnswer() {
+        if (!cipherPartSolved) {
+            lvl10MathStatus.style.color = 'var(--warning)';
+            lvl10MathStatus.innerText = 'Complete the cipher part first!';
+            return;
+        }
+
+        const userAnswer = parseInt(lvl10MathAnswerInput.value.trim());
+        if (isNaN(userAnswer)) {
+            lvl10MathStatus.style.color = 'var(--warning)';
+            lvl10MathStatus.innerText = 'Please enter a numerical answer.';
+            return;
+        }
+
+        if (userAnswer === MATH_ANSWER) {
+            lvl10MathStatus.style.color = 'var(--success)';
+            lvl10MathStatus.innerText = 'Correct! Grand Finale Complete!';
+            lvl10SubmitMathBtn.disabled = true;
+            lvl10MathAnswerInput.disabled = true;
+            setTimeout(() => done(true), 1000);
+        } else {
+            lvl10MathStatus.style.color = 'var(--error)';
+            lvl10MathStatus.innerText = 'Incorrect answer. Try again!';
+            shake(lvl10MathAnswerInput);
+        }
+    }
+
+    lvl10ShiftInput.addEventListener('input', handleCipherDecryption);
+    lvl10DecryptBtn.onclick = handleCipherDecryption;
+    lvl10SubmitMathBtn.onclick = handleSubmitMathAnswer;
+    
+    // Initial state
+    lvl10MathAnswerInput.disabled = true;
+    lvl10SubmitMathBtn.disabled = true;
+    handleCipherDecryption(); // Run once to set initial state
 }
 
 
@@ -1697,7 +2926,13 @@ function startLevel(n) {
     case 1: setupFunction = setupLevel1; break;
     case 2: setupFunction = setupLevel2; break;
     case 3: setupFunction = setupLevel3; break;
-    // Add cases for other levels as they are implemented
+    case 4: setupFunction = setupLevel4; break;
+    case 5: setupFunction = setupLevel5; break;
+    case 6: setupFunction = setupLevel6; break;
+    case 7: setupFunction = setupLevel7; break;
+    case 8: setupFunction = setupLevel8; break;
+    case 9: setupFunction = setupLevel9; break;
+    case 10: setupFunction = setupLevel10; break;
     default: setupFunction = (container, done) => setupLevelPlaceholder(container, done, n); break;
   }
 
@@ -1759,7 +2994,9 @@ function startLevel(n) {
                 </div>
             `;
             $('#restartGameBtn').onclick = () => {
-                state = loadState(); // Reset state to initial
+                // Clear all game state and restart
+                localStorage.removeItem(STORAGE_KEY);
+                state = loadState(); 
                 init();
                 startLevel(1); // Start over from level 1
             };
