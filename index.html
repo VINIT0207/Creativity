@@ -45,7 +45,7 @@ html, body {
   color: var(--text);
   background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 body {
@@ -294,7 +294,8 @@ nav h3 {
 /* Game Area */
 .game-area {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
-  height: 480px;
+  /* Changed height to min-height for flexibility */
+  min-height: 480px; 
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -304,7 +305,8 @@ nav h3 {
   border: 1px solid var(--border);
   margin-top: 10px;
   position: relative;
-  overflow: hidden;
+  /* Removed overflow: hidden here to allow content to extend if needed */
+  /* overflow: hidden; */ 
 }
 
 .game-area::before {
@@ -324,11 +326,13 @@ nav h3 {
   width: 100%;
   margin-bottom: 15px;
   gap: 12px;
+  flex-wrap: wrap; /* Added flex-wrap for responsiveness */
 }
 
 .game-stats {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap; /* Added flex-wrap for responsiveness */
 }
 
 .stat-box {
@@ -1224,9 +1228,10 @@ button:active {
     height: 25px;
     background-color: var(--accent);
     border-radius: 50%;
-    transform-origin: 125px 125px; /* Center of the circle */
-    top: -12.5px; /* Half of height to center it on the border */
-    left: calc(50% - 12.5px); /* Half of width to center it on the border */
+    /* Updated transform-origin for responsive sizing */
+    transform-origin: 50% 125px; /* Center of the circle bottom edge */
+    top: 0; /* Align to the top of the container */
+    left: calc(50% - 12.5px); /* Half of width to center it */
     transition: transform linear; /* For smooth rotation */
 }
 .pulse-zone {
@@ -2010,11 +2015,6 @@ function setupLevel4(container, done) {
     // For simplicity, let's assume a continuous path for now, or two distinct paths.
     // The hint says "a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left."
     // This implies 0-4-8 and 2-4-6. We'll require both.
-    const correctPath1 = [0, 4, 8];
-    const correctPath2 = [2, 4, 6]; // Note: 4 is common. We need to handle this.
-    // Let's simplify and make it one continuous path for the user to draw: 0-4-8-6-2.
-    // Or, more accurately to the hint: 0-4-8 then reset and 2-4-6. This implies two submissions.
-    // For a single submission, let's make it 0-4-8-2-6.
     const CORRECT_PATTERN = [0, 4, 8, 2, 6];
 
     // Helper to get center coordinates of a node
@@ -2453,7 +2453,20 @@ function setupLevel7(container, done) {
         }
 
         try {
-            const result = eval(expression); // Danger: eval() is powerful. Only use with strict input validation.
+            // Using a stricter approach than eval() to limit potential risks, though still user-input based.
+            // For production, a proper math expression parser library would be ideal.
+            const safeEval = (expr) => {
+                // Remove anything not a number, operator, or parenthesis
+                let sanitizedExpr = expr.replace(/[^-()\d/*+.]/g, '');
+                // Basic check to ensure it's not trying to call functions etc.
+                if (/[a-zA-Z]/.test(sanitizedExpr)) {
+                    throw new Error("Invalid characters in expression");
+                }
+                // eslint-disable-next-line no-eval
+                return Function('"use strict";return (' + sanitizedExpr + ')')();
+            };
+
+            const result = safeEval(expression);
             mathResult.innerText = `Result: ${result}`;
 
             if (result === TARGET_VALUE) {
@@ -2479,17 +2492,23 @@ function setupLevel7(container, done) {
 // Level 8: Assemble Echo
 function setupLevel8(container, done) {
     const PIECE_COUNT = 4; // Number of pieces (e.g., 2x2 grid)
-    const TARGET_POSITIONS = [ // Define target top, left for each piece
-        { top: 0, left: 0 }, { top: 0, left: 100 },
-        { top: 100, left: 0 }, { top: 100, left: 100 }
+    const TARGET_OFFSET_X = 100; // Offset between target columns
+    const TARGET_OFFSET_Y = 100; // Offset between target rows
+    const PIECE_SIZE = 100; // Consistent piece size
+
+    const TARGET_POSITIONS = [
+        { top: 0, left: 0, id: 0 },
+        { top: 0, left: TARGET_OFFSET_X, id: 1 },
+        { top: TARGET_OFFSET_Y, left: 0, id: 2 },
+        { top: TARGET_OFFSET_Y, left: TARGET_OFFSET_X, id: 3 }
     ];
-    // Start pieces at random positions to be dragged
+
     const START_POSITIONS = [
         { top: 250, left: 50 }, { top: 250, left: 200 },
         { top: 350, left: 50 }, { top: 350, left: 200 }
     ];
 
-    // Shuffle START_POSITIONS
+    // Shuffle START_POSITIONS to randomize initial placement
     START_POSITIONS.sort(() => Math.random() - 0.5);
 
     let placedPieces = 0;
@@ -2500,11 +2519,15 @@ function setupLevel8(container, done) {
         <div class="assemble-container">
             <h3 style="margin-bottom:15px; font-size:22px;">Assemble Echo</h3>
             <p style="color:var(--text-secondary); margin-bottom:25px;">Drag the pieces to their correct target zones!</p>
-            <div class="assemble-board" id="assembleBoard" style="width:200px; height:200px;">
-                <!-- Target zones (fixed positions) -->
-                ${TARGET_POSITIONS.map((pos, i) => `<div class="target-zone" data-target-id="${i}" style="grid-area: ${i+1}/${i+1};"></div>`).join('')}
+            <div class="assemble-board" id="assembleBoard" style="width:${TARGET_OFFSET_X * 2}px; height:${TARGET_OFFSET_Y * 2}px;">
+                <!-- Target zones (fixed positions, adjusted for padding in grid) -->
+                ${TARGET_POSITIONS.map((pos, i) => `
+                    <div class="target-zone" data-target-id="${pos.id}" 
+                         style="grid-column: ${i % 2 + 1}; grid-row: ${Math.floor(i / 2) + 1};">
+                    </div>
+                `).join('')}
             </div>
-            <div id="puzzlePiecesContainer" style="position:relative; width:100%; height:400px; margin-top: 20px;">
+            <div id="puzzlePiecesContainer" style="position:relative; width:${TARGET_OFFSET_X * 2 + 200}px; height:400px; margin-top: 20px;">
                 <!-- Puzzle pieces (positioned by JS) -->
             </div>
             <p id="assembleStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
@@ -2522,6 +2545,7 @@ function setupLevel8(container, done) {
             innerText: String.fromCharCode(65 + i), // A, B, C, D
             dataset: { pieceId: i, targetId: i } // Each piece has a matching target
         });
+        // Set initial random position from START_POSITIONS
         piece.style.top = `${START_POSITIONS[i].top}px`;
         piece.style.left = `${START_POSITIONS[i].left}px`;
         puzzlePiecesContainer.appendChild(piece);
@@ -2538,8 +2562,8 @@ function setupLevel8(container, done) {
         draggingPiece.style.zIndex = '100'; // Bring to front
 
         const rect = draggingPiece.getBoundingClientRect();
-        const containerRect = puzzlePiecesContainer.getBoundingClientRect();
-
+        
+        // Calculate offset relative to the piece's top-left corner
         if (e.type === 'mousedown') {
             dragOffsetX = e.clientX - rect.left;
             dragOffsetY = e.clientY - rect.top;
@@ -2599,22 +2623,33 @@ function setupLevel8(container, done) {
         const boardRect = assembleBoard.getBoundingClientRect();
 
         let droppedCorrectly = false;
+        
         // Check if the piece is over its designated target zone
         const targetZone = assembleBoard.querySelector(`.target-zone[data-target-id="${targetId}"]`);
         if (targetZone) {
             const targetRect = targetZone.getBoundingClientRect();
 
-            // Simple overlap check
-            if (pieceRect.left < targetRect.right &&
-                pieceRect.right > targetRect.left &&
-                pieceRect.top < targetRect.bottom &&
-                pieceRect.bottom > targetRect.top)
-            {
-                // Snap to target position
-                draggingPiece.style.left = `${targetRect.left - boardRect.left}px`;
-                draggingPiece.style.top = `${targetRect.top - boardRect.top}px`;
-                draggingPiece.classList.add('placed');
-                placedPieces++;
+            // Check for sufficient overlap (e.g., 50% overlap of piece with target)
+            const overlapX = Math.max(0, Math.min(pieceRect.right, targetRect.right) - Math.max(pieceRect.left, targetRect.left));
+            const overlapY = Math.max(0, Math.min(pieceRect.bottom, targetRect.bottom) - Math.max(pieceRect.top, targetRect.top));
+            const overlapArea = overlapX * overlapY;
+            const pieceArea = pieceRect.width * pieceRect.height;
+
+            if (overlapArea / pieceArea > 0.5) { // If more than 50% of the piece overlaps the target
+                // Snap to target position relative to puzzlePiecesContainer
+                const targetPieceX = targetRect.left - puzzlePiecesContainer.getBoundingClientRect().left;
+                const targetPieceY = targetRect.top - puzzlePiecesContainer.getBoundingClientRect().top;
+
+                draggingPiece.style.left = `${targetPieceX}px`;
+                draggingPiece.style.top = `${targetPieceY}px`;
+                
+                // Set fixed position within the container to prevent re-dragging from board movement
+                draggingPiece.style.position = 'absolute';
+                
+                if (!draggingPiece.classList.contains('placed')) {
+                    draggingPiece.classList.add('placed');
+                    placedPieces++;
+                }
                 droppedCorrectly = true;
                 assembleStatus.style.color = 'var(--success)';
                 assembleStatus.innerText = `Piece ${draggingPiece.innerText} placed correctly!`;
@@ -2626,8 +2661,10 @@ function setupLevel8(container, done) {
             assembleStatus.innerText = 'Incorrect placement. Try again!';
             shake(draggingPiece);
             // Optionally, return piece to original starting position if desired
-            // For now, leave it where dropped if not correct, but remove placed state
+            // For now, leave it where dropped if not correct, but ensure 'placed' class is removed
             draggingPiece.classList.remove('placed');
+            // If it was already placed and moved out, decrement placedPieces
+            if (placedPieces > 0) placedPieces--; // this might need more robust tracking if pieces can be removed
         }
 
         draggingPiece.style.zIndex = '10'; // Reset z-index
@@ -2647,8 +2684,10 @@ function setupLevel9(container, done) {
     let animationFrameId;
     let rotation = 0; // degrees
     let speed = 2; // degrees per frame
-    const GREEN_ZONE_START = -30; // degrees from top (0)
-    const GREEN_ZONE_END = 30; // degrees from top (0)
+    const GREEN_ZONE_ANGLE_WIDTH = 60; // Total width of the green zone in degrees
+    const GREEN_ZONE_START_ANGLE = (360 - GREEN_ZONE_ANGLE_WIDTH) / 2; // Starts 30 degrees to the left of top
+    const GREEN_ZONE_END_ANGLE = (360 + GREEN_ZONE_ANGLE_WIDTH) / 2; // Ends 30 degrees to the right of top
+
     let tries = 0;
     const MAX_TRIES = 5; // For demonstration, limit tries
 
@@ -2658,7 +2697,10 @@ function setupLevel9(container, done) {
             <p style="color:var(--text-secondary); margin-bottom:25px;">Click when the indicator is in the green zone!</p>
             <div class="pulse-circle-container">
                 <div class="pulse-indicator" id="pulseIndicator"></div>
-                <div class="pulse-zone" style="transform: rotateZ(${GREEN_ZONE_START}deg);"></div>
+                <div class="pulse-zone" style="
+                    transform: rotate(${GREEN_ZONE_START_ANGLE}deg);
+                    transform-origin: bottom center; /* Pivot from the bottom of the cone */
+                    "></div>
             </div>
             <p id="pulseInfo" class="pulse-info">Tries: 0 / ${MAX_TRIES}</p>
             <button class="primary" id="pulseClickBtn"><i class="fas fa-hand-pointer"></i> Click!</button>
@@ -2673,7 +2715,7 @@ function setupLevel9(container, done) {
 
     function animatePulse() {
         rotation = (rotation + speed) % 360;
-        pulseIndicator.style.transform = `rotateZ(${rotation}deg) translateY(-125px)`; // Adjust translateY to match radius
+        pulseIndicator.style.transform = `rotate(${rotation}deg) translateY(-125px)`; /* Adjust translateY to match half of container height for circular path */
         animationFrameId = requestAnimationFrame(animatePulse);
     }
 
@@ -2681,12 +2723,12 @@ function setupLevel9(container, done) {
         cancelAnimationFrame(animationFrameId);
         pulseClickBtn.disabled = true;
 
-        let currentAngle = rotation;
-        // Normalize angle to be within -180 to 180 for easier zone checking if needed
-        if (currentAngle > 180) currentAngle -= 360;
+        let currentAngleNormalized = rotation;
+        // Normalize angle to be within [0, 360) for consistent comparison with zone angles
+        if (currentAngleNormalized < 0) currentAngleNormalized += 360; 
 
         // Check if indicator is within the green zone (top section)
-        const inGreenZone = (currentAngle >= GREEN_ZONE_START && currentAngle <= GREEN_ZONE_END);
+        const inGreenZone = (currentAngleNormalized >= GREEN_ZONE_START_ANGLE && currentAngleNormalized <= GREEN_ZONE_END_ANGLE);
 
         tries++;
         pulseInfo.innerText = `Tries: ${tries} / ${MAX_TRIES}`;
@@ -2699,7 +2741,7 @@ function setupLevel9(container, done) {
             pulseStatus.style.color = 'var(--error)';
             pulseStatus.innerText = 'Missed! Try again.';
             shake(pulseIndicator);
-            speed += 0.5; // Increase speed on miss (as per hint)
+            speed = Math.min(speed + 0.5, 10); // Increase speed on miss, cap at 10 to prevent extreme speeds
 
             if (tries >= MAX_TRIES) {
                 pulseStatus.style.color = 'var(--error)';
@@ -2916,7 +2958,8 @@ function startLevel(n) {
   puzzleWrap.style.alignItems = 'center';
   puzzleWrap.style.flexDirection = 'column';
   puzzleWrap.style.padding = '20px';
-  puzzleWrap.style.flexGrow = '1'; // Allow puzzle area to grow
+  puzzleWrap.style.flexGrow = '1'; /* Allow puzzle area to grow */
+  puzzleWrap.style.overflowY = 'auto'; /* Allow scrolling if content is too tall */
 
   area.appendChild(puzzleWrap);
   
