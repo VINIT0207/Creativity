@@ -1,3114 +1,1721 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EchoPuzzles Pro | Advanced Interactive Puzzle Platform</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* Modern CSS Variables */
-:root {
-  --bg-1: #071018;
-  --bg-2: #02121a;
-  --panel: rgba(255, 255, 255, 0.03);
-  --accent: #00e6c3; /* Teal */
-  --accent-2: #2bdcff; /* Cyan */
-  --accent-pink: #ff7ab6; /* Added for level 1 sequence */
-  --accent-yellow: #ffd166; /* Added for level 1 sequence, also warning */
-  --accent-dark: #009e86;
-  --accent-hover: #00ffd9;
-  --muted: #8aa;
-  --glass: rgba(255, 255, 255, 0.03);
-  --success: #00c896;
-  --error: #ff6b6b;
-  --warning: #ffd166;
-  --text: #dfe;
-  --text-secondary: #a8c2c2;
-  --card-bg: rgba(2, 30, 36, 0.6);
-  --border: rgba(255, 255, 255, 0.06);
-  --border-light: rgba(0, 230, 195, 0.15);
-  --shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
-  --transition: all 0.3s ease;
-}
-
-/* Modern Reset & Global Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: var(--text);
-  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  line-height: 1.6;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-}
-
-body {
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 15% 50%, rgba(0, 230, 195, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 85% 30%, rgba(43, 220, 255, 0.05) 0%, transparent 20%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Layout */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 26px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(4, 18, 24, 0.8);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-main {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 22px;
-  padding: 25px;
-  min-height: calc(100vh - 85px);
-}
-
-/* Branding */
-.brand {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  transition: var(--transition);
-}
-
-.brand:hover {
-  transform: translateY(-2px);
-}
-
-.logo {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  color: #022;
-  box-shadow: var(--shadow);
-  font-size: 24px;
-  transition: var(--transition);
-}
-
-.logo:hover {
-  transform: rotate(8deg) scale(1.05);
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--muted);
-  max-width: 300px;
-}
-
-/* Navigation */
-nav {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-  padding: 20px;
-  border-radius: 16px;
-  min-height: 600px;
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-}
-
-nav h3 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.levels {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.level-btn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.level-btn:not(.locked):hover {
-  transform: translateY(-3px);
-  border-color: var(--border-light);
-  box-shadow: 0 8px 20px rgba(0, 230, 195, 0.1);
-}
-
-.level-btn.locked {
-  opacity: 0.4;
-  filter: grayscale(0.5);
-  cursor: not-allowed;
-}
-
-.level-btn.playing {
-  box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15);
-  border: 1px solid rgba(0, 230, 195, 0.25);
-  background: linear-gradient(180deg, rgba(0, 230, 195, 0.1), transparent);
-  animation: pulse 2s infinite;
-}
-
-.level-btn .badge {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.level-btn .stars {
-  color: var(--warning);
-  font-size: 12px;
-  margin-left: 5px;
-}
-
-.level-btn .meta {
-  font-size: 12px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.level-btn .lock-icon {
-  font-size: 14px;
-  margin-left: 5px;
-}
-
-/* Content Area */
-.content {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  padding: 22px;
-  border-radius: 16px;
-  min-height: 600px;
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-title {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  gap: 20px;
-}
-
-.panel-title h2 {
-  font-weight: 800;
-  font-size: 24px;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.desc {
-  color: var(--text-secondary);
-  font-size: 14px;
-  max-width: 700px;
-  line-height: 1.6;
-}
-
-.level-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  min-width: 180px;
-}
-
-.level-meta i {
-  color: var(--accent);
-  font-size: 18px;
-}
-
-/* Game Area */
-.game-area {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005));
-  /* Changed height to min-height for flexibility */
-  min-height: 480px; 
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border: 1px solid var(--border);
-  margin-top: 10px;
-  position: relative;
-  /* Removed overflow: hidden here to allow content to extend if needed */
-  /* overflow: hidden; */ 
-}
-
-.game-area::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  opacity: 0.3;
-}
-
-.game-controls {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 15px;
-  gap: 12px;
-  flex-wrap: wrap; /* Added flex-wrap for responsiveness */
-}
-
-.game-stats {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap; /* Added flex-wrap for responsiveness */
-}
-
-.stat-box {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 8px 15px;
-  border-radius: 10px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-}
-
-.stat-box i {
-  color: var(--accent);
-}
-
-/* HUD */
-.hud {
-  background: rgba(1, 20, 25, 0.7);
-  padding: 18px;
-  border-radius: 12px;
-  color: var(--muted);
-  font-size: 14px;
-  border: 1px solid var(--border);
-  width: 240px;
-  backdrop-filter: blur(6px);
-  margin-top: auto;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.hud h3 {
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hud-section {
-  margin-bottom: 16px;
-}
-
-#unlocked {
-  color: var(--text-secondary);
-  margin-top: 6px;
-  line-height: 1.5;
-  min-height: 40px;
-}
-
-/* Progress bar */
-.progress {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 8px;
-  position: relative;
-}
-
-.progress > i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  width: 0%;
-  transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.progress > i::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: progressShine 2s infinite;
-}
-
-/* Buttons */
-button {
-  transition: var(--transition);
-  cursor: pointer;
-  border: none;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  outline: none;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-.primary {
-  background: var(--accent);
-  padding: 12px 22px;
-  border-radius: 10px;
-  color: #022;
-  font-weight: 700;
-  box-shadow: 0 6px 20px rgba(0, 230, 195, 0.3);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-}
-
-.primary:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 8px 25px rgba(0, 230, 195, 0.4);
-  transform: translateY(-2px);
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 10px 16px;
-  border-radius: 10px;
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.btn-ghost:hover {
-  border-color: var(--border-light);
-  color: var(--accent);
-  background: rgba(0, 230, 195, 0.05);
-}
-
-/* Achievements */
-.achievements {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.badge {
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #001f1a, rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition);
-}
-
-.badge:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 230, 195, 0.1);
-  border-color: var(--border-light);
-}
-
-.badge i {
-  color: var(--warning);
-}
-
-/* Popups & Message Box */
-.popup {
-  position: fixed;
-  left: 50%;
-  top: 14%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #062226, #002724);
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
-  display: none;
-  color: #cff;
-  z-index: 100;
-  width: 90%;
-  max-width: 500px;
-  backdrop-filter: blur(10px);
-  animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-.popup.show {
-  display: block;
-}
-
-.popup h2 {
-  font-weight: 800;
-  font-size: 22px;
-  margin-bottom: 10px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.popup p {
-  margin: 15px 0;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  gap: 12px;
-}
-
-/* Puzzle elements */
-.grid {
-  display: grid;
-  gap: 10px;
-  width: 100%; /* Ensure grid takes full width of its container */
-  max-width: 400px; /* Optional: limit max width for larger screens */
-  margin: 20px auto; /* Center the grid */
-}
-
-.tile {
-  background: var(--card-bg);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  color: #cfe;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid var(--border);
-  user-select: none; /* Prevent text selection */
-}
-
-.tile:hover:not(.disabled):not(.correct):not(.matched) {
-  transform: scale(1.03);
-  border-color: var(--border-light);
-}
-
-.tile.correct {
-  background: var(--success);
-  color: #fff;
-  border-color: var(--success);
-  pointer-events: none; /* Disable clicking once correct */
-}
-
-.tile.incorrect {
-  background: var(--error);
-  color: #fff;
-  border-color: var(--error);
-  animation: shake 0.5s;
-}
-
-.tile.disabled {
-  pointer-events: none; /* Disable interaction */
-  opacity: 0.7;
-}
-
-.hint-box {
-  margin-top: 15px;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 14px;
-  border-radius: 10px;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.hint-box strong {
-  color: var(--accent);
-}
-
-.level-footer {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-/* Animations */
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
-  50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(0, 230, 195, 0.25); }
-  100% { transform: scale(1); box-shadow: 0 8px 30px rgba(0, 230, 195, 0.15); }
-}
-
-@keyframes popIn {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@keyframes progressShine {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-  main {
-    grid-template-columns: 1fr;
-    padding: 15px;
-  }
-  
-  nav {
-    order: 2;
-  }
-  
-  .hud {
-    position: static;
-    margin-top: 20px;
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px;
-  }
-  
-  .brand {
-    width: 100%;
-  }
-  
-  .game-controls {
-    flex-direction: column;
-  }
-  
-  .game-stats {
-    flex-wrap: wrap;
-  }
-  
-  .level-meta {
-    margin-top: 15px;
-  }
-}
-
-/* Custom Elements */
-.welcome-screen {
-  text-align: center;
-  max-width: 700px;
-  padding: 20px;
-}
-
-.welcome-screen h1 {
-  font-size: 36px;
-  font-weight: 800;
-  margin-bottom: 15px;
-  background: linear-gradient(to right, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  line-height: 1.2;
-}
-
-.welcome-screen p {
-  color: var(--text-secondary);
-  font-size: 18px;
-  margin-bottom: 25px;
-  line-height: 1.6;
-}
-
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin: 30px 0;
-}
-
-.feature {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  transition: var(--transition);
-}
-
-.feature:hover {
-  transform: translateY(-5px);
-  border-color: var(--border-light);
-}
-
-.feature i {
-  font-size: 32px;
-  color: var(--accent);
-  margin-bottom: 15px;
-}
-
-.feature h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: var(--text);
-}
-
-.feature p {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.hero-btns {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 20px 0;
-}
-
-/* Level-specific styles */
-/* Memory Card styles */
-.memory-grid {
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  width: min(100%, 400px); /* Max width 400px */
-  aspect-ratio: 1 / 1; /* Keep it square */
-}
-
-.memory-card {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: min(8vw, 28px); /* Responsive font size */
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
-  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
-  transform-style: preserve-3d; /* For flip animation */
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-}
-
-.memory-card.flipped {
-  transform: rotateY(180deg);
-  background: rgba(0, 230, 195, 0.08); /* Flipped color */
-}
-
-.memory-card.matched {
-  background: var(--success);
-  border-color: var(--success);
-  color: #fff;
-  pointer-events: none;
-  opacity: 0.8;
-  animation: matched-pop 0.3s ease-out;
-}
-
-.memory-card .card-inner {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.memory-card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-
-.memory-card .card-front, .memory-card .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden; /* Safari */
-  backface-visibility: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-.memory-card .card-front {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
-}
-
-.memory-card .card-back {
-  background: rgba(0, 230, 195, 0.08); /* Flipped color */
-  border: 1px solid rgba(0, 230, 195, 0.2);
-  transform: rotateY(180deg);
-}
-
-@keyframes matched-pop {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  100% { transform: scale(1); opacity: 0.8; }
-}
-
-
-/* Slider Puzzle styles */
-.slider-grid {
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  width: min(100%, 310px); /* Adjust based on tile size + gap */
-  aspect-ratio: 1 / 1;
-}
-
-.slider-piece {
-  width: 100%; /* Fill grid cell */
-  height: 100%; /* Fill grid cell */
-  background: linear-gradient(180deg, #023 0%, #045 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: min(8vw, 24px); /* Responsive font size */
-  font-weight: 700;
-  border: 1px solid var(--border);
-  transition: transform 0.3s ease, background 0.3s ease; /* For smooth movement */
-  cursor: pointer;
-  user-select: none;
-}
-
-.slider-piece.empty {
-  background: transparent;
-  border: 1px dashed var(--muted);
-  cursor: default;
-}
-
-.slider-piece.moving {
-  transform: scale(0.98);
-  opacity: 0.9;
-}
-
-/* Trace Echo styles */
-.trace-grid {
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  width: min(100%, 300px);
-  aspect-ratio: 1 / 1;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(0,0,0,0.2);
-  padding: 5px; /* Inner padding for nodes */
-}
-
-.node {
-  width: 100%;
-  height: 100%;
-  background: var(--card-bg);
-  border-radius: 50%; /* Make them circular */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2em;
-  color: var(--text);
-  border: 2px solid var(--border);
-  transition: background 0.2s ease, border-color 0.2s ease;
-  cursor: pointer;
-}
-
-.node.active {
-  background: var(--accent);
-  border-color: var(--accent-hover);
-  box-shadow: 0 0 15px var(--accent);
-}
-
-.node.visited {
-  background: var(--accent-2);
-  border-color: var(--accent-hover);
-  opacity: 0.7;
-}
-
-.line-svg-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Allows clicks to pass through to nodes */
-  z-index: 1; /* Above nodes, below feedback */
-}
-
-.trace-line {
-  stroke: var(--accent-2);
-  stroke-width: 4;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.3s ease;
-}
-
-.trace-line.temp {
-  stroke: rgba(43, 220, 255, 0.5);
-  stroke-dasharray: 5 5;
-}
-
-/* Maze styles */
-.maze-grid {
-    grid-template-columns: repeat(5, 1fr); /* Example 5x5 maze */
-    grid-template-rows: repeat(5, 1fr);
-    width: min(100%, 350px);
-    aspect-ratio: 1 / 1;
-    border: 2px solid var(--border-light);
-    background-color: #030a10;
-}
-
-.maze-cell {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5em; /* For player/exit icons */
-    color: var(--text);
-    background-color: #02121a; /* Path */
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.maze-cell.wall {
-    background-color: #071018; /* Wall */
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-}
-
-.maze-cell.player {
-    background-color: var(--accent);
-    color: #022;
-    font-weight: bold;
-    animation: pulse-player 1s infinite alternate;
-}
-.maze-cell.exit {
-    background-color: var(--success);
-    color: #022;
-    font-weight: bold;
-}
-.maze-cell.visited-path {
-    background-color: rgba(0, 230, 195, 0.05); /* Faint green for visited paths */
-}
-.maze-cell.pinged {
-    background-color: rgba(43, 220, 255, 0.1); /* Sonar ping effect */
-}
-
-@keyframes pulse-player {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); }
-}
-
-.maze-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-.maze-controls .direction-buttons {
-    display: grid;
-    grid-template-areas: ". up ." "left center right" ". down .";
-    gap: 8px;
-    width: 180px; /* fixed width for buttons */
-    margin: 0 auto;
-}
-.maze-controls button {
-    padding: 12px 15px;
-    font-size: 1em;
-}
-.maze-controls button.up { grid-area: up; }
-.maze-controls button.down { grid-area: down; }
-.maze-controls button.left { grid-area: left; }
-.maze-controls button.right { grid-area: right; }
-.maze-controls button.center { grid-area: center; } /* For ping */
-
-.maze-info {
-    margin-top: 15px;
-    font-size: 0.9em;
-    color: var(--text-secondary);
-}
-.maze-info strong {
-    color: var(--accent);
-}
-
-/* Caesar Clue styles */
-.cipher-container {
-    text-align: center;
-    padding: 20px;
-}
-.encrypted-message {
-    font-family: 'monospace';
-    font-size: 1.5em;
-    padding: 20px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    margin: 20px auto;
-    max-width: 600px;
-    word-break: break-all;
-    user-select: text;
-}
-.cipher-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-.cipher-controls label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-secondary);
-    font-size: 0.95em;
-}
-.cipher-controls input[type="number"] {
-    flex-grow: 1;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background-color: rgba(255,255,255,0.05);
-    color: var(--text);
-    font-size: 1em;
-    outline: none;
-    appearance: textfield; /* Hide arrows on number input */
-    -moz-appearance: textfield;
-}
-.cipher-controls input[type="number"]::-webkit-outer-spin-button,
-.cipher-controls input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.decrypted-output {
-    margin-top: 20px;
-    font-family: 'monospace';
-    font-size: 1.3em;
-    color: var(--accent-2);
-    min-height: 1.5em;
-    word-break: break-all;
-}
-
-/* Echo Math styles */
-.math-container {
-    text-align: center;
-    padding: 20px;
-}
-.math-target {
-    font-size: 2.2em;
-    font-weight: bold;
-    color: var(--accent);
-    margin-bottom: 20px;
-}
-.math-numbers {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-.math-number-tile {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 1.4em;
-    font-weight: 700;
-    color: var(--text);
-}
-.math-input-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-.math-input-group input[type="text"] {
-    flex-grow: 1;
-    max-width: 300px;
-    padding: 12px 15px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background-color: rgba(255,255,255,0.05);
-    color: var(--text);
-    font-size: 1.1em;
-    outline: none;
-    text-align: center;
-}
-.math-result {
-    font-size: 1.5em;
-    font-weight: bold;
-    min-height: 1.5em;
-}
-
-/* Assemble Echo styles */
-.assemble-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
-    width: min(100%, 400px);
-}
-.assemble-board {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Example 2x2 */
-    grid-template-rows: repeat(2, 1fr);
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border: 2px dashed var(--border-light);
-    border-radius: 12px;
-    padding: 5px;
-    position: relative;
-    background-color: #030a10;
-}
-.target-zone {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 230, 195, 0.05);
-    border: 1px dashed rgba(0, 230, 195, 0.3);
-    border-radius: 8px;
-}
-.puzzle-piece {
-    position: absolute; /* Will be positioned by JS */
-    width: 100px; /* Fixed size for pieces */
-    height: 100px;
-    background: linear-gradient(135deg, #2bdcff, #00e6c3); /* Matching target colors */
-    border: 2px solid var(--accent-hover);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #022;
-    cursor: grab;
-    z-index: 10;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    transition: transform 0.1s ease; /* For smooth dragging */
-}
-.puzzle-piece:active {
-    cursor: grabbing;
-}
-.puzzle-piece.placed {
-    cursor: default;
-    box-shadow: 0 0 10px var(--success);
-    background: var(--success); /* Change color when correctly placed */
-    z-index: 5; /* Lower z-index once placed */
-}
-
-/* Pulse Level Styles */
-.pulse-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    gap: 20px;
-}
-.pulse-circle-container {
-    position: relative;
-    width: min(100%, 250px);
-    height: min(100%, 250px);
-    border: 3px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0,0,0,0.2);
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-}
-.pulse-indicator {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    background-color: var(--accent);
-    border-radius: 50%;
-    /* Updated transform-origin for responsive sizing */
-    transform-origin: 50% 125px; /* Center of the circle bottom edge */
-    top: 0; /* Align to the top of the container */
-    left: calc(50% - 12.5px); /* Half of width to center it */
-    transition: transform linear; /* For smooth rotation */
-}
-.pulse-zone {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 30px solid transparent; /* Width of cone base */
-    border-right: 30px solid transparent;
-    border-bottom: 60px solid rgba(0, 230, 195, 0.4); /* Green zone color */
-    transform-origin: bottom center;
-    filter: blur(2px);
-    z-index: 0;
-}
-.pulse-info {
-    font-size: 1.1em;
-    color: var(--text-secondary);
-}
-
-input[type="text"], input[type="number"] {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text);
-    font-size: 1em;
-    outline: none;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-}
-input[type="text"]:focus, input[type="number"]:focus {
-    border-color: var(--accent);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 8px rgba(0, 230, 195, 0.5);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Web Learning</title>
+    <!-- Inter Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Fallback for video */
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Fixed Background Elements */
+        .fixed-gradient-left {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 33.333333%; /* w-1/3 */
+            background: linear-gradient(to right, rgba(88, 28, 135, 0.6), transparent); /* from-purple-900 opacity-60 */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .fixed-gradient-right {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 33.333333%; /* w-1/3 */
+            background: linear-gradient(to left, rgba(28, 56, 135, 0.6), transparent); /* from-blue-900 opacity-60 */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 1;
+        }
+
+        /* New Dark Overlay */
+        .dark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* bg-black bg-opacity-60 */
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Main Content Wrapper */
+        .main-content-wrapper {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 1rem; /* p-4 */
+            width: 100%;
+        }
+        @media (min-width: 768px) { /* md:p-8 */
+            .hero-section {
+                padding: 2rem;
+            }
+        }
+
+        .hero-content-box {
+            position: relative;
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 1.5rem; /* rounded-3xl */
+            backdrop-filter: blur(50px); /* Increased blur for crystal effect */
+            background-color: rgba(0, 0, 0, 0.5); /* More transparent */
+            padding: 1.5rem; /* p-6 */
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.2); /* Subtle glow */
+            border: 2px solid rgba(255, 255, 255, 0.2); /* Enhanced border */
+            animation: float 4s ease-in-out infinite;
+            transition: all 0.3s ease-in-out; /* Smooth transitions for hover */
+        }
+        @media (min-width: 768px) { /* md:p-12 */
+            .hero-content-box {
+                padding: 3rem;
+            }
+        }
+        /* Hover effect for crystal boxes */
+        .hero-content-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
+        }
+
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem; /* mb-16 */
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            column-gap: 0.5rem; /* space-x-2 */
+        }
+
+        .header-logo svg {
+            color: #c084fc; /* text-purple-400 */
+        }
+
+        .header-logo span {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            letter-spacing: 0.05em; /* tracking-wide */
+            color: #fff; /* text-white */
+        }
+
+        .btn-explore-projects {
+            padding: 0.5rem 1.5rem; /* px-6 py-2 */
+            background: linear-gradient(to right, #9333ea, #3b82f6); /* from-purple-600 to-blue-500 */
+            border-radius: 9999px; /* rounded-full */
+            color: #fff;
+            font-weight: 600; /* font-semibold */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transition: all 0.3s ease; /* transition-all duration-300 transform */
+            cursor: pointer;
+            border: none;
+        }
+        .btn-explore-projects:hover {
+            background: linear-gradient(to right, #a755f7, #60a5fa); /* hover:from-purple-700 hover:to-blue-600 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .btn-explore-projects:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(0, 0, 0, 0.2); /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black */
+        }
+
+        /* Main content area (hero) */
+        .hero-main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 3rem; /* py-12 */
+            padding-bottom: 3rem; /* py-12 */
+        }
+        @media (min-width: 768px) { /* md:flex-row md:justify-between */
+            .hero-main-content {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        .hero-text-area {
+            width: 100%; /* md:w-1/2 */
+            text-align: center;
+            margin-bottom: 3rem; /* mb-12 */
+        }
+        @media (min-width: 768px) { /* md:mb-0 md:text-left */
+            .hero-text-area {
+                width: 50%;
+                margin-bottom: 0;
+                text-align: left;
+            }
+        }
+
+        .hero-heading {
+            font-size: 3rem; /* text-5xl */
+            font-weight: 800; /* font-extrabold */
+            line-height: 1.25; /* leading-tight */
+            margin-bottom: 2rem; /* mb-8 */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent; /* text-transparent */
+            background-image: linear-gradient(to right, #fff, #d1d5db); /* from-white to-gray-300 */
+        }
+        @media (min-width: 768px) { /* md:text-7xl */
+            .hero-heading {
+                font-size: 4.5rem;
+            }
+        }
+        .hero-heading span {
+            display: inline-block;
+        }
+
+        .hero-sub-description {
+            font-size: 1.125rem; /* text-lg */
+            color: #fff; /* text-white */
+            margin-bottom: 3rem; /* mb-12 */
+            max-width: 28rem; /* max-w-md */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) { /* md:text-xl md:mx-0 */
+            .hero-sub-description {
+                font-size: 1.25rem;
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            row-gap: 1rem; /* space-y-4 */
+        }
+        @media (min-width: 640px) { /* sm:flex-row sm:space-y-0 sm:space-x-4 */
+            .hero-buttons {
+                flex-direction: row;
+                row-gap: 0;
+                column-gap: 1rem;
+            }
+        }
+
+        .btn-get-in-touch {
+            padding: 0.75rem 2rem; /* px-8 py-3 */
+            background: linear-gradient(to right, #9333ea, #3b82f6); /* from-purple-600 to-blue-500 */
+            border-radius: 9999px; /* rounded-full */
+            color: #fff;
+            font-weight: 600; /* font-semibold */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transition: all 0.3s ease; /* transition-all duration-300 transform */
+            cursor: pointer;
+            border: none;
+            font-size: 1.125rem; /* text-lg */
+        }
+        .btn-get-in-touch:hover {
+            background: linear-gradient(to right, #a755f7, #60a5fa); /* hover:from-purple-700 hover:to-blue-600 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .btn-get-in-touch:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(0, 0, 0, 0.2); /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black */
+        }
+
+        .session-id-text {
+            margin-top: 1.5rem; /* mt-6 */
+            font-size: 0.875rem; /* text-sm */
+            color: #fff; /* text-white - changed from gray-500 */
+        }
+        .session-id-text span {
+            font-family: monospace; /* font-mono */
+            word-break: break-all; /* break-all */
+            color: #d8b4fe; /* text-purple-100 */
+        }
+
+        .hero-placeholder-image {
+            width: 100%; /* md:w-1/2 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 16rem; /* h-64 */
+            perspective: 1000px; /* For 3D effect */
+            position: relative; /* Crucial for absolute positioning of children */
+            overflow: hidden; /* Hide anything outside its bounds */
+        }
+        @media (min-width: 768px) { /* md:h-96 */
+            .hero-placeholder-image {
+                height: 24rem;
+            }
+        }
+
+        /* 3D Base Styles (for cubes and prisms) */
+        .floating-element {
+            position: absolute;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.1); /* Default shadow */
+            backdrop-filter: blur(2px); /* Subtle blur for crystal effect */
+            -webkit-backdrop-filter: blur(2px);
+            opacity: 0.7; /* Slightly transparent */
+            z-index: -1; /* Ensure they are behind content, but above video/gradient */
+        }
+
+        .floating-crystal-face {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Cube Sizes */
+        .cube-lg { width: 150px; height: 150px; }
+        .cube-md { width: 100px; height: 100px; }
+        .cube-sm { width: 70px; height: 70px; }
+        .cube-xs { width: 50px; height: 50px; }
+
+        /* Cube face transformations based on size */
+        .cube-lg .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .cube-lg .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .cube-lg .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .cube-lg .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .cube-lg .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .cube-lg .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+
+        .cube-md .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .cube-md .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .cube-md .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .cube-md .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .cube-md .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .cube-md .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+
+        .cube-sm .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .cube-sm .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .cube-sm .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .cube-sm .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .cube-sm .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .cube-sm .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(35px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+
+        .cube-xs .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .cube-xs .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .cube-xs .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .cube-xs .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .cube-xs .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .cube-xs .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(25px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+
+
+        /* Rectangular Prism Sizes */
+        .prism-lg { width: 100px; height: 180px; }
+        .prism-md { width: 80px; height: 150px; }
+        .prism-sm { width: 60px; height: 120px; }
+        .prism-xs { width: 40px; height: 90px; }
+
+        /* Prism face transformations based on size and depth (50% of width for depth usually) */
+        .prism-lg .floating-crystal-face.front  { width: 100px; height: 180px; transform: translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .prism-lg .floating-crystal-face.back   { width: 100px; height: 180px; transform: rotateY(180deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .prism-lg .floating-crystal-face.right  { width: 100px; height: 180px; transform: rotateY(90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .prism-lg .floating-crystal-face.left   { width: 100px; height: 180px; transform: rotateY(-90deg) translateZ(50px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .prism-lg .floating-crystal-face.top    { width: 100px; height: 100px; transform: rotateX(90deg) translateZ(90px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+        .prism-lg .floating-crystal-face.bottom { width: 100px; height: 100px; transform: rotateX(-90deg) translateZ(90px); border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+
+        .prism-md .floating-crystal-face.front  { width: 80px; height: 150px; transform: translateZ(40px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .prism-md .floating-crystal-face.back   { width: 80px; height: 150px; transform: rotateY(180deg) translateZ(40px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .prism-md .floating-crystal-face.right  { width: 80px; height: 150px; transform: rotateY(90deg) translateZ(40px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .prism-md .floating-crystal-face.left   { width: 80px; height: 150px; transform: rotateY(-90deg) translateZ(40px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .prism-md .floating-crystal-face.top    { width: 80px; height: 80px; transform: rotateX(90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+        .prism-md .floating-crystal-face.bottom { width: 80px; height: 80px; transform: rotateX(-90deg) translateZ(75px); border: 1px solid rgba(147, 51, 234, 0.4); background: rgba(88, 28, 135, 0.1); }
+
+        .prism-sm .floating-crystal-face.front  { width: 60px; height: 120px; transform: translateZ(30px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .prism-sm .floating-crystal-face.back   { width: 60px; height: 120px; transform: rotateY(180deg) translateZ(30px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .prism-sm .floating-crystal-face.right  { width: 60px; height: 120px; transform: rotateY(90deg) translateZ(30px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .prism-sm .floating-crystal-face.left   { width: 60px; height: 120px; transform: rotateY(-90deg) translateZ(30px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .prism-sm .floating-crystal-face.top    { width: 60px; height: 60px; transform: rotateX(90deg) translateZ(60px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+        .prism-sm .floating-crystal-face.bottom { width: 60px; height: 60px; transform: rotateX(-90deg) translateZ(60px); border: 1px solid rgba(28, 56, 135, 0.4); background: rgba(28, 56, 135, 0.1); }
+
+        .prism-xs .floating-crystal-face.front  { width: 40px; height: 90px; transform: translateZ(20px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .prism-xs .floating-crystal-face.back   { width: 40px; height: 90px; transform: rotateY(180deg) translateZ(20px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .prism-xs .floating-crystal-face.right  { width: 40px; height: 90px; transform: rotateY(90deg) translateZ(20px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .prism-xs .floating-crystal-face.left   { width: 40px; height: 90px; transform: rotateY(-90deg) translateZ(20px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .prism-xs .floating-crystal-face.top    { width: 40px; height: 40px; transform: rotateX(90deg) translateZ(45px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+        .prism-xs .floating-crystal-face.bottom { width: 40px; height: 40px; transform: rotateX(-90deg) translateZ(45px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.03); }
+
+        /* Diamond-like Shapes (Visual Approximation) */
+        .diamond-visual {
+            position: absolute;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.1); /* Pinkish shadow */
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            opacity: 0.7;
+            animation: rotateDiamond 16s infinite ease-in-out; /* New animation */
+            z-index: -1; /* Behind content */
+        }
+
+        .diamond-visual.diamond-md {
+            width: 120px;
+            height: 120px;
+        }
+        .diamond-visual.diamond-sm {
+            width: 80px;
+            height: 80px;
+        }
+        .diamond-visual.diamond-xs {
+            width: 60px;
+            height: 60px;
+        }
+
+        .diamond-visual .floating-crystal-face {
+            background: rgba(255, 100, 200, 0.1); /* Pinkish transparent */
+            border: 1px solid rgba(255, 100, 200, 0.4);
+            box-shadow: 0 0 10px rgba(255, 100, 200, 0.1);
+        }
+        /* Face sizes for diamond-visual are same as cube sizes, but the parent's rotation makes it look faceted */
+        .diamond-visual.diamond-md .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(60px); width: 120px; height: 120px;}
+        .diamond-visual.diamond-md .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(60px); width: 120px; height: 120px;}
+        .diamond-visual.diamond-md .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(60px); width: 120px; height: 120px;}
+        .diamond-visual.diamond-md .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(60px); width: 120px; height: 120px;}
+        .diamond-visual.diamond-md .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(60px); width: 120px; height: 120px;}
+        .diamond-visual.diamond-md .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(60px); width: 120px; height: 120px;}
+
+        .diamond-visual.diamond-sm .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(40px); width: 80px; height: 80px;}
+        .diamond-visual.diamond-sm .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(40px); width: 80px; height: 80px;}
+        .diamond-visual.diamond-sm .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(40px); width: 80px; height: 80px;}
+        .diamond-visual.diamond-sm .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(40px); width: 80px; height: 80px;}
+        .diamond-visual.diamond-sm .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(40px); width: 80px; height: 80px;}
+        .diamond-visual.diamond-sm .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(40px); width: 80px; height: 80px;}
+
+        .diamond-visual.diamond-xs .floating-crystal-face.front  { transform: rotateY(0deg) translateZ(30px); width: 60px; height: 60px;}
+        .diamond-visual.diamond-xs .floating-crystal-face.back   { transform: rotateY(180deg) translateZ(30px); width: 60px; height: 60px;}
+        .diamond-visual.diamond-xs .floating-crystal-face.right  { transform: rotateY(90deg) translateZ(30px); width: 60px; height: 60px;}
+        .diamond-visual.diamond-xs .floating-crystal-face.left   { transform: rotateY(-90deg) translateZ(30px); width: 60px; height: 60px;}
+        .diamond-visual.diamond-xs .floating-crystal-face.top    { transform: rotateX(90deg) translateZ(30px); width: 60px; height: 60px;}
+        .diamond-visual.diamond-xs .floating-crystal-face.bottom { transform: rotateX(-90deg) translateZ(30px); width: 60px; height: 60px;}
+
+
+        /* Animations */
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        @keyframes rotateCubeReverse {
+            from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            to { transform: rotateX(-360deg) rotateY(-360deg) rotateZ(-360deg); }
+        }
+
+        @keyframes rotateRectangularBox {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            50% { transform: rotateX(180deg) rotateY(360deg) rotateZ(90deg); }
+            100% { transform: rotateX(360deg) rotateY(720deg) rotateZ(180deg); }
+        }
+
+        @keyframes rotatePrismY {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        @keyframes rotatePrismX {
+            from { transform: rotateX(0deg); }
+            to { transform: rotateX(360deg); }
+        }
+
+        /* Combined animation for main cube in hero */
+        @keyframes floatAndRotate {
+            0% { transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg); }
+            25% { transform: translate(-50%, -55%) rotateX(90deg) rotateY(45deg); }
+            50% { transform: translate(-50%, -50%) rotateX(180deg) rotateY(90deg); }
+            75% { transform: translate(-50%, -45%) rotateX(270deg) rotateY(135deg); }
+            100% { transform: translate(-50%, -50%) rotateX(360deg) rotateY(180deg); }
+        }
+
+        /* New animation for diamond visual */
+        @keyframes rotateDiamond {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+            25% { transform: rotateX(90deg) rotateY(45deg) rotateZ(15deg) scale(1.05); }
+            50% { transform: rotateX(180deg) rotateY(90deg) rotateZ(30deg) scale(1); }
+            75% { transform: rotateX(270deg) rotateY(135deg) rotateZ(45deg) scale(1.05); }
+            100% { transform: rotateX(360deg) rotateY(180deg) rotateZ(60deg) scale(1); }
+        }
+
+
+        /* Section Styling (General) */
+        .section-base {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem; /* p-4 */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* bg-black bg-opacity-60 */
+            backdrop-filter: blur(10px); /* backdrop-blur-md, slightly increased */
+        }
+        @media (min-width: 768px) { /* md:p-8 */
+            .section-base {
+                padding: 2rem;
+            }
+        }
+
+        .section-content-wrapper {
+            position: relative; /* Make it relative for absolute children positioning */
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 1.5rem; /* rounded-3xl */
+            padding: 1.5rem; /* p-6 */
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            border: 2px solid rgba(255, 255, 255, 0.15); /* Crystal border */
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.15); /* Subtle glow */
+            transition: all 0.3s ease-in-out;
+            overflow: hidden; /* Hide elements overflowing from this box */
+        }
+        @media (min-width: 768px) { /* md:p-12 */
+            .section-content-wrapper {
+                padding: 3rem;
+            }
+        }
+        .section-content-wrapper:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(147, 51, 234, 0.25);
+        }
+
+        .section-tag {
+            display: inline-block;
+            background-color: #facc15; /* bg-yellow-400 */
+            color: #000;
+            padding: 0.25rem 1rem; /* px-4 py-1 */
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        .section-heading {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            line-height: 1.25; /* leading-tight */
+            margin-bottom: 1rem; /* mb-4 */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #fff, #d1d5db); /* from-white to-gray-300 */
+        }
+        @media (min-width: 768px) { /* md:text-6xl */
+            .section-heading {
+                font-size: 3.75rem;
+            }
+        }
+        .section-heading br {
+            display: none;
+        }
+        @media (min-width: 640px) { /* hidden sm:inline */
+            .section-heading br {
+                display: inline;
+            }
+        }
+
+        .section-description {
+            font-size: 1.125rem; /* text-lg */
+            color: #fff; /* text-white */
+            max-width: 42rem; /* max-w-2xl */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) { /* md:text-xl */
+            .section-description {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Development Process Section */
+        .process-section {
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 6rem; /* my-24 */
+            margin-bottom: 6rem; /* my-24 */
+            padding-top: 4rem; /* py-16 */
+            padding-bottom: 4rem; /* py-16 */
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8); /* bg-black bg-opacity-80 */
+            backdrop-filter: blur(10px); /* backdrop-blur-md, slightly increased */
+            border-radius: 1.5rem; /* rounded-3xl */
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.2); /* Subtle glow */
+            border: 2px solid rgba(255, 255, 255, 0.2); /* Crystal border */
+            transition: all 0.3s ease-in-out;
+            position: relative; /* Crucial for absolute children */
+            overflow: hidden; /* Hide elements overflowing from this box */
+        }
+        @media (min-width: 768px) { /* md:text-left */
+            .process-section {
+                text-align: left;
+            }
+        }
+        .process-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
+        }
+
+        .process-section h2 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            margin-bottom: 2rem; /* mb-8 */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #60a5fa, #c084fc); /* from-blue-400 to-purple-400 */
+        }
+        @media (min-width: 768px) { /* md:text-5xl */
+            .process-section h2 {
+                font-size: 3rem;
+            }
+        }
+
+        .process-section p.description {
+            font-size: 1.125rem; /* text-lg */
+            color: #fff; /* text-white */
+            max-width: 48rem; /* max-w-3xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 3rem; /* mb-12 */
+        }
+        @media (min-width: 768px) { /* md:text-xl md:mx-0 */
+            .process-section p.description {
+                font-size: 1.25rem;
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* grid-cols-1 */
+            gap: 3rem; /* gap-12 */
+            align-items: center;
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+        }
+        @media (min-width: 768px) { /* md:grid-cols-2 */
+            .process-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .process-steps {
+            display: flex;
+            flex-direction: column;
+            row-gap: 2rem; /* space-y-8 */
+        }
+
+        .process-step {
+            background-color: rgba(0, 0, 0, 0.6); /* More transparent */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.08);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .process-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.15);
+        }
+
+        .process-step h3 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 0.5rem; /* mb-2 */
+            color: #f472b6; /* text-pink-300 (adjust as per each step's specific color) */
+        }
+        .process-step h3.cyan { color: #67e8f9; } /* text-cyan-300 */
+        .process-step h3.lime { color: #a3e635; } /* text-lime-300 */
+        .process-step h3.orange { color: #fbbf24; } /* text-orange-300 */
+
+
+        .process-step p {
+            color: #fff; /* text-white */
+            line-height: 1.625; /* leading-relaxed */
+        }
+
+        .process-image-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .process-image-container img {
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-xl */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* border border-white border-opacity-10 */
+            width: 100%;
+            max-width: 28rem; /* max-w-md */
+        }
+
+        /* How It Was Made Section */
+        .how-it-was-made-section {
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 6rem; /* my-24 */
+            margin-bottom: 6rem; /* my-24 */
+            padding-top: 4rem; /* py-16 */
+            padding-bottom: 4rem; /* py-16 */
+            color: #fff; /* text-white */
+            text-align: left;
+            background-color: rgba(0, 0, 0, 0.8); /* bg-black bg-opacity-80 */
+            border-radius: 1.5rem; /* rounded-3xl */
+            backdrop-filter: blur(12px); /* backdrop-blur-xl, slightly increased */
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.2); /* Subtle glow */
+            border: 2px solid rgba(255, 255, 255, 0.2); /* Crystal border */
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            transition: all 0.3s ease-in-out;
+            position: relative; /* Crucial for absolute children */
+            overflow: hidden; /* Hide elements overflowing from this box */
+        }
+        @media (min-width: 768px) { /* md:px-12 */
+            .how-it-was-made-section {
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+        }
+        .how-it-was-made-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
+        }
+
+        .how-it-was-made-section h2 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            margin-bottom: 2rem; /* mb-8 */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #818cf8, #c084fc); /* from-indigo-400 to-purple-400 */
+        }
+        @media (min-width: 768px) { /* md:text-5xl */
+            .how-it-was-made-section h2 {
+                font-size: 3rem;
+            }
+        }
+
+        .how-it-was-made-section p {
+            font-size: 1.125rem; /* text-lg */
+            color: #fff; /* text-white */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        @media (min-width: 768px) { /* md:text-xl */
+            .how-it-was-made-section p {
+                font-size: 1.25rem;
+            }
+        }
+
+        .how-it-was-made-section hr {
+            margin-top: 2rem; /* my-8 */
+            margin-bottom: 2rem; /* my-8 */
+            border-color: #4b5563; /* border-gray-700 */
+        }
+
+        .how-it-was-made-section h3 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        .how-it-was-made-section h3.purple { color: #d8b4fe; } /* text-purple-300 */
+        .how-it-was-made-section h3.blue { color: #60a5fa; } /* text-blue-300 */
+        .how-it-was-made-section h3.cyan { color: #67e8f9; } /* text-cyan-300 */
+        .how-it-was-made-section h3.pink { color: #f472b6; } /* text-pink-300 */
+        .how-it-was-made-section h3.lime { color: #a3e635; } /* text-lime-300 */
+
+
+        .how-it-was-made-section p.leading-relaxed {
+            line-height: 1.625; /* leading-relaxed */
+        }
+
+        .how-it-was-made-section ul {
+            list-style-type: disc; /* list-disc */
+            list-style-position: inside; /* list-inside */
+            color: #fff; /* text-white */
+            margin-bottom: 1.5rem; /* mb-6 */
+            padding-left: 0; /* no default padding for ul */
+        }
+        .how-it-was-made-section ul.numbered {
+            list-style-type: decimal; /* list-decimal */
+        }
+
+        .how-it-was-made-section ul li {
+            margin-bottom: 0.5rem; /* space-y-2 (applied to li for spacing) */
+        }
+        .how-it-was-made-section ul li ul {
+            list-style-type: disc; /* list-disc */
+            list-style-position: inside; /* list-inside */
+            margin-left: 1.25rem; /* ml-5 */
+            margin-top: 0.5rem; /* mt-2 */
+            color: #e5e7eb; /* text-gray-100 */
+        }
+        .how-it-was-made-section ul li ul li {
+            margin-bottom: 0.25rem; /* space-y-1 */
+        }
+        .how-it-was-made-section ul li ul li span {
+            font-weight: bold; /* For **Solution**: */
+        }
+
+        /* Call to Action Section */
+        .cta-section {
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 6rem; /* my-24 */
+            margin-bottom: 6rem; /* my-24 */
+            padding-top: 4rem; /* py-16 */
+            padding-bottom: 4rem; /* py-16 */
+            text-align: center;
+            position: relative; /* Crucial for absolute children */
+            overflow: hidden; /* Hide elements overflowing from this box */
+        }
+
+        .cta-section h2 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            margin-bottom: 2rem; /* mb-8 */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #a855f7, #ec4899); /* from-purple-500 to-pink-500 */
+        }
+        @media (min-width: 768px) { /* md:text-5xl */
+            .cta-section h2 {
+                font-size: 3rem;
+            }
+        }
+
+        .cta-section p {
+            font-size: 1.125rem; /* text-lg */
+            color: #fff; /* text-white */
+            max-width: 48rem; /* max-w-3xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 3rem; /* mb-12 */
+        }
+        @media (min-width: 768px) { /* md:text-xl */
+            .cta-section p {
+                font-size: 1.25rem;
+            }
+        }
+
+        .btn-send-message {
+            padding: 1rem 2.5rem; /* px-10 py-4 */
+            background: linear-gradient(to right, #7e22ce, #c026d3); /* from-purple-700 to-fuchsia-600 */
+            border-radius: 9999px; /* rounded-full */
+            color: #fff;
+            font-weight: 700; /* font-bold */
+            font-size: 1.25rem; /* text-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transition: all 0.3s ease; /* transition-all duration-300 transform */
+            cursor: pointer;
+            border: none;
+        }
+        .btn-send-message:hover {
+            background: linear-gradient(to right, #6d22c9, #a80aee); /* hover:from-purple-800 hover:to-fuchsia-700 */
+            transform: scale(1.1); /* hover:scale-110 */
+        }
+        .btn-send-message:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px #c026d3, 0 0 0 2px rgba(0, 0, 0, 0.2); /* focus:ring-4 focus:ring-fuchsia-500 focus:ring-offset-2 focus:ring-offset-black */
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            max-width: 72rem; /* max-w-6xl */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 6rem; /* mt-24 */
+            padding-top: 2rem; /* py-8 */
+            padding-bottom: 2rem; /* py-8 */
+            text-align: center;
+            color: #e5e7eb; /* text-gray-200 */
+            font-size: 0.875rem; /* text-sm */
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* border-t border-white border-opacity-10 */
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            column-gap: 1.5rem; /* space-x-6 */
+            margin-top: 1rem; /* mt-4 */
+        }
+
+        .footer-links a {
+            color: inherit; /* text-gray-200, so it inherits from parent */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-links a:hover {
+            color: #c084fc; /* hover:text-purple-400 */
+        }
+
+        /* Contact Modal */
+        .contact-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7); /* bg-black bg-opacity-70 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem; /* p-4 */
+        }
+
+        .contact-modal-content {
+            background-color: rgba(17, 24, 39, 0.9); /* bg-gray-900 with transparency */
+            border-radius: 1.5rem; /* rounded-3xl */
+            padding: 2rem; /* p-8 */
+            max-width: 32rem; /* max-w-lg */
+            width: 100%;
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.3); /* Enhanced shadow */
+            border: 1px solid rgba(124, 58, 237, 0.5); /* Semi-transparent border */
+            animation: fadeInScaleUp 0.3s ease-out forwards;
+        }
+
+        .contact-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+
+        .contact-modal-header h3 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #c084fc, #60a5fa); /* from-purple-400 to-blue-400 */
+        }
+
+        .contact-modal-close-btn {
+            color: #9ca3af; /* text-gray-400 */
+            transition: color 0.2s ease;
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 300; /* font-light */
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .contact-modal-close-btn:hover {
+            color: #fff; /* hover:text-white */
+        }
+
+        .contact-form-group {
+            margin-bottom: 1.25rem; /* space-y-5 */
+        }
+
+        .contact-form-group label {
+            display: block;
+            color: #fff; /* text-white */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+
+        .contact-form-group input,
+        .contact-form-group textarea {
+            width: 100%;
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: rgba(31, 41, 55, 0.8); /* bg-gray-800 with transparency */
+            border: 1px solid rgba(55, 65, 81, 0.5); /* border-gray-700 with transparency */
+            color: #fff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .contact-form-group input.error,
+        .contact-form-group textarea.error {
+            border-color: #ef4444; /* border-red-500 */
+        }
+        .contact-form-group input:focus,
+        .contact-form-group textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #a78bfa; /* focus:ring-2 focus:ring-purple-500 */
+        }
+        .contact-form-group p.error-message {
+            color: #f87171; /* text-red-400 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+
+        .contact-form-submit-btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem; /* px-6 py-3 */
+            background: linear-gradient(to right, #7c3aed, #3b82f6); /* from-purple-600 to-blue-500 */
+            border-radius: 9999px; /* rounded-full */
+            color: #fff;
+            font-weight: 600; /* font-semibold */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transition: all 0.3s ease;
+            transform: scale(1);
+            cursor: pointer;
+            border: none;
+        }
+        .contact-form-submit-btn:hover {
+            background: linear-gradient(to right, #a755f7, #60a5fa); /* hover:from-purple-700 hover:to-blue-600 */
+            transform: scale(1.05);
+        }
+        .contact-form-submit-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(0, 0, 0, 0.2);
+        }
+        .contact-form-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .submit-message {
+            text-align: center;
+            margin-top: 1rem; /* mt-4 */
+        }
+        .submit-message.success {
+            color: #4ade80; /* text-green-400 */
+        }
+        .submit-message.error {
+            color: #f87171; /* text-red-400 */
+        }
+
+        /* Animations */
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+          100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInScaleUp {
+          from { opacity: 0; transform: scale(0.9) translateY(20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div class="container">
-    <div class="brand">
-      <div class="logo floating">EP</div>
-      <div>
-        <div class="title">EchoPuzzles Pro</div>
-        <div class="subtitle">An advanced interactive puzzle platform with achievements, progression, and hidden content</div>
-      </div>
-    </div>
-    <div class="meta small">Cloud Sync • 10 Challenging Levels • Adaptive Difficulty</div>
-  </div>
-</header>
 
-<main>
-  <nav>
-    <h3><i class="fas fa-layer-group"></i> Puzzle Levels</h3>
-    <div class="levels" id="levelsList"></div>
+    <!-- Background Gradient Edges -->
+    <div class="fixed-gradient-left"></div>
+    <div class="fixed-gradient-right"></div>
 
-    <div class="divider"></div>
+    <!-- Video Background -->
+    <video class="video-background" autoplay loop muted playsinline poster="https://placehold.co/1920x1080/000000/FFFFFF?text=Loading+Mobius+Strip">
+        <source src="bgv.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-    <h3><i class="fas fa-trophy"></i> Achievements</h3>
-    <div id="achList" class="achievements"></div>
+    <!-- NEW: Fixed Dark Overlay for Text Visibility -->
+    <div class="dark-overlay"></div>
 
-    <div class="hint-box" style="margin-top: auto;">
-      <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Use hints strategically - they reduce your score but help when stuck. Complete levels quickly for bonus points!
-    </div>
-  </nav>
+    <!-- Main Content Sections -->
+    <div class="main-content-wrapper">
 
-  <section class="content">
-    <div class="panel-title">
-      <div>
-        <h2 id="levelTitle">Welcome to EchoPuzzles Pro</h2>
-        <div class="desc" id="levelDesc">Select a level to begin your puzzle journey. Each level offers unique challenges and rewards.</div>
-      </div>
-      <div class="level-meta">
-        <i class="fas fa-map-marker-alt"></i>
-        Level <span id="curLevel">-</span> of 10
-      </div>
-    </div>
+        <!-- Hero Section -->
+        <section id="hero-section" class="hero-section">
+            <div id="main-content-box" class="hero-content-box">
+                <!-- Header / Navbar -->
+                <header class="header">
+                    <div class="header-logo hero-text-anim">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-purple-400">
+                            <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>3D Web Concepts</span>
+                    </div>
+                    <!-- Explore Concepts Button -->
+                    <button class="btn-explore-projects hero-text-anim" onclick="document.getElementById('development-process').scrollIntoView({ behavior: 'smooth' })">
+                        Explore Concepts
+                    </button>
+                </header>
 
-    <div class="game-area" id="gameArea">
-      <div class="welcome-screen">
-        <h1>Unlock Your Puzzle-Solving Potential</h1>
-        <p>EchoPuzzles Pro is an advanced puzzle platform with progressive challenges, achievements, and adaptive difficulty.</p>
-        
-        <div class="features">
-          <div class="feature floating delay-1">
-            <i class="fas fa-puzzle-piece"></i>
-            <h3>10 Unique Levels</h3>
-            <p>Diverse puzzle types with increasing complexity</p>
-          </div>
-          <div class="feature floating delay-2">
-            <i class="fas fa-trophy"></i>
-            <h3>Achievements</h3>
-            <p>Unlock badges and rewards for your progress</p>
-          </div>
-          <div class="feature floating">
-            <i class="fas fa-chart-line"></i>
-            <h3>Progression</h3>
-            <p>Track your scores and improve over time</p>
-          </div>
-        </div>
-        
-        <div class="hero-btns">
-          <button class="primary" id="startBtn">
-            <i class="fas fa-play"></i> Start Level 1
+                <!-- Hero Content Area -->
+                <main class="hero-main-content">
+                    <div class="hero-text-area">
+                        <!-- Main Heading -->
+                        <h1 class="hero-heading hero-text-anim">
+                            Dive into Interactive <span class="inline-block">3D Web</span> Development
+                        </h1>
+                        <!-- Sub-description -->
+                        <p class="hero-sub-description hero-text-anim">
+                            Uncover the magic behind 3D web experiences and learn the fundamental concepts.
+                        </p>
+                        <!-- Get in Touch Button (opens modal) -->
+                        <div class="hero-buttons hero-text-anim">
+                            <button
+                                id="get-in-touch-btn"
+                                class="btn-get-in-touch"
+                            >
+                                Learn More
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-placeholder-image">
+                        <!-- Main 3D Cube Animation -->
+                        <div class="floating-element cube-lg" style="top: 40%; left: 50%; transform: translate(-50%, -50%); animation: floatAndRotate 15s infinite linear;">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+
+                        <!-- Smaller 3D Cube (Hero) -->
+                        <div class="floating-element cube-sm" style="top: 20%; left: 10%; animation: rotateCubeReverse 10s infinite linear;">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+
+                        <!-- Rectangular Prism (Hero) -->
+                        <div class="floating-element prism-lg" style="top: 50%; right: 15%; animation: rotateRectangularBox 18s infinite ease-in-out; transform: translateY(-50%);">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+
+                        <!-- NEW: Medium Cube (Hero) -->
+                        <div class="floating-element cube-md" style="top: 70%; right: 25%; animation: rotateCube 13s infinite ease-out;">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+
+                        <!-- NEW: Small Prism (Hero) -->
+                        <div class="floating-element prism-sm" style="bottom: 5%; left: 30%; animation: rotatePrismY 17s infinite linear;">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+                        
+                        <!-- NEW: Small Diamond (Hero) -->
+                        <div class="floating-element diamond-visual diamond-sm" style="top: 10%; right: 40%; animation: rotateDiamond 16s infinite ease-in-out;">
+                            <div class="floating-crystal-face front"></div>
+                            <div class="floating-crystal-face back"></div>
+                            <div class="floating-crystal-face right"></div>
+                            <div class="floating-crystal-face left"></div>
+                            <div class="floating-crystal-face top"></div>
+                            <div class="floating-crystal-face bottom"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </section>
+
+        <!-- Development Process Section (Now "Understanding 3D Web Creation") -->
+        <section id="development-process" class="section-base">
+            <div class="section-content-wrapper">
+                <span class="section-tag projects-text-anim">
+                    Core Concepts
+                </span>
+                <h2 class="section-heading projects-text-anim">
+                    Understanding 3D Web Creation
+                </h2>
+                <p class="section-description projects-text-anim">
+                    Here's a breakdown of the key steps and principles involved in bringing 3D visuals to the web.
+                </p>
+                <div class="process-grid">
+                    <div class="process-steps process-anim">
+                        <div class="process-step">
+                            <h3 class="pink">Conceptualization & Modeling</h3>
+                            <p>Defining the 3D scene, objects, and interactions. Creating or importing 3D models.</p>
+                        </div>
+                        <div class="process-step">
+                            <h3 class="cyan">Scene Setup & Rendering</h3>
+                            <p>Setting up cameras, lights, and materials. Utilizing rendering engines like Three.js to display the scene.</p>
+                        </div>
+                        <div class="process-step">
+                            <h3 class="lime">Interaction & Animation</h3>
+                            <p>Implementing user controls and dynamic animations to bring the 3D environment to life.</p>
+                        </div>
+                         <div class="process-step">
+                            <h3 class="orange">Optimization & Deployment</h3>
+                            <p>Ensuring smooth performance across devices and deploying the interactive 3D experience online.</p>
+                        </div>
+                    </div>
+                    <div class="process-image-container process-anim">
+                        <img
+                            src="https://placehold.co/600x400/2A1C3B/E0E0E0?text=3D+Web+Concepts"
+                            alt="3D Web Concepts"
+                            onerror="this.onerror=null; this.src='https://placehold.co/600x400/2A1C3B/E0E0E0?text=Image+Load+Error';"
+                        />
+                    </div>
+                </div>
+                <!-- Existing 3D elements in Development Process Section -->
+                <div class="floating-element cube-md" style="top: 10%; left: 5%; animation: rotateCube 12s infinite ease-in-out;">
+                    <div class="floating-crystal-face front"></div>
+                    <div class="floating-crystal-face back"></div>
+                    <div class="floating-crystal-face right"></div>
+                    <div class="floating-crystal-face left"></div>
+                    <div class="floating-crystal-face top"></div>
+                    <div class="floating-crystal-face bottom"></div>
+                </div>
+                <div class="floating-element prism-sm" style="bottom: 15%; right: 8%; animation: rotatePrismX 16s infinite linear;">
+                    <div class="floating-crystal-face front"></div>
+                    <div class="floating-crystal-face back"></div>
+                    <div class="floating-crystal-face right"></div>
+                    <div class="floating-crystal-face left"></div>
+                    <div class="floating-crystal-face top"></div>
+                    <div class="floating-crystal-face bottom"></div>
+                </div>
+                <!-- NEW: Extra Small Cube (Process) -->
+                <div class="floating-element cube-xs" style="top: 30%; right: 15%; animation: rotateCubeReverse 11s infinite linear;">
+                    <div class="floating-crystal-face front"></div>
+                    <div class="floating-crystal-face back"></div>
+                    <div class="floating-crystal-face right"></div>
+                    <div class="floating-crystal-face left"></div>
+                    <div class="floating-crystal-face top"></div>
+                    <div class="floating-crystal-face bottom"></div>
+                </div>
+                <!-- NEW: Extra Small Prism (Process) -->
+                <div class="floating-element prism-xs" style="bottom: 5%; left: 20%; animation: rotatePrismY 14s infinite ease-out;">
+                    <div class="floating-crystal-face front"></div>
+                    <div class="floating-crystal-face back"></div>
+                    <div class="floating-crystal-face right"></div>
+                    <div class="floating-crystal-face left"></div>
+                    <div class="floating-crystal-face top"></div>
+                    <div class="floating-crystal-face bottom"></div>
+                </div>
+                <!-- NEW: Medium Diamond (Process) -->
+                <div class="floating-element diamond-visual diamond-md" style="top: 50%; left: 85%; animation: rotateDiamond 18s infinite linear;">
+                    <div class="floating-crystal-face front"></div>
+                    <div class="floating-crystal-face back"></div>
+                    <div class="floating-crystal-face right"></div>
+                    <div class="floating-crystal-face left"></div>
+                    <div class="floating-crystal-face top"></div>
+                    <div class="floating-crystal-face bottom"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- How It Was Made Section -->
+        <section id="how-it-was-made" class="how-it-was-made-section">
+            <h2 class="how-made-anim">
+                Behind the Scenes: How This Website Was Built 🛠️
+            </h2>
+            <p class="how-made-anim">
+                This interactive 3D website is crafted using modern web development technologies, aiming to create a dynamic and visually engaging experience for explaining its own development journey and 3D web concepts. Here's a breakdown of its construction and the challenges encountered during development.
+            </p>
+            <hr />
+
+            <h3 class="purple">⚛️ Frontend Development (Modular Design)</h3>
+            <p class="leading-relaxed">
+                The entire interactive interface of this website is built using modern web standards. It emphasizes **modular design and component-like structures**, which allowed for:
+            </p>
+            <ul>
+                <li>Organizing complex UI into small, reusable sections (e.g., Hero, Concept Cards, Contact Modal).</li>
+                <li>Creating clear separation of concerns, making the code easier to read and maintain.</li>
+                <li>Efficiently updating the user interface, contributing to a fluid and responsive feel across all sections.</li>
+            </ul>
+            <hr />
+
+            <h3 class="blue">🎨 Custom CSS for Styling (Utility-First & Responsive)</h3>
+            <p class="leading-relaxed">
+                For all visual styling and responsive layout, **custom CSS** is meticulously crafted. Inspired by utility-first principles, the stylesheet provides a comprehensive set of rules directly applied to HTML elements. This enables:
+            </p>
+            <ul>
+                <li>Rapid development of **responsive designs** that adapt seamlessly across various screen sizes (mobile, tablet, desktop) using media queries.</li>
+                <li>Maintaining a **consistent and cohesive visual style** throughout the entire website, leading to optimized CSS.</li>
+                <li>Fine-grained control over design elements directly in the markup, which streamlines development and simplifies future modifications.</li>
+            </ul>
+            <hr />
+
+            <h3 class="cyan">🎬 Video Background for Immersive Visuals (Optimized Media)</h3>
+            <p class="leading-relaxed">
+                The website's striking background features a **pre-rendered video** of a Mobius strip animation. This choice was made to:
+            </p>
+            <ul>
+                <li>Achieve a high level of **visual realism and artistic detail** that might be computationally expensive to render in real-time 3D across all devices, ensuring consistent quality.</li>
+                <li>Convey a **specific visual narrative** (a Mobius strip forming/moving) without requiring complex browser-side rendering engines.</li>
+                <li>The video is configured with `autoplay`, `loop`, and `muted` attributes, ensuring it plays automatically, continuously, and silently, providing a seamless visual backdrop while adhering to modern browser autoplay policies, especially on mobile. A `playsInline` attribute on the &lt;video&gt; tag ensures reliable playback.</li>
+            </ul>
+            <hr />
+
+            <h3 class="pink">✨ GSAP & ScrollTrigger for Dynamic Animations (Performance-Driven)</h3>
+            <p class="leading-relaxed">
+                To create the smooth scrolling effects and elegant entrance animations for various content sections (e.g., text fading in and sliding up as you navigate the page), **GSAP (GreenSock Animation Platform)** and its **ScrollTrigger** plugin are employed:
+            </p>
+            <ul>
+                <li><b>GSAP</b> offers unparalleled control over complex JavaScript animations, allowing for precise timing, easing functions, and efficient DOM manipulation for buttery-smooth transitions.</li>
+                <li><b>ScrollTrigger</b> intelligently links animations to the user's scroll position, making elements animate only as they enter or exit the viewport. This <b>performance-driven approach</b> ensures animations don't consume resources when they're off-screen.</li>
+                <li>The integration is managed through custom JavaScript which also handles asynchronous loading of the GSAP libraries, preventing initial page load blocking.</li>
+            </ul>
+            <hr />
+
+            <h2>
+                🚧 Challenges in Development (and Solutions)
+            </h2>
+            <p>
+                Building a modern web application, especially one with rich visuals and interactive elements, often comes with its challenges. Here's how some common hurdles were approached:
+            </p>
+            <ul class="numbered">
+                <li>
+                    <b>Performance Optimization</b>:
+                    <ul>
+                        <li><b>Challenge</b>: Large video files and multiple animation libraries can lead to slow load times and janky performance.</li>
+                        <li><b>Solution</b>: Employing asynchronous script loading for GSAP, using highly optimized video formats (and a `poster` image), and implementing `ScrollTrigger` to activate animations only when elements are in view.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Cross-Browser Compatibility</b>:
+                    <ul>
+                        <li><b>Challenge</b>: Different browsers might render CSS, play videos, or handle JavaScript subtlely differently.</li>
+                        <li><b>Solution</b>: Relying heavily on standard CSS properties for consistent styling across modern browsers. Using `playsInline` for background video autoplay on mobile devices.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Responsiveness and Adaptive Layouts</b>:
+                    <ul>
+                        <li><b>Challenge</b>: Ensuring the website looks and functions perfectly on a wide range of screen sizes (from small phones to large desktops).</li>
+                        <li><b>Solution</b>: Extensive use of CSS media queries for flexible layouts, fluid typography, and adaptive spacing, ensuring no horizontal scrolling.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Integration of External Libraries (JavaScript Execution)</b>:
+                    <ul>
+                        <li><b>Challenge</b>: Integrating DOM-manipulating libraries like GSAP and ensuring they interact correctly with native JavaScript.</li>
+                        <li><b>Solution</b>: Utilizing `DOMContentLoaded` and `window.onload` events to ensure that the DOM is fully loaded before attempting to initialize animations or manipulate elements.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Maintaining Code Readability and Scalability</b>:
+                    <ul>
+                        <li><b>Challenge</b>: As features grow, code can become a tangled mess, difficult to debug or extend.</li>
+                        <li><b>Solution</b>: Adopting a modular HTML structure, using clear CSS classes, and organizing JavaScript into distinct functions. This promotes clear separation of concerns and makes the codebase more maintainable for future expansions.</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Video Autoplay Policies</b>:
+                    <ul>
+                        <li><b>Challenge</b>: Modern browser policies often prevent videos from autoplaying with sound, especially without user interaction.</li>
+                        <li><b>Solution</b>: Explicitly setting the `muted` and `playsInline` attributes on the &lt;video&gt; tag ensures the background video plays automatically and reliably across most devices and browsers.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>
+                By carefully addressing these aspects, this interactive 3D website aims to deliver a visually compelling, performant, and well-structured experience, showcasing fundamental principles of modern web development and 3D web graphics.
+            </p>
+            <!-- Existing 3D elements in How It Was Made Section -->
+            <div class="floating-element cube-xs" style="top: 25%; right: 5%; animation: rotateCubeReverse 15s infinite linear;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <div class="floating-element prism-xs" style="bottom: 10%; left: 15%; animation: rotatePrismY 13s infinite ease-out;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Medium Cube (How It Was Made) -->
+            <div class="floating-element cube-md" style="top: 60%; left: 5%; animation: rotateCube 17s infinite ease-in-out;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Medium Prism (How It Was Made) -->
+            <div class="floating-element prism-md" style="top: 5%; left: 50%; animation: rotateRectangularBox 20s infinite linear; transform: translateX(-50%);">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Small Diamond (How It Was Made) -->
+            <div class="floating-element diamond-visual diamond-sm" style="bottom: 25%; right: 25%; animation: rotateDiamond 15s infinite linear;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+        </section>
+
+        <!-- Call to Action (Final) -->
+        <section id="call-to-action" class="cta-section">
+          <h2 class="anim-final-section-content">
+            Ready to Explore More?
+          </h2>
+          <p class="anim-final-section-content">
+            If you have questions or want to dive deeper into specific 3D web concepts, feel free to reach out!
+          </p>
+          <button
+            id="send-message-btn-final"
+            class="btn-send-message anim-cta-button"
+          >
+            Ask a Question
           </button>
-          <button class="btn-ghost">
-            <i class="fas fa-book"></i> View Tutorial
+            <!-- Existing 3D element in Call to Action Section -->
+            <div class="floating-element cube-sm" style="top: 20%; left: 70%; animation: rotateCube 10s infinite linear;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Small Cube (CTA) -->
+            <div class="floating-element cube-sm" style="bottom: 10%; right: 10%; animation: rotateCubeReverse 14s infinite ease-out;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Small Prism (CTA) -->
+            <div class="floating-element prism-sm" style="top: 15%; left: 15%; animation: rotatePrismX 16s infinite linear;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+            <!-- NEW: Extra Small Diamond (CTA) -->
+            <div class="floating-element diamond-visual diamond-xs" style="bottom: 30%; left: 50%; animation: rotateDiamond 12s infinite ease-in-out;">
+                <div class="floating-crystal-face front"></div>
+                <div class="floating-crystal-face back"></div>
+                <div class="floating-crystal-face right"></div>
+                <div class="floating-crystal-face left"></div>
+                <div class="floating-crystal-face top"></div>
+                <div class="floating-crystal-face bottom"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+          <p>&copy; <span id="current-year"></span> Interactive 3D Web Learning. All rights reserved.</p>
+          <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Info</a>
+          </div>
+        </footer>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
+      <div class="contact-modal-content">
+        <div class="contact-modal-header">
+          <h3>Get in Touch 📬</h3>
+          <button id="close-modal-btn" class="contact-modal-close-btn">
+            &times;
           </button>
         </div>
-      </div>
-    </div>
-
-    <div class="hud">
-      <h3><i class="fas fa-gamepad"></i> Game Status</h3>
-      <div class="hud-section">
-        <div>Current Status:</div>
-        <div id="statusText">Ready to Play</div>
-      </div>
-      
-      <div class="hud-section">
-        <div>Unlocked Content:</div>
-        <div id="unlocked">Starter Content</div>
-      </div>
-      
-      <div class="hud-section">
-        <div>Overall Progress:</div>
-        <div class="progress"><i id="scoreBar" style="width:0%"></i></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<!-- Unified Popup/MessageBox -->
-<div class="popup" id="messageBox">
-  <h2 id="messageBoxTitle"><i class="fas fa-info-circle"></i> Message</h2>
-  <div id="messageBoxText" style="margin-top:8px;color:#cfe">This is a general message.</div>
-  <div class="popup-buttons">
-    <button class="btn-ghost" id="messageBoxShare" style="display:none;">
-      <i class="fas fa-share-alt"></i> Share
-    </button>
-    <button class="primary" id="messageBoxOk">
-      <i class="fas fa-check"></i> Ok
-    </button>
-  </div>
-</div>
-
-<script>
-/* Enhanced EchoPuzzles Pro - JavaScript */
-const NUM_LEVELS = 10;
-const STORAGE_KEY = 'echopuzzles_pro_v1';
-
-// State management with enhanced features
-let state = loadState();
-let currentLevel = null;
-let sessionScore = 0;
-let gameTimer = null;
-let timerValue = 0;
-
-// Level definitions with enhanced descriptions
-const levels = {
-  1: {
-    meta: 'Sequence Mastery',
-    title: 'First Steps',
-    desc: 'Click the colored buttons in the correct secret order. Pay attention to the visual cues in the interface.',
-    hint: 'The sequence follows the gradient colors of our logo: teal, cyan, pink, then yellow.',
-    difficulty: '★☆☆'
-  },
-  2: {
-    meta: 'Memory Challenge',
-    title: 'Echo Pairs',
-    desc: 'Find all matching pairs by flipping cards two at a time. Your memory will be tested!',
-    hint: 'Focus on memorizing positions of high-value symbols first. Try to find patterns in symbol locations.',
-    difficulty: '★★☆'
-  },
-  3: {
-    meta: 'Spatial Reasoning',
-    title: 'Slide Shift',
-    desc: 'Reassemble the puzzle by sliding tiles into the empty space. Strategy beats speed here.',
-    hint: 'Solve row by row. Complete the top row first, then middle, then bottom. Keep the empty space strategically positioned.',
-    difficulty: '★★☆'
-  },
-  4: {
-    meta: 'Pattern Recognition',
-    title: 'Trace Echo',
-    desc: 'Draw the correct pattern through the nodes. Precision and pattern recognition are key.',
-    hint: 'The pattern forms a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left.',
-    difficulty: '★★★'
-  },
-  5: {
-    meta: 'Navigation',
-    title: 'Silent Maze',
-    desc: 'Navigate to the exit using limited sonar pings. Use your pings wisely!',
-    hint: 'The exit is in the bottom right corner. Use pings at intersections to minimize wrong turns.',
-    difficulty: '★★☆'
-  },
-  6: {
-    meta: 'Cryptography',
-    title: 'Caesar Clue',
-    desc: 'Decode the encrypted message using a Caesar cipher. Shift value unknown.',
-    hint: 'Common shifts are 3 (ROT3) or 13 (ROT13). Try both if you get stuck.',
-    difficulty: '★★★'
-  },
-  7: {
-    meta: 'Mathematical Logic',
-    title: 'Echo Math',
-    desc: 'Use the given numbers to form the target value with basic arithmetic operations.',
-    hint: 'Remember order of operations. Division can create fractions that help reach the target.',
-    difficulty: '★★★'
-  },
-  8: {
-    meta: 'Spatial Assembly',
-    title: 'Assemble Echo',
-    desc: 'Drag pieces to their targets to complete the puzzle. Precision matters.',
-    hint: 'Look for color gradients that match the target areas. Pieces can be rotated by dragging corners.',
-    difficulty: '★★☆'
-  },
-  9: {
-    meta: 'Reflex Training',
-    title: 'Pulse',
-    desc: 'Click when the indicator is in the green zone. Timing is everything!',
-    hint: 'The green zone is at the top of the circle. Watch the speed - it changes after mistakes.',
-    difficulty: '★★☆'
-  },
-  10: {
-    meta: 'Grand Finale',
-    title: 'Full Echo',
-    desc: 'Combine knowledge from previous puzzles to solve the ultimate challenge.',
-    hint: 'The solution combines elements from Level 6 and Level 7. First, decrypt the message using a Caesar cipher, then solve the math problem it reveals.',
-    difficulty: '★★★★'
-  }
-};
-
-/* ----------------------------- Helpers ------------------------------ */
-function $(sel) { return document.querySelector(sel); }
-function $create(tag, props) { 
-  const el = document.createElement(tag); 
-  if(props) {
-    for (const key in props) {
-      if (key === 'dataset') {
-        // Handle dataset properties separately
-        for (const dataKey in props.dataset) {
-          el.dataset[dataKey] = props.dataset[dataKey];
-        }
-      } else {
-        el[key] = props[key];
-      }
-    }
-  }
-  return el; 
-}
-
-// Enhanced state management
-function saveState() { 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
-}
-
-function loadState() { 
-  try { 
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEY)); 
-    if(s) return s; 
-  } catch(e) {} 
-  
-  return { 
-    unlocked: [1], 
-    completed: [], 
-    achievements: ['Welcome!'], 
-    hintsUsed: {}, 
-    scores: {},
-    bestTimes: {}
-  }; 
-}
-
-function percentClamp(v) { return Math.max(0, Math.min(100, v)); }
-
-// Enhanced message box (replaces previous showPopup and alert)
-// type: 'achievement', 'hint', 'info'
-function showMessageBox(title, text, type = 'info') { 
-  const messageBox = $('#messageBox');
-  const messageBoxTitleEl = $('#messageBoxTitle');
-  const messageBoxTextEl = $('#messageBoxText');
-  const messageBoxOkBtn = $('#messageBoxOk');
-  const messageBoxShareBtn = $('#messageBoxShare');
-
-  messageBoxTitleEl.innerHTML = ''; // Clear existing icon/text
-  messageBoxTextEl.innerText = text; 
-  
-  messageBoxShareBtn.style.display = 'none'; // Hide share button by default
-  messageBoxOkBtn.innerText = 'Ok';
-  
-  if (type === 'achievement') {
-    messageBoxTitleEl.innerHTML = `<i class="fas fa-trophy"></i> ${title}`;
-    messageBoxShareBtn.style.display = 'inline-flex';
-    messageBoxOkBtn.innerText = 'Continue';
-    // Auto-hide after 4 seconds for achievements
-    setTimeout(() => {
-      if(messageBox.classList.contains('show')) {
-        messageBox.classList.remove('show');
-      }
-    }, 4000);
-  } else if (type === 'hint') {
-    messageBoxTitleEl.innerHTML = `<i class="fas fa-lightbulb"></i> ${title}`;
-  } else { // 'info' or any other type
-    messageBoxTitleEl.innerHTML = `<i class="fas fa-info-circle"></i> ${title}`;
-  }
-
-  messageBox.classList.add('show'); 
-}
-
-// Event listener for the unified message box's OK button
-$('#messageBoxOk').onclick = () => { 
-  $('#messageBox').classList.remove('show'); 
-};
-
-// Achievements system
-function addAchievement(key, text) { 
-  if(!state.achievements.includes(key)) { 
-    state.achievements.push(key); 
-    saveState(); 
-    renderAchievements(); 
-    showMessageBox(key, text, 'achievement'); 
-    
-    // Special unlocks for certain achievements
-    if(key === 'Level 5 Complete' && !state.unlocked.includes(6)) {
-      unlockLevel(6);
-    }
-  } 
-}
-
-function unlockLevel(n) { 
-  if(n <= NUM_LEVELS && !state.unlocked.includes(n)) { 
-    state.unlocked.push(n); 
-    saveState(); 
-    renderLevels(); 
-    
-    // Achievement for unlocking levels
-    if(n === 5) addAchievement('Halfway There', 'Unlocked the first 5 levels!');
-    if(n === 10) addAchievement('Master Unlocker', 'Unlocked all levels!');
-  } 
-}
-
-function completeLevel(n, score) { 
-  if(!state.completed.includes(n)) { 
-    state.completed.push(n); 
-    state.scores[n] = score || 0; 
-    
-    // Save completion time
-    state.bestTimes[n] = state.bestTimes[n] 
-      ? Math.min(state.bestTimes[n], timerValue) 
-      : timerValue;
-    
-    saveState(); 
-    renderLevels(); 
-    renderAchievements(); 
-    
-    // Different achievements based on performance
-    if(score >= 90) {
-      addAchievement(`Level ${n} Master`, `Completed level ${n} with ${score}% score!`);
-    } else {
-      addAchievement(`Level ${n} Complete`, `Completed level ${n} with ${score}% score`);
-    }
-    
-    unlockLevel(n + 1); 
-    updateScoreBar(); 
-  } 
-}
-
-function updateScoreBar() { 
-  const total = Object.values(state.scores).reduce((a, b) => a + b, 0); 
-  const max = NUM_LEVELS * 100; 
-  const pct = Math.round((total / max) * 100); 
-  $('#scoreBar').style.width = pct + '%'; 
-}
-
-/* -------------------------- Render UI ------------------------------- */
-function renderLevels() { 
-  const container = $('#levelsList'); 
-  container.innerHTML = ''; 
-  
-  for(let i = 1; i <= NUM_LEVELS; i++) {
-    const btn = $create('div'); 
-    btn.className = 'level-btn'; 
-    
-    const locked = !state.unlocked.includes(i);
-    const completed = state.completed.includes(i);
-    const score = state.scores[i] || 0;
-    
-    if(locked) btn.classList.add('locked');
-    if(currentLevel === i) btn.classList.add('playing');
-    
-    // Calculate stars based on score
-    let stars = 0;
-    if(completed) {
-      if(score >= 90) stars = 3;
-      else if(score >= 70) stars = 2;
-      else stars = 1;
-    }
-    
-    btn.innerHTML = `
-      <div>
-        <div style='font-weight:700'>Level ${i}</div>
-        <div class='meta'>${levels[i].meta || 'Puzzle'} ${levels[i].difficulty || ''}</div>
-      </div>
-      <div>
-        ${locked ? `<span class="lock-icon"><i class="fas fa-lock"></i></span>` : ''}
-        ${completed ? `<span class="stars">${'★'.repeat(stars)}</span>` : ''}
-        ${!locked && !completed ? '<span class="badge">NEW</span>' : ''}
-      </div>
-    `;
-    
-    btn.onclick = () => { 
-      if(locked) { 
-        shake(btn); 
-        showMessageBox('Locked Level', `Level ${i} is locked. Complete previous levels to unlock!`, 'info');
-      } else { 
-        startLevel(i); 
-      } 
-    };
-    
-    container.appendChild(btn);
-  }
-}
-
-function renderAchievements() { 
-  const container = $('#achList'); 
-  container.innerHTML = ''; 
-  
-  state.achievements.forEach(a => { 
-    const el = $create('div'); 
-    el.className = 'badge'; 
-    el.innerHTML = `<i class="fas fa-trophy"></i> ${a}`; 
-    container.appendChild(el); 
-  }); 
-}
-
-function shake(el) { 
-  el.animate([
-    { transform: 'translateX(0)' },
-    { transform: 'translateX(-6px)' },
-    { transform: 'translateX(6px)' },
-    { transform: 'translateX(0)' }
-  ], { duration: 380 }); 
-}
-
-/* ------------------------ Level Implementations --------------------- */
-
-// Level 1: Sequence Puzzle
-function setupLevel1(container, done) {
-  const sequenceColors = ['var(--accent)', 'var(--accent-2)', 'var(--accent-pink)', 'var(--accent-yellow)'];
-  const sequenceNames = ['teal', 'cyan', 'pink', 'yellow'];
-  const correctSequence = [0, 1, 2, 3]; // Indices of colors
-  let userSequence = [];
-  let clickable = true; // Prevents rapid clicks
-
-  container.innerHTML = `
-    <div style="text-align:center; padding:30px;">
-      <h3 style="margin-bottom:15px; font-size:22px;">Sequence Puzzle</h3>
-      <p style="color:var(--text-secondary); margin-bottom:25px;">Click the colors in the correct order!</p>
-      <div class="grid" style="grid-template-columns: repeat(2, 1fr); max-width: 200px;">
-        ${sequenceColors.map((color, idx) => `
-          <div class="tile sequence-tile" data-index="${idx}" style="background:${color}; width:80px; height:80px;"></div>
-        `).join('')}
-      </div>
-      <p id="sequenceStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-    </div>
-  `;
-
-  const tiles = container.querySelectorAll('.sequence-tile');
-  const statusText = $('#sequenceStatus');
-
-  tiles.forEach(tile => {
-    tile.onclick = function() {
-      if (!clickable) return;
-
-      const index = parseInt(this.dataset.index);
-      userSequence.push(index);
-
-      // Add temporary highlight
-      this.style.transform = 'scale(0.95)';
-      this.style.opacity = '0.7';
-      setTimeout(() => {
-        this.style.transform = '';
-        this.style.opacity = '';
-      }, 150);
-
-      if (userSequence.length === correctSequence.length) {
-        clickable = false; // Disable clicks during evaluation
-        let isCorrect = true;
-        for (let i = 0; i < correctSequence.length; i++) {
-          if (userSequence[i] !== correctSequence[i]) {
-            isCorrect = false;
-            break;
-          }
-        }
-
-        if (isCorrect) {
-          statusText.style.color = 'var(--success)';
-          statusText.innerText = 'Correct Sequence!';
-          tiles.forEach(t => t.classList.add('correct'));
-          setTimeout(() => done(true), 1000); // Delay for visual feedback
-        } else {
-          statusText.style.color = 'var(--error)';
-          statusText.innerText = 'Incorrect Sequence. Try again!';
-          tiles.forEach(t => t.classList.add('incorrect'));
-          shake(container);
-          setTimeout(() => {
-            tiles.forEach(t => t.classList.remove('incorrect'));
-            userSequence = []; // Reset sequence
-            clickable = true;
-          }, 1000);
-        }
-      } else {
-        // Provide hint for next expected color in the sequence
-        // Only provide hint if the current click was incorrect
-        if (index !== correctSequence[userSequence.length -1]) {
-             statusText.style.color = 'var(--warning)';
-             // Display the color name for the next expected color in sequence
-             statusText.innerText = `Keep going! Next is ${sequenceNames[correctSequence[userSequence.length]]}.`;
-        } else {
-            statusText.innerText = ''; // Clear status for correct partial sequence
-        }
-      }
-    };
-  });
-}
-
-// Level 2: Memory Challenge
-function setupLevel2(container, done) {
-  const symbols = ['⭐', '🚀', '💡', '💎', '⚙️', '✨', '⚡', '🔮'];
-  let cards = [...symbols, ...symbols]; // Duplicates for pairs
-  cards.sort(() => Math.random() - 0.5); // Shuffle cards
-
-  let firstCard = null;
-  let secondCard = null;
-  let matchedPairs = 0;
-  let lockBoard = false; // Prevents clicking during flip animation
-
-  container.innerHTML = `
-    <div style="text-align:center; padding:20px;">
-      <h3 style="margin-bottom:15px; font-size:22px;">Memory Challenge</h3>
-      <p style="color:var(--text-secondary); margin-bottom:25px;">Find all matching pairs!</p>
-      <div class="grid memory-grid">
-        ${cards.map((symbol, index) => `
-          <div class="memory-card" data-symbol="${symbol}" data-index="${index}">
-            <div class="card-inner">
-              <div class="card-front"></div>
-              <div class="card-back">${symbol}</div>
-            </div>
+        <form id="contact-form">
+          <div class="contact-form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Your Name"
+              required
+            />
+            <p id="name-error" class="error-message"></p>
           </div>
-        `).join('')}
+          <div class="contact-form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="your@example.com"
+              required
+            />
+            <p id="email-error" class="error-message"></p>
+          </div>
+          <div class="contact-form-group">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              placeholder="Your message..."
+              required
+            ></textarea>
+            <p id="message-error" class="error-message"></p>
+          </div>
+          <button
+            type="submit"
+            id="form-submit-btn"
+            class="contact-form-submit-btn"
+          >
+            Send Message
+          </button>
+          <p id="submit-message" class="submit-message"></p>
+        </form>
       </div>
-      <p id="memoryStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
     </div>
-  `;
 
-  const cardElements = container.querySelectorAll('.memory-card');
-  const statusText = $('#memoryStatus');
+    <!-- GSAP and ScrollTrigger CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script>
+        // --- DOM Elements ---
+        const mainContentBox = document.getElementById('main-content-box');
+        const processSection = document.getElementById('development-process');
+        const howItWasMadeSection = document.getElementById('how-it-was-made');
+        const contactUsSection = document.getElementById('call-to-action');
+        const getInTouchBtn = document.getElementById('get-in-touch-btn');
+        const sendMessageBtnFinal = document.getElementById('send-message-btn-final');
+        const contactModal = document.getElementById('contact-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const contactForm = document.getElementById('contact-form');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const messageInput = document.getElementById('message');
+        const nameError = document.getElementById('name-error');
+        const emailError = document.getElementById('email-error');
+        const messageError = document.getElementById('message-error');
+        const formSubmitBtn = document.getElementById('form-submit-btn');
+        const submitMessageDiv = document.getElementById('submit-message');
 
-  function flipCard() {
-    if (lockBoard) return;
-    if (this === firstCard) return; // Prevent double clicking the same card
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
 
-    this.classList.add('flipped');
-    statusText.innerText = ''; // Clear previous message
-
-    if (!firstCard) {
-      firstCard = this;
-      return;
-    }
-
-    secondCard = this;
-    lockBoard = true;
-
-    checkForMatch();
-  }
-
-  function checkForMatch() {
-    const isMatch = firstCard.dataset.symbol === secondCard.dataset.symbol;
-
-    if (isMatch) {
-      disableCards();
-    } else {
-      unflipCards();
-    }
-  }
-
-  function disableCards() {
-    firstCard.classList.add('matched');
-    secondCard.classList.add('matched');
-    matchedPairs++;
-    statusText.style.color = 'var(--success)';
-    statusText.innerText = 'Match Found! Keep going.';
-    resetBoard();
-
-    if (matchedPairs === symbols.length) {
-      statusText.style.color = 'var(--accent)';
-      statusText.innerText = 'All pairs matched! Well done!';
-      setTimeout(() => done(true), 1000);
-    }
-  }
-
-  function unflipCards() {
-    statusText.style.color = 'var(--error)';
-    statusText.innerText = 'No match. Try again!';
-    setTimeout(() => {
-      firstCard.classList.remove('flipped');
-      secondCard.classList.remove('flipped');
-      shake(firstCard); // Shake both cards
-      shake(secondCard);
-      resetBoard();
-    }, 1000);
-  }
-
-  function resetBoard() {
-    [firstCard, secondCard, lockBoard] = [null, null, false];
-  }
-
-  cardElements.forEach(card => card.addEventListener('click', flipCard));
-}
-
-
-// Level 3: Slide Shift (3x3 Puzzle)
-function setupLevel3(container, done) {
-  const BOARD_SIZE = 3;
-  let tiles = Array.from({ length: BOARD_SIZE * BOARD_SIZE - 1 }, (_, i) => i + 1); // 1 to 8
-  tiles.push(0); // 0 represents the empty space
-
-  // Helper to count inversions for solvability check
-  function getInversions(arr) {
-      let inversions = 0;
-      const puzzleTiles = arr.filter(num => num !== 0); // Exclude the empty tile (0)
-      for (let i = 0; i < puzzleTiles.length - 1; i++) {
-          for (let j = i + 1; j < puzzleTiles.length; j++) {
-              if (puzzleTiles[i] > puzzleTiles[j]) {
-                  inversions++;
-              }
-          }
-      }
-      return inversions;
-  }
-
-  // Solvable shuffle function for 3x3 grid
-  function shuffleSolvable(array) {
-      let shuffledArray = [...array];
-      let inversions;
-
-      do {
-          // Fisher-Yates shuffle
-          for (let i = shuffledArray.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-          }
-          inversions = getInversions(shuffledArray);
-      } while (inversions % 2 !== 0); // For an N x N puzzle where N is odd (like 3x3),
-                                     // it's solvable if the number of inversions is even.
-
-      return shuffledArray;
-  }
-
-  tiles = shuffleSolvable(tiles); // Use the solvable shuffle
-
-  container.innerHTML = `
-    <div style="text-align:center; padding:20px;">
-      <h3 style="margin-bottom:15px; font-size:22px;">Slide Shift</h3>
-      <p style="color:var(--text-secondary); margin-bottom:25px;">Arrange the numbers in order (1-8), leaving the last spot empty!</p>
-      <div class="grid slider-grid" id="sliderPuzzleGrid"></div>
-      <p id="sliderStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-    </div>
-  `;
-
-  const gridElement = $('#sliderPuzzleGrid');
-  const statusText = $('#sliderStatus');
-
-  function renderTiles() {
-    gridElement.innerHTML = '';
-    tiles.forEach((number, index) => {
-      const tile = $create('div', {
-        className: `slider-piece ${number === 0 ? 'empty' : ''}`,
-        innerText: number === 0 ? '' : number,
-        // Set dataset properties directly
-        dataset: { 
-          index: index.toString(), // Convert to string for dataset
-          number: number.toString() // Convert to string for dataset
-        }
-      });
-      tile.addEventListener('click', () => moveTile(index));
-      gridElement.appendChild(tile);
-    });
-  }
-
-  function getEmptyTileIndex() {
-    return tiles.indexOf(0);
-  }
-
-  function canMove(tileIndex, emptyIndex) {
-    const rowTile = Math.floor(tileIndex / BOARD_SIZE);
-    const colTile = tileIndex % BOARD_SIZE;
-    const rowEmpty = Math.floor(emptyIndex / BOARD_SIZE);
-    const colEmpty = emptyIndex % BOARD_SIZE;
-
-    // Check if horizontally or vertically adjacent
-    const isAdjacent = (Math.abs(rowTile - rowEmpty) === 1 && colTile === colEmpty) ||
-                       (Math.abs(colTile - colEmpty) === 1 && rowTile === rowEmpty);
-    return isAdjacent;
-  }
-
-  function moveTile(clickedIndex) {
-    const emptyIndex = getEmptyTileIndex();
-
-    if (canMove(clickedIndex, emptyIndex)) {
-      // Swap tiles
-      [tiles[clickedIndex], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[clickedIndex]];
-      renderTiles(); // Re-render the grid
-
-      if (checkWin()) {
-        statusText.style.color = 'var(--success)';
-        statusText.innerText = 'Puzzle Solved! Amazing!';
-        setTimeout(() => done(true), 1000);
-      } else {
-        statusText.innerText = ''; // Clear status if not won
-      }
-    } else {
-      const clickedTile = gridElement.children[clickedIndex];
-      if (clickedTile && !clickedTile.classList.contains('empty')) {
-        shake(clickedTile);
-        statusText.style.color = 'var(--error)';
-        statusText.innerText = 'Cannot move that tile. Only adjacent tiles can move into the empty space.';
-        setTimeout(() => statusText.innerText = '', 1500); // Clear message after a short delay
-      }
-    }
-  }
-
-  function checkWin() {
-    // Check if numbers are in ascending order (1, 2, ..., 8) and 0 is at the end
-    for (let i = 0; i < tiles.length - 1; i++) {
-      if (tiles[i] !== i + 1) {
-        return false;
-      }
-    }
-    return tiles[tiles.length - 1] === 0; // Ensure empty tile is last
-  }
-
-  renderTiles(); // Initial render
-}
-
-// Level 4: Trace Echo
-function setupLevel4(container, done) {
-    const BOARD_SIZE = 3;
-    const nodes = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, (_, i) => i);
-    let userPath = [];
-    let isDrawing = false;
-    let svg;
-    let currentLine;
-
-    container.innerHTML = `
-        <div style="text-align:center; padding:20px;">
-            <h3 style="margin-bottom:15px; font-size:22px;">Trace Echo</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Draw the correct pattern through the nodes!</p>
-            <div class="grid trace-grid" id="tracePuzzleGrid" style="position:relative;">
-                ${nodes.map((_, i) => `<div class="node" data-node-index="${i}"></div>`).join('')}
-                <svg class="line-svg-container"></svg>
-            </div>
-            <p id="traceStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-            <div style="margin-top: 20px;">
-                <button class="btn-ghost" id="resetTraceBtn"><i class="fas fa-undo"></i> Reset Path</button>
-                <button class="primary" id="checkTraceBtn" style="margin-left: 10px;"><i class="fas fa-check"></i> Check Pattern</button>
-            </div>
-        </div>
-    `;
-
-    const gridElement = $('#tracePuzzleGrid');
-    const statusText = $('#traceStatus');
-    const resetBtn = $('#resetTraceBtn');
-    const checkBtn = $('#checkTraceBtn');
-    svg = gridElement.querySelector('svg');
-
-    // Define the correct diagonal cross pattern (indices of nodes)
-    // 0 1 2
-    // 3 4 5
-    // 6 7 8
-    // Correct path: 0 -> 4 -> 8 (diagonal 1), then 2 -> 4 -> 6 (diagonal 2)
-    // For simplicity, let's assume a continuous path for now, or two distinct paths.
-    // The hint says "a diagonal cross starting from top-left to bottom-right, then top-right to bottom-left."
-    // This implies 0-4-8 and 2-4-6. We'll require both.
-    const CORRECT_PATTERN = [0, 4, 8, 2, 6];
-
-    // Helper to get center coordinates of a node
-    function getNodeCenter(node) {
-        const rect = node.getBoundingClientRect();
-        const gridRect = gridElement.getBoundingClientRect();
-        return {
-            x: (rect.left + rect.right) / 2 - gridRect.left,
-            y: (rect.top + rect.bottom) / 2 - gridRect.top
-        };
-    }
-
-    function startDrawing(e) {
-        const targetNode = e.target.closest('.node');
-        if (!targetNode) return;
-
-        isDrawing = true;
-        userPath = [parseInt(targetNode.dataset.nodeIndex)];
-        targetNode.classList.add('active'); // Highlight the starting node
-
-        // Start new SVG line
-        const startPoint = getNodeCenter(targetNode);
-        currentLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        currentLine.setAttribute('points', `${startPoint.x},${startPoint.y}`);
-        currentLine.setAttribute('class', 'trace-line');
-        svg.appendChild(currentLine);
-
-        statusText.innerText = '';
-    }
-
-    function drawPath(e) {
-        if (!isDrawing) return;
-
-        const targetNode = e.target.closest('.node');
-        if (targetNode) {
-            const index = parseInt(targetNode.dataset.nodeIndex);
-            if (userPath.length === 0 || userPath[userPath.length - 1] !== index) {
-                // Only add if it's a new node or not the current one
-                if (!userPath.includes(index) || (userPath.length > 0 && index === CORRECT_PATTERN[userPath.length])) {
-                    userPath.push(index);
-                    targetNode.classList.add('visited'); // Mark as visited
-                    const point = getNodeCenter(targetNode);
-                    let points = currentLine.getAttribute('points');
-                    currentLine.setAttribute('points', `${points} ${point.x},${point.y}`);
-                }
+        // --- GSAP Animations Logic ---
+        function initializeGSAPAnimations() {
+            if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                console.warn("GSAP or ScrollTrigger not loaded. Animations will not run.");
+                return;
             }
-        }
-        // Update temporary line to mouse position if not on a node (visual feedback)
-        const mouseX = e.clientX - gridElement.getBoundingClientRect().left;
-        const mouseY = e.clientY - gridElement.getBoundingClientRect().top;
-        if (currentLine && userPath.length > 0) {
-            currentLine.setAttribute('points', `${currentLine.getAttribute('points').split(' ').slice(0, userPath.length).join(' ')} ${mouseX},${mouseY}`);
-            currentLine.classList.add('temp');
-        }
-    }
+            gsap.registerPlugin(ScrollTrigger);
 
-    function stopDrawing() {
-        if (!isDrawing) return;
-        isDrawing = false;
-        
-        // Remove temporary line part
-        if (currentLine) {
-             const finalPoints = currentLine.getAttribute('points').split(' ').slice(0, userPath.length).join(' ');
-             currentLine.setAttribute('points', finalPoints);
-             currentLine.classList.remove('temp');
-        }
+            // Hero Section Intro Animations
+            const tlIntro = gsap.timeline();
+            tlIntro.fromTo(mainContentBox, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.5, ease: 'power2.out' }, 0.5)
+                   .from('.hero-text-anim', { opacity: 0, y: 20, stagger: 0.2, duration: 1, ease: 'power2.out' }, 1.5);
 
-        gridElement.querySelectorAll('.node').forEach(node => node.classList.remove('active'));
-    }
+            // Hero Section Scroll Out Animation
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: mainContentBox,
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: true,
+                },
+            }).to(mainContentBox, { opacity: 0, y: -100, ease: 'power1.out', pointerEvents: 'none' }, 0);
 
-    function checkPattern() {
-        if (userPath.length === 0) {
-            statusText.style.color = 'var(--warning)';
-            statusText.innerText = 'Draw a pattern first!';
-            return;
-        }
+            // Section Entrance Animations (General)
+            const sectionsToAnimate = [
+                { ref: processSection, className: '.projects-text-anim' },
+                { ref: howItWasMadeSection, className: '.how-made-anim' },
+                { ref: contactUsSection, className: '.contact-us-anim' },
+            ];
 
-        let isCorrect = true;
-        if (userPath.length !== CORRECT_PATTERN.length) {
-            isCorrect = false;
-        } else {
-            for (let i = 0; i < CORRECT_PATTERN.length; i++) {
-                if (userPath[i] !== CORRECT_PATTERN[i]) {
-                    isCorrect = false;
-                    break;
-                }
-            }
-        }
-
-        if (isCorrect) {
-            statusText.style.color = 'var(--success)';
-            statusText.innerText = 'Pattern Correct! Level Complete!';
-            gridElement.querySelectorAll('.node').forEach(node => {
-                if (CORRECT_PATTERN.includes(parseInt(node.dataset.nodeIndex))) {
-                    node.classList.add('correct');
+            sectionsToAnimate.forEach(({ ref, className }) => {
+                if (ref) { // Ensure ref exists
+                    gsap.from(className, {
+                        opacity: 0,
+                        y: 50,
+                        stagger: 0.1,
+                        duration: 1,
+                        ease: 'power1.out',
+                        scrollTrigger: {
+                            trigger: ref,
+                            start: 'top 80%',
+                            toggleActions: 'play none none none',
+                        },
+                    });
                 }
             });
-            setTimeout(() => done(true), 1000);
-        } else {
-            statusText.style.color = 'var(--error)';
-            statusText.innerText = 'Incorrect pattern. Try again!';
-            shake(gridElement);
-            setTimeout(resetPattern, 1500);
+
+            // Final Call to Action Animation
+            gsap.from('.anim-cta-button', {
+              scale: 0.8, opacity: 0, duration: 1, ease: 'back.out(1.7)',
+              scrollTrigger: { trigger: '.anim-cta-button', start: 'top 85%', toggleActions: 'play none none none' },
+            });
+            gsap.from('.anim-final-section-content', {
+              opacity: 0, y: 20, duration: 1, ease: 'power1.out',
+              scrollTrigger: { trigger: '.anim-final-section', start: 'top 80%', toggleActions: 'play none none none', once: true },
+            });
         }
-    }
 
-    function resetPattern() {
-        userPath = [];
-        svg.innerHTML = ''; // Clear SVG lines
-        gridElement.querySelectorAll('.node').forEach(node => {
-            node.classList.remove('active', 'visited', 'correct');
-        });
-        statusText.innerText = '';
-    }
+        // --- Contact Modal Logic ---
+        function openContactModal() {
+            contactModal.style.display = 'flex';
+        }
 
-    gridElement.addEventListener('mousedown', startDrawing);
-    gridElement.addEventListener('mousemove', drawPath);
-    gridElement.addEventListener('mouseup', stopDrawing);
-    gridElement.addEventListener('mouseleave', stopDrawing); // Important for when mouse leaves grid
+        function closeContactModal() {
+            contactModal.style.display = 'none';
+            // Clear form and messages on close
+            contactForm.reset();
+            nameInput.classList.remove('error');
+            emailInput.classList.remove('error');
+            messageInput.classList.remove('error');
+            nameError.textContent = '';
+            emailError.textContent = '';
+            messageError.textContent = '';
+            submitMessageDiv.textContent = '';
+            submitMessageDiv.classList.remove('success', 'error');
+        }
 
-    resetBtn.onclick = resetPattern;
-    checkBtn.onclick = checkPattern;
-}
+        function validateForm() {
+            let isValid = true;
+            submitMessageDiv.textContent = ''; // Clear previous submit message
 
-
-// Level 5: Silent Maze
-function setupLevel5(container, done) {
-    // Maze definition: 0 = path, 1 = wall, 2 = player, 3 = exit
-    const MAZE = [
-        [0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0],
-        [1, 1, 0, 1, 0],
-        [0, 0, 0, 1, 3] // Exit at [4,4]
-    ];
-    let playerPos = { r: 0, c: 0 };
-    const MAX_PINGS = 5;
-    let pingsUsed = 0;
-
-    container.innerHTML = `
-        <div style="text-align:center; padding:20px;">
-            <h3 style="margin-bottom:15px; font-size:22px;">Silent Maze</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Navigate to the exit. Use sonar pings wisely!</p>
-            <div class="grid maze-grid" id="mazeGrid"></div>
-            <div class="maze-info">Pings Left: <strong id="pingsLeft">${MAX_PINGS}</strong></div>
-            <div class="maze-controls">
-                <div class="direction-buttons">
-                    <button class="btn-ghost up" data-direction="up"><i class="fas fa-arrow-up"></i></button>
-                    <button class="btn-ghost left" data-direction="left"><i class="fas fa-arrow-left"></i></button>
-                    <button class="btn-ghost center" id="pingBtn"><i class="fas fa-podcast"></i> Ping</button>
-                    <button class="btn-ghost right" data-direction="right"><i class="fas fa-arrow-right"></i></button>
-                    <button class="btn-ghost down" data-direction="down"><i class="fas fa-arrow-down"></i></button>
-                </div>
-            </div>
-            <p id="mazeStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-        </div>
-    `;
-
-    const mazeGridElement = $('#mazeGrid');
-    const pingsLeftEl = $('#pingsLeft');
-    const mazeStatus = $('#mazeStatus');
-    const pingBtn = $('#pingBtn');
-
-    function renderMaze() {
-        mazeGridElement.innerHTML = '';
-        for (let r = 0; r < MAZE.length; r++) {
-            for (let c = 0; c < MAZE[r].length; c++) {
-                const cell = $create('div', {
-                    className: 'maze-cell',
-                    dataset: { r: r, c: c }
-                });
-
-                if (MAZE[r][c] === 1) { // Wall
-                    cell.classList.add('wall');
-                } else if (MAZE[r][c] === 3) { // Exit
-                    cell.classList.add('exit');
-                    cell.innerHTML = '<i class="fas fa-door-open"></i>';
-                }
-
-                // Initial player position
-                if (r === playerPos.r && c === playerPos.c) {
-                    cell.classList.add('player');
-                    cell.innerHTML = '<i class="fas fa-person-walking"></i>';
-                }
-                
-                // Keep visited paths marked if not pinged over
-                if (cell.dataset.r == playerPos.r && cell.dataset.c == playerPos.c) {
-                    // Current player position
-                } else if (cell.classList.contains('visited-path') && !cell.classList.contains('pinged')) {
-                    // Already visited path, keep the class
-                } else {
-                    cell.classList.remove('visited-path', 'pinged'); // Clean up from previous pings/moves
-                }
-
-                mazeGridElement.appendChild(cell);
+            // Validate Name
+            if (!nameInput.value.trim()) {
+                nameError.textContent = 'Name is required.';
+                nameInput.classList.add('error');
+                isValid = false;
+            } else {
+                nameError.textContent = '';
+                nameInput.classList.remove('error');
             }
+
+            // Validate Email
+            const emailRegex = /\S+@\S+\.\S+/;
+            if (!emailInput.value.trim()) {
+                emailError.textContent = 'Email is required.';
+                emailInput.classList.add('error');
+                isValid = false;
+            } else if (!emailRegex.test(emailInput.value.trim())) {
+                emailError.textContent = 'Email is invalid.';
+                emailInput.classList.add('error');
+                isValid = false;
+            } else {
+                emailError.textContent = '';
+                emailInput.classList.remove('error');
+            }
+
+            // Validate Message
+            if (!messageInput.value.trim()) {
+                messageError.textContent = 'Message is required.';
+                messageInput.classList.add('error');
+                isValid = false;
+            } else {
+                messageError.textContent = '';
+                messageInput.classList.remove('error');
+            }
+
+            return isValid;
         }
-    }
 
-    function movePlayer(dr, dc) {
-        const newR = playerPos.r + dr;
-        const newC = playerPos.c + dc;
+        async function handleContactFormSubmit(event) {
+            event.preventDefault();
+            formSubmitBtn.disabled = true;
+            submitMessageDiv.textContent = 'Sending...';
+            submitMessageDiv.classList.remove('success', 'error'); // Remove previous states
 
-        if (newR >= 0 && newR < MAZE.length && newC >= 0 && newC < MAZE[0].length) {
-            if (MAZE[newR][newC] !== 1) { // If not a wall
-                const oldPlayerCell = mazeGridElement.querySelector(`.maze-cell[data-r="${playerPos.r}"][data-c="${playerPos.c}"]`);
-                oldPlayerCell.classList.remove('player');
-                oldPlayerCell.innerHTML = '';
-                oldPlayerCell.classList.add('visited-path'); // Mark old path as visited
-
-                playerPos = { r: newR, c: newC };
-                renderMaze(); // Re-render to update player position
-
-                if (MAZE[newR][newC] === 3) { // Reached exit
-                    mazeStatus.style.color = 'var(--success)';
-                    mazeStatus.innerText = 'Maze Solved! You found the exit!';
-                    setTimeout(() => done(true), 1000);
+            if (validateForm()) {
+                try {
+                    // Simulate API call for sending message
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    console.log('Form submitted:', {
+                        name: nameInput.value,
+                        email: emailInput.value,
+                        message: messageInput.value
+                    });
+                    submitMessageDiv.textContent = 'Your message has been sent successfully!';
+                    submitMessageDiv.classList.add('success');
+                    contactForm.reset(); // Clear form
+                } catch (error) {
+                    submitMessageDiv.textContent = 'Failed to send message. Please try again.';
+                    submitMessageDiv.classList.add('error');
+                    console.error('Submission error:', error);
                 }
             } else {
-                mazeStatus.style.color = 'var(--error)';
-                mazeStatus.innerText = 'Ouch! That\'s a wall.';
-                shake(mazeGridElement);
+                submitMessageDiv.textContent = 'Please correct the errors above.';
+                submitMessageDiv.classList.add('error');
             }
-        } else {
-            mazeStatus.style.color = 'var(--error)';
-            mazeStatus.innerText = 'You\'re at the edge!';
-            shake(mazeGridElement);
+            formSubmitBtn.disabled = false;
         }
-    }
 
-    function usePing() {
-        if (pingsUsed < MAX_PINGS) {
-            pingsUsed++;
-            pingsLeftEl.innerText = MAX_PINGS - pingsUsed;
-            mazeStatus.style.color = 'var(--accent-2)';
-            mazeStatus.innerText = 'Ping used! Revealing surroundings...';
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load GSAP and then initialize animations
+            initializeGSAPAnimations();
 
-            // Temporarily reveal cells around the player
-            const revealRadius = 1; // Reveals 1 cell around player (3x3 area)
-            for (let r = playerPos.r - revealRadius; r <= playerPos.r + revealRadius; r++) {
-                for (let c = playerPos.c - revealRadius; c <= playerPos.c + revealRadius; c++) {
-                    if (r >= 0 && r < MAZE.length && c >= 0 && c < MAZE[0].length) {
-                        const cell = mazeGridElement.querySelector(`.maze-cell[data-r="${r}"][data-c="${c}"]`);
-                        if (cell) {
-                            cell.classList.add('pinged');
-                            if (MAZE[r][c] === 1) { // If it's a wall
-                                cell.innerHTML = '<i class="fas fa-times"></i>';
-                            } else if (MAZE[r][c] === 3) { // If it's the exit
-                                cell.innerHTML = '<i class="fas fa-door-open"></i>';
-                            } else if (r === playerPos.r && c === playerPos.c) {
-                                // Current player position, no change
-                            } else {
-                                cell.innerHTML = '<i class="fas fa-dot-circle"></i>'; // Path
-                            }
-                        }
-                    }
-                }
+            // Set up modal buttons
+            if (getInTouchBtn) {
+                getInTouchBtn.addEventListener('click', openContactModal);
             }
-            
-            // Remove pinged status and temporary icons after a short delay
-            setTimeout(() => {
-                mazeGridElement.querySelectorAll('.maze-cell').forEach(cell => {
-                    cell.classList.remove('pinged');
-                    if (cell.classList.contains('player') || cell.classList.contains('exit')) {
-                        // Keep player and exit icons
-                    } else if (!cell.classList.contains('wall')) { // Only clear path icons
-                         cell.innerHTML = ''; // Clear temporary icons
-                    } else { // It's a wall, clear temporary icons
-                         cell.innerHTML = '';
+            if (sendMessageBtnFinal) {
+                sendMessageBtnFinal.addEventListener('click', openContactModal);
+            }
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeContactModal);
+            }
+            if (contactModal) {
+                contactModal.addEventListener('click', (e) => {
+                    if (e.target === contactModal) { // Close if clicked on overlay
+                        closeContactModal();
                     }
                 });
-            }, 1500); // Ping effect lasts 1.5 seconds
-
-            if (pingsUsed >= MAX_PINGS) {
-                pingBtn.disabled = true;
-                mazeStatus.style.color = 'var(--warning)';
-                mazeStatus.innerText = 'No pings left!';
             }
-        } else {
-            mazeStatus.style.color = 'var(--error)';
-            mazeStatus.innerText = 'No pings left!';
-        }
-    }
-
-    // Event listeners for direction buttons
-    container.querySelectorAll('.direction-buttons button[data-direction]').forEach(btn => {
-        btn.onclick = () => {
-            const dir = btn.dataset.direction;
-            mazeStatus.innerText = ''; // Clear status on move
-            if (dir === 'up') movePlayer(-1, 0);
-            else if (dir === 'down') movePlayer(1, 0);
-            else if (dir === 'left') movePlayer(0, -1);
-            else if (dir === 'right') movePlayer(0, 1);
-        };
-    });
-
-    pingBtn.onclick = usePing;
-
-    renderMaze();
-}
-
-
-// Level 6: Caesar Clue
-function setupLevel6(container, done) {
-    const ENCRYPTED_MESSAGE = "khoor zruog"; // "hello world" shifted by +3
-    const CORRECT_SHIFT = 3; // Shift to decrypt to "hello world"
-
-    function caesarCipher(text, shift, decrypt = false) {
-        if (decrypt) shift = (26 - (shift % 26)) % 26; // Adjust shift for decryption
-        let result = '';
-        for (let i = 0; i < text.length; i++) {
-            let char = text[i];
-            if (char >= 'a' && char <= 'z') {
-                let code = char.charCodeAt(0);
-                char = String.fromCharCode(((code - 97 + shift) % 26) + 97);
-            } else if (char >= 'A' && char <= 'Z') {
-                let code = char.charCodeAt(0);
-                char = String.fromCharCode(((code - 65 + shift) % 26) + 65);
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleContactFormSubmit);
+                nameInput.addEventListener('input', validateForm); // Re-validate on input
+                emailInput.addEventListener('input', validateForm); // Re-validate on input
+                messageInput.addEventListener('input', validateForm); // Re-validate on input
             }
-            result += char;
-        }
-        return result;
-    }
-
-    container.innerHTML = `
-        <div class="cipher-container">
-            <h3 style="margin-bottom:15px; font-size:22px;">Caesar Clue</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Decode the encrypted message. Shift value unknown.</p>
-            <div class="encrypted-message" id="encryptedMessage">${ENCRYPTED_MESSAGE}</div>
-            <div class="cipher-controls">
-                <label for="shiftInput">Shift Value (0-25):</label>
-                <input type="number" id="shiftInput" min="0" max="25" value="0">
-                <button class="primary" id="decryptBtn"><i class="fas fa-key"></i> Decrypt</button>
-            </div>
-            <div class="decrypted-output" id="decryptedOutput"></div>
-            <p id="cipherStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-        </div>
-    `;
-
-    const shiftInput = $('#shiftInput');
-    const decryptBtn = $('#decryptBtn');
-    const decryptedOutput = $('#decryptedOutput');
-    const cipherStatus = $('#cipherStatus');
-
-    function updateDecryptedText() {
-        const shift = parseInt(shiftInput.value);
-        if (isNaN(shift)) {
-            decryptedOutput.innerText = '';
-            cipherStatus.innerText = 'Please enter a valid shift number.';
-            return;
-        }
-        const decrypted = caesarCipher(ENCRYPTED_MESSAGE, shift, true); // true for decryption
-        decryptedOutput.innerText = decrypted;
-
-        if (decrypted.toLowerCase() === 'hello world') {
-            cipherStatus.style.color = 'var(--success)';
-            cipherStatus.innerText = 'Message Decrypted! Level Complete!';
-            decryptBtn.disabled = true;
-            shiftInput.disabled = true;
-            setTimeout(() => done(true), 1000);
-        } else {
-            cipherStatus.style.color = 'var(--text-secondary)';
-            cipherStatus.innerText = 'Keep trying!';
-        }
-    }
-
-    shiftInput.addEventListener('input', updateDecryptedText); // Decrypt on input change
-    decryptBtn.onclick = updateDecryptedText;
-
-    // Initial decryption on load
-    updateDecryptedText();
-}
-
-
-// Level 7: Echo Math
-function setupLevel7(container, done) {
-    const TARGET_VALUE = 24; // Target value
-    const AVAILABLE_NUMBERS = [2, 3, 4, 5, 8, 10]; // Numbers user can use
-
-    container.innerHTML = `
-        <div class="math-container">
-            <h3 style="margin-bottom:15px; font-size:22px;">Echo Math</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Use the given numbers and basic operations to reach the target!</p>
-            <div class="math-target">Target: <span id="mathTargetValue">${TARGET_VALUE}</span></div>
-            <div class="math-numbers">
-                ${AVAILABLE_NUMBERS.map(num => `<span class="math-number-tile">${num}</span>`).join('')}
-            </div>
-            <div class="math-input-group">
-                <input type="text" id="mathExpressionInput" placeholder="e.g., (8 / 2) * 6">
-                <button class="primary" id="calculateMathBtn"><i class="fas fa-calculator"></i> Calculate</button>
-            </div>
-            <div class="math-result" id="mathResult"></div>
-            <p id="mathStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-            <p style="color:var(--muted); font-size:0.85em; margin-top:10px;">Allowed: numbers, +, -, *, /, (, )</p>
-        </div>
-    `;
-
-    const mathExpressionInput = $('#mathExpressionInput');
-    const calculateMathBtn = $('#calculateMathBtn');
-    const mathResult = $('#mathResult');
-    const mathStatus = $('#mathStatus');
-
-    calculateMathBtn.onclick = () => {
-        const expression = mathExpressionInput.value.trim();
-        if (!expression) {
-            mathStatus.style.color = 'var(--warning)';
-            mathStatus.innerText = 'Please enter an expression.';
-            return;
-        }
-
-        // Basic validation: ensure only allowed characters and numbers from the list are used
-        // This regex ensures only digits, +, -, *, /, (, ), and spaces are present.
-        if (!/^[0-9+\-*/()\s]+$/.test(expression)) {
-            mathStatus.style.color = 'var(--error)';
-            mathStatus.innerText = 'Invalid characters detected. Only numbers and basic operations (+, -, *, /, parentheses) are allowed.';
-            shake(mathExpressionInput);
-            return;
-        }
-
-        // Further validation: check if numbers used are from AVAILABLE_NUMBERS
-        const numbersInExpression = expression.match(/\d+/g) || [];
-        let allNumbersValid = true;
-        for (const numStr of numbersInExpression) {
-            const num = parseInt(numStr);
-            if (!AVAILABLE_NUMBERS.includes(num)) {
-                allNumbersValid = false;
-                break;
-            }
-        }
-
-        if (!allNumbersValid) {
-            mathStatus.style.color = 'var(--error)';
-            mathStatus.innerText = 'You can only use the numbers provided!';
-            shake(mathExpressionInput);
-            return;
-        }
-
-        try {
-            // Using a stricter approach than eval() to limit potential risks, though still user-input based.
-            // For production, a proper math expression parser library would be ideal.
-            const safeEval = (expr) => {
-                // Remove anything not a number, operator, or parenthesis
-                let sanitizedExpr = expr.replace(/[^-()\d/*+.]/g, '');
-                // Basic check to ensure it's not trying to call functions etc.
-                if (/[a-zA-Z]/.test(sanitizedExpr)) {
-                    throw new Error("Invalid characters in expression");
-                }
-                // eslint-disable-next-line no-eval
-                return Function('"use strict";return (' + sanitizedExpr + ')')();
-            };
-
-            const result = safeEval(expression);
-            mathResult.innerText = `Result: ${result}`;
-
-            if (result === TARGET_VALUE) {
-                mathStatus.style.color = 'var(--success)';
-                mathStatus.innerText = 'Correct! Level Complete!';
-                calculateMathBtn.disabled = true;
-                mathExpressionInput.disabled = true;
-                setTimeout(() => done(true), 1000);
-            } else {
-                mathStatus.style.color = 'var(--error)';
-                mathStatus.innerText = `Incorrect. Expected ${TARGET_VALUE}.`;
-                shake(mathExpressionInput);
-            }
-        } catch (e) {
-            mathResult.innerText = '';
-            mathStatus.style.color = 'var(--error)';
-            mathStatus.innerText = 'Invalid expression. Check your syntax!';
-            shake(mathExpressionInput);
-        }
-    };
-}
-
-// Level 8: Assemble Echo
-function setupLevel8(container, done) {
-    const PIECE_COUNT = 4; // Number of pieces (e.g., 2x2 grid)
-    const TARGET_OFFSET_X = 100; // Offset between target columns
-    const TARGET_OFFSET_Y = 100; // Offset between target rows
-    const PIECE_SIZE = 100; // Consistent piece size
-
-    const TARGET_POSITIONS = [
-        { top: 0, left: 0, id: 0 },
-        { top: 0, left: TARGET_OFFSET_X, id: 1 },
-        { top: TARGET_OFFSET_Y, left: 0, id: 2 },
-        { top: TARGET_OFFSET_Y, left: TARGET_OFFSET_X, id: 3 }
-    ];
-
-    const START_POSITIONS = [
-        { top: 250, left: 50 }, { top: 250, left: 200 },
-        { top: 350, left: 50 }, { top: 350, left: 200 }
-    ];
-
-    // Shuffle START_POSITIONS to randomize initial placement
-    START_POSITIONS.sort(() => Math.random() - 0.5);
-
-    let placedPieces = 0;
-    let draggingPiece = null;
-    let dragOffsetX, dragOffsetY;
-
-    container.innerHTML = `
-        <div class="assemble-container">
-            <h3 style="margin-bottom:15px; font-size:22px;">Assemble Echo</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Drag the pieces to their correct target zones!</p>
-            <div class="assemble-board" id="assembleBoard" style="width:${TARGET_OFFSET_X * 2}px; height:${TARGET_OFFSET_Y * 2}px;">
-                <!-- Target zones (fixed positions, adjusted for padding in grid) -->
-                ${TARGET_POSITIONS.map((pos, i) => `
-                    <div class="target-zone" data-target-id="${pos.id}" 
-                         style="grid-column: ${i % 2 + 1}; grid-row: ${Math.floor(i / 2) + 1};">
-                    </div>
-                `).join('')}
-            </div>
-            <div id="puzzlePiecesContainer" style="position:relative; width:${TARGET_OFFSET_X * 2 + 200}px; height:400px; margin-top: 20px;">
-                <!-- Puzzle pieces (positioned by JS) -->
-            </div>
-            <p id="assembleStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-        </div>
-    `;
-
-    const assembleBoard = $('#assembleBoard');
-    const puzzlePiecesContainer = $('#puzzlePiecesContainer');
-    const assembleStatus = $('#assembleStatus');
-
-    // Create and position puzzle pieces
-    for (let i = 0; i < PIECE_COUNT; i++) {
-        const piece = $create('div', {
-            className: 'puzzle-piece',
-            innerText: String.fromCharCode(65 + i), // A, B, C, D
-            dataset: { pieceId: i, targetId: i } // Each piece has a matching target
         });
-        // Set initial random position from START_POSITIONS
-        piece.style.top = `${START_POSITIONS[i].top}px`;
-        piece.style.left = `${START_POSITIONS[i].left}px`;
-        puzzlePiecesContainer.appendChild(piece);
-
-        piece.addEventListener('mousedown', startDrag);
-        piece.addEventListener('touchstart', startDrag, { passive: false }); // For touch events
-    }
-
-    function startDrag(e) {
-        if (this.classList.contains('placed')) return; // Cannot drag placed pieces
-
-        e.preventDefault(); // Prevent default touch behavior (scrolling)
-        draggingPiece = this;
-        draggingPiece.style.zIndex = '100'; // Bring to front
-
-        const rect = draggingPiece.getBoundingClientRect();
-        
-        // Calculate offset relative to the piece's top-left corner
-        if (e.type === 'mousedown') {
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-        } else if (e.type === 'touchstart') {
-            const touch = e.touches[0];
-            dragOffsetX = touch.clientX - rect.left;
-            dragOffsetY = touch.clientY - rect.top;
-        }
-        
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', endDrag);
-        document.addEventListener('touchmove', drag, { passive: false });
-        document.addEventListener('touchend', endDrag);
-    }
-
-    function drag(e) {
-        if (!draggingPiece) return;
-        e.preventDefault(); // Prevent default touch behavior (scrolling)
-
-        let clientX, clientY;
-        if (e.type === 'mousemove') {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        } else if (e.type === 'touchmove') {
-            const touch = e.touches[0];
-            if (!touch) return;
-            clientX = touch.clientX;
-            clientY = touch.clientY;
-        } else {
-            return;
-        }
-
-        const containerRect = puzzlePiecesContainer.getBoundingClientRect();
-        let newX = clientX - containerRect.left - dragOffsetX;
-        let newY = clientY - containerRect.top - dragOffsetY;
-
-        // Keep piece within container bounds
-        newX = Math.max(0, Math.min(newX, containerRect.width - draggingPiece.offsetWidth));
-        newY = Math.max(0, Math.min(newY, containerRect.height - draggingPiece.offsetHeight));
-
-        draggingPiece.style.left = `${newX}px`;
-        draggingPiece.style.top = `${newY}px`;
-    }
-
-    function endDrag(e) {
-        if (!draggingPiece) return;
-
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('mouseup', endDrag);
-        document.removeEventListener('touchmove', drag);
-        document.removeEventListener('touchend', endDrag);
-
-        const pieceId = parseInt(draggingPiece.dataset.pieceId);
-        const targetId = parseInt(draggingPiece.dataset.targetId); // This piece's correct target
-
-        const pieceRect = draggingPiece.getBoundingClientRect();
-        const boardRect = assembleBoard.getBoundingClientRect();
-
-        let droppedCorrectly = false;
-        
-        // Check if the piece is over its designated target zone
-        const targetZone = assembleBoard.querySelector(`.target-zone[data-target-id="${targetId}"]`);
-        if (targetZone) {
-            const targetRect = targetZone.getBoundingClientRect();
-
-            // Check for sufficient overlap (e.g., 50% overlap of piece with target)
-            const overlapX = Math.max(0, Math.min(pieceRect.right, targetRect.right) - Math.max(pieceRect.left, targetRect.left));
-            const overlapY = Math.max(0, Math.min(pieceRect.bottom, targetRect.bottom) - Math.max(pieceRect.top, targetRect.top));
-            const overlapArea = overlapX * overlapY;
-            const pieceArea = pieceRect.width * pieceRect.height;
-
-            if (overlapArea / pieceArea > 0.5) { // If more than 50% of the piece overlaps the target
-                // Snap to target position relative to puzzlePiecesContainer
-                const targetPieceX = targetRect.left - puzzlePiecesContainer.getBoundingClientRect().left;
-                const targetPieceY = targetRect.top - puzzlePiecesContainer.getBoundingClientRect().top;
-
-                draggingPiece.style.left = `${targetPieceX}px`;
-                draggingPiece.style.top = `${targetPieceY}px`;
-                
-                // Set fixed position within the container to prevent re-dragging from board movement
-                draggingPiece.style.position = 'absolute';
-                
-                if (!draggingPiece.classList.contains('placed')) {
-                    draggingPiece.classList.add('placed');
-                    placedPieces++;
-                }
-                droppedCorrectly = true;
-                assembleStatus.style.color = 'var(--success)';
-                assembleStatus.innerText = `Piece ${draggingPiece.innerText} placed correctly!`;
-            }
-        }
-        
-        if (!droppedCorrectly) {
-            assembleStatus.style.color = 'var(--error)';
-            assembleStatus.innerText = 'Incorrect placement. Try again!';
-            shake(draggingPiece);
-            // Optionally, return piece to original starting position if desired
-            // For now, leave it where dropped if not correct, but ensure 'placed' class is removed
-            draggingPiece.classList.remove('placed');
-            // If it was already placed and moved out, decrement placedPieces
-            if (placedPieces > 0) placedPieces--; // this might need more robust tracking if pieces can be removed
-        }
-
-        draggingPiece.style.zIndex = '10'; // Reset z-index
-        draggingPiece = null;
-
-        if (placedPieces === PIECE_COUNT) {
-            assembleStatus.style.color = 'var(--accent)';
-            assembleStatus.innerText = 'All pieces assembled! Level Complete!';
-            setTimeout(() => done(true), 1000);
-        }
-    }
-}
-
-
-// Level 9: Pulse
-function setupLevel9(container, done) {
-    let animationFrameId;
-    let rotation = 0; // degrees
-    let speed = 2; // degrees per frame
-    const GREEN_ZONE_ANGLE_WIDTH = 60; // Total width of the green zone in degrees
-    const GREEN_ZONE_START_ANGLE = (360 - GREEN_ZONE_ANGLE_WIDTH) / 2; // Starts 30 degrees to the left of top
-    const GREEN_ZONE_END_ANGLE = (360 + GREEN_ZONE_ANGLE_WIDTH) / 2; // Ends 30 degrees to the right of top
-
-    let tries = 0;
-    const MAX_TRIES = 5; // For demonstration, limit tries
-
-    container.innerHTML = `
-        <div class="pulse-container">
-            <h3 style="margin-bottom:15px; font-size:22px;">Pulse</h3>
-            <p style="color:var(--text-secondary); margin-bottom:25px;">Click when the indicator is in the green zone!</p>
-            <div class="pulse-circle-container">
-                <div class="pulse-indicator" id="pulseIndicator"></div>
-                <div class="pulse-zone" style="
-                    transform: rotate(${GREEN_ZONE_START_ANGLE}deg);
-                    transform-origin: bottom center; /* Pivot from the bottom of the cone */
-                    "></div>
-            </div>
-            <p id="pulseInfo" class="pulse-info">Tries: 0 / ${MAX_TRIES}</p>
-            <button class="primary" id="pulseClickBtn"><i class="fas fa-hand-pointer"></i> Click!</button>
-            <p id="pulseStatus" style="margin-top:20px; font-weight:600; min-height:20px;"></p>
-        </div>
-    `;
-
-    const pulseIndicator = $('#pulseIndicator');
-    const pulseClickBtn = $('#pulseClickBtn');
-    const pulseStatus = $('#pulseStatus');
-    const pulseInfo = $('#pulseInfo');
-
-    function animatePulse() {
-        rotation = (rotation + speed) % 360;
-        pulseIndicator.style.transform = `rotate(${rotation}deg) translateY(-125px)`; /* Adjust translateY to match half of container height for circular path */
-        animationFrameId = requestAnimationFrame(animatePulse);
-    }
-
-    function stopPulse() {
-        cancelAnimationFrame(animationFrameId);
-        pulseClickBtn.disabled = true;
-
-        let currentAngleNormalized = rotation;
-        // Normalize angle to be within [0, 360) for consistent comparison with zone angles
-        if (currentAngleNormalized < 0) currentAngleNormalized += 360; 
-
-        // Check if indicator is within the green zone (top section)
-        const inGreenZone = (currentAngleNormalized >= GREEN_ZONE_START_ANGLE && currentAngleNormalized <= GREEN_ZONE_END_ANGLE);
-
-        tries++;
-        pulseInfo.innerText = `Tries: ${tries} / ${MAX_TRIES}`;
-
-        if (inGreenZone) {
-            pulseStatus.style.color = 'var(--success)';
-            pulseStatus.innerText = 'Perfect Timing! Level Complete!';
-            setTimeout(() => done(true), 1000);
-        } else {
-            pulseStatus.style.color = 'var(--error)';
-            pulseStatus.innerText = 'Missed! Try again.';
-            shake(pulseIndicator);
-            speed = Math.min(speed + 0.5, 10); // Increase speed on miss, cap at 10 to prevent extreme speeds
-
-            if (tries >= MAX_TRIES) {
-                pulseStatus.style.color = 'var(--error)';
-                pulseStatus.innerText = 'Out of tries! Level Failed.';
-                setTimeout(() => done(false), 1500); // Fail level if out of tries
-            } else {
-                pulseClickBtn.disabled = false;
-                animatePulse(); // Restart animation for next try
-            }
-        }
-    }
-
-    pulseClickBtn.onclick = stopPulse;
-    animatePulse();
-}
-
-
-// Level 10: Full Echo (Combination of Level 6 and Level 7)
-function setupLevel10(container, done) {
-    const ENCRYPTED_PART = "wkh ilqdo dqvzhu lv brxu qdph"; // "the final answer is your name" shifted by +3
-    const CORRECT_CIPHER_SHIFT = 3; // Shift to decrypt to "the final answer is your name"
-    const MATH_QUESTION = "What is 4 * 6?"; // Hidden in the decrypted message
-    const MATH_ANSWER = 24;
-
-    function caesarCipher(text, shift, decrypt = false) {
-        if (decrypt) shift = (26 - (shift % 26)) % 26;
-        let result = '';
-        for (let i = 0; i < text.length; i++) {
-            let char = text[i];
-            if (char >= 'a' && char <= 'z') {
-                let code = char.charCodeAt(0);
-                char = String.fromCharCode(((code - 97 + shift) % 26) + 97);
-            } else if (char >= 'A' && char <= 'Z') {
-                let code = char.charCodeAt(0);
-                char = String.fromCharCode(((code - 65 + shift) % 26) + 65);
-            }
-            result += char;
-        }
-        return result;
-    }
-
-    container.innerHTML = `
-        <div class="cipher-container" style="padding-bottom:10px;">
-            <h3 style="margin-bottom:15px; font-size:22px;">Grand Finale: Cipher</h3>
-            <p style="color:var(--text-secondary); margin-bottom:15px;">Part 1: Decode this message. It holds a clue!</p>
-            <div class="encrypted-message" id="lvl10EncryptedMessage">${ENCRYPTED_PART}</div>
-            <div class="cipher-controls">
-                <label for="lvl10ShiftInput">Shift Value (0-25):</label>
-                <input type="number" id="lvl10ShiftInput" min="0" max="25" value="0">
-                <button class="primary" id="lvl10DecryptBtn"><i class="fas fa-key"></i> Decrypt</button>
-            </div>
-            <div class="decrypted-output" id="lvl10DecryptedOutput"></div>
-            <p id="lvl10CipherStatus" style="margin-top:10px; font-weight:600; min-height:20px;"></p>
-        </div>
-
-        <div class="math-container" style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
-            <h3 style="margin-bottom:15px; font-size:22px;">Grand Finale: Math</h3>
-            <p style="color:var(--text-secondary); margin-bottom:15px;">Part 2: Solve the puzzle revealed by the decrypted message.</p>
-            <div id="mathQuestion" style="font-size:1.5em; font-weight:bold; color:var(--accent); margin-bottom:20px; opacity:0.3;">
-                <i class="fas fa-lock"></i> Decrypt message first
-            </div>
-            <div class="math-input-group">
-                <input type="text" id="lvl10MathAnswerInput" placeholder="Your numerical answer">
-                <button class="primary" id="lvl10SubmitMathBtn" disabled><i class="fas fa-check"></i> Submit Answer</button>
-            </div>
-            <p id="lvl10MathStatus" style="margin-top:10px; font-weight:600; min-height:20px;"></p>
-        </div>
-    `;
-
-    const lvl10ShiftInput = $('#lvl10ShiftInput');
-    const lvl10DecryptBtn = $('#lvl10DecryptBtn');
-    const lvl10DecryptedOutput = $('#lvl10DecryptedOutput');
-    const lvl10CipherStatus = $('#lvl10CipherStatus');
-    const mathQuestionEl = $('#mathQuestion');
-    const lvl10MathAnswerInput = $('#lvl10MathAnswerInput');
-    const lvl10SubmitMathBtn = $('#lvl10SubmitMathBtn');
-    const lvl10MathStatus = $('#lvl10MathStatus');
-
-    let cipherPartSolved = false;
-
-    function handleCipherDecryption() {
-        const shift = parseInt(lvl10ShiftInput.value);
-        if (isNaN(shift)) {
-            lvl10CipherStatus.innerText = 'Please enter a valid shift number.';
-            return;
-        }
-        const decrypted = caesarCipher(ENCRYPTED_PART, shift, true);
-        lvl10DecryptedOutput.innerText = decrypted;
-
-        if (decrypted.toLowerCase() === 'the final answer is your name') { // Our specific target
-            lvl10CipherStatus.style.color = 'var(--success)';
-            lvl10CipherStatus.innerText = 'Cipher Decrypted! Proceed to Part 2.';
-            lvl10DecryptBtn.disabled = true;
-            lvl10ShiftInput.disabled = true;
-            cipherPartSolved = true;
-            
-            // Reveal math question and enable input
-            mathQuestionEl.style.opacity = '1';
-            mathQuestionEl.innerHTML = `Solve this: <span style="color:var(--accent-2);">${MATH_QUESTION}</span>`;
-            lvl10SubmitMathBtn.disabled = false;
-            lvl10MathAnswerInput.disabled = false;
-        } else {
-            lvl10CipherStatus.style.color = 'var(--text-secondary)';
-            lvl10CipherStatus.innerText = 'Keep trying!';
-            cipherPartSolved = false;
-            mathQuestionEl.style.opacity = '0.3';
-            mathQuestionEl.innerHTML = `<i class="fas fa-lock"></i> Decrypt message first`;
-            lvl10SubmitMathBtn.disabled = true;
-            lvl10MathAnswerInput.disabled = true;
-        }
-    }
-
-    function handleSubmitMathAnswer() {
-        if (!cipherPartSolved) {
-            lvl10MathStatus.style.color = 'var(--warning)';
-            lvl10MathStatus.innerText = 'Complete the cipher part first!';
-            return;
-        }
-
-        const userAnswer = parseInt(lvl10MathAnswerInput.value.trim());
-        if (isNaN(userAnswer)) {
-            lvl10MathStatus.style.color = 'var(--warning)';
-            lvl10MathStatus.innerText = 'Please enter a numerical answer.';
-            return;
-        }
-
-        if (userAnswer === MATH_ANSWER) {
-            lvl10MathStatus.style.color = 'var(--success)';
-            lvl10MathStatus.innerText = 'Correct! Grand Finale Complete!';
-            lvl10SubmitMathBtn.disabled = true;
-            lvl10MathAnswerInput.disabled = true;
-            setTimeout(() => done(true), 1000);
-        } else {
-            lvl10MathStatus.style.color = 'var(--error)';
-            lvl10MathStatus.innerText = 'Incorrect answer. Try again!';
-            shake(lvl10MathAnswerInput);
-        }
-    }
-
-    lvl10ShiftInput.addEventListener('input', handleCipherDecryption);
-    lvl10DecryptBtn.onclick = handleCipherDecryption;
-    lvl10SubmitMathBtn.onclick = handleSubmitMathAnswer;
-    
-    // Initial state
-    lvl10MathAnswerInput.disabled = true;
-    lvl10SubmitMathBtn.disabled = true;
-    handleCipherDecryption(); // Run once to set initial state
-}
-
-
-/* ------------------------ Level runner ----------------------------- */
-function startLevel(n) {
-  currentLevel = n; 
-  $('#curLevel').innerText = n; 
-  document.querySelectorAll('.level-btn').forEach(x => x.classList.remove('playing')); 
-  
-  const list = document.querySelectorAll('.level-btn'); 
-  if(list[n - 1]) list[n - 1].classList.add('playing'); 
-  
-  const lvl = levels[n]; 
-  $('#levelTitle').innerText = `Level ${n} — ${lvl.title}`; 
-  $('#levelDesc').innerText = lvl.desc; 
-  $('#statusText').innerText = 'Playing'; 
-  $('#unlocked').innerText = 'Solving this level will unlock new content'; 
-  
-  const area = $('#gameArea'); 
-  area.innerHTML = ''; 
-  
-  // Start game timer
-  timerValue = 0;
-  if(gameTimer) clearInterval(gameTimer);
-  gameTimer = setInterval(() => {
-    timerValue++;
-    const mins = Math.floor(timerValue / 60);
-    const secs = timerValue % 60;
-    $('#timerDisplay').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  }, 1000);
-  
-  // Create timer display (re-render as part of controls)
-  const timerElHtml = `<div class="stat-box" id="timerDisplay">
-    <i class="fas fa-clock"></i> Time: 0:00
-  </div>`;
-  
-  // Create hint counter (re-render as part of controls)
-  const hintCounterHtml = `<div class="stat-box" id="hintCounter">
-    <i class="fas fa-lightbulb"></i> Hints: ${state.hintsUsed[n] || 0}
-  </div>`;
-  
-  // Game controls
-  const controls = $create('div');
-  controls.className = 'game-controls';
-  controls.innerHTML = `
-    <div class="game-stats">
-      ${timerElHtml}
-      ${hintCounterHtml}
-      <div class="stat-box">
-        <i class="fas fa-star"></i> Level: ${levels[n].difficulty}
-      </div>
-    </div>
-    <div>
-      <button class="btn-ghost" id="hintBtn">
-        <i class="fas fa-lightbulb"></i> Show Hint
-      </button>
-    </div>
-  `;
-  
-  area.appendChild(controls);
-  
-  // Puzzle container
-  const puzzleWrap = $create('div');
-  puzzleWrap.style.width = '100%';
-  puzzleWrap.style.display = 'flex';
-  puzzleWrap.style.justifyContent = 'center';
-  puzzleWrap.style.alignItems = 'center';
-  puzzleWrap.style.flexDirection = 'column';
-  puzzleWrap.style.padding = '20px';
-  puzzleWrap.style.flexGrow = '1'; /* Allow puzzle area to grow */
-  puzzleWrap.style.overflowY = 'auto'; /* Allow scrolling if content is too tall */
-
-  area.appendChild(puzzleWrap);
-  
-  // Choose the correct level setup function
-  let setupFunction;
-  switch (n) {
-    case 1: setupFunction = setupLevel1; break;
-    case 2: setupFunction = setupLevel2; break;
-    case 3: setupFunction = setupLevel3; break;
-    case 4: setupFunction = setupLevel4; break;
-    case 5: setupFunction = setupLevel5; break;
-    case 6: setupFunction = setupLevel6; break;
-    case 7: setupFunction = setupLevel7; break;
-    case 8: setupFunction = setupLevel8; break;
-    case 9: setupFunction = setupLevel9; break;
-    case 10: setupFunction = setupLevel10; break;
-    default: setupFunction = (container, done) => setupLevelPlaceholder(container, done, n); break;
-  }
-
-  // Setup the level
-  setupFunction(puzzleWrap, (success) => {
-    // Stop timer
-    clearInterval(gameTimer);
-    
-    // Calculate score
-    const timeScore = Math.max(10, 100 - Math.floor(timerValue / 2));
-    const penalty = (state.hintsUsed[n] || 0) * 15;
-    const finalScore = percentClamp(timeScore - penalty);
-    
-    if(success) { 
-      $('#statusText').innerText = 'Completed!'; 
-      completeLevel(n, finalScore); 
-      state.hintsUsed[n] = state.hintsUsed[n] || 0; 
-      saveState(); 
-      
-      // Show completion message
-      puzzleWrap.innerHTML = `
-        <div style="text-align:center; padding:30px;">
-          <h3 style="font-size:32px; color:var(--success); margin-bottom:20px;">
-            <i class="fas fa-check-circle"></i> Level Complete!
-          </h3>
-          <div style="display:flex; justify-content:center; gap:30px; margin:30px 0;">
-            <div class="stat-box" style="font-size:18px;">
-              <i class="fas fa-star"></i> Score: ${finalScore}%
-            </div>
-            <div class="stat-box" style="font-size:18px;">
-              <i class="fas fa-clock"></i> Time: ${timerValue}s
-            </div>
-          </div>
-          <p>You earned ${finalScore >= 90 ? '3' : finalScore >= 70 ? '2' : '1'} stars for this level!</p>
-          <div style="margin-top:30px;">
-            <button class="primary" id="nextLevelBtn">
-              <i class="fas fa-arrow-right"></i> Next Level
-            </button>
-          </div>
-        </div>
-      `;
-      
-      // Add event listener for next level button
-      puzzleWrap.querySelector('#nextLevelBtn').onclick = () => {
-        if(n < NUM_LEVELS) {
-          startLevel(n + 1);
-        } else {
-            showMessageBox('Congratulations!', 'You have completed all available levels. More challenges coming soon!', 'info');
-            // Option to restart or go to welcome screen
-            $('#gameArea').innerHTML = `
-                <div class="welcome-screen">
-                    <h1>You've Mastered All Puzzles!</h1>
-                    <p>Congratulations on completing all the EchoPuzzles Pro challenges. Stay tuned for new levels!</p>
-                    <div class="hero-btns">
-                        <button class="primary" id="restartGameBtn">
-                            <i class="fas fa-redo"></i> Restart Game
-                        </button>
-                    </div>
-                </div>
-            `;
-            $('#restartGameBtn').onclick = () => {
-                // Clear all game state and restart
-                localStorage.removeItem(STORAGE_KEY);
-                state = loadState(); 
-                init();
-                startLevel(1); // Start over from level 1
-            };
-        }
-      };
-    } 
-    else { 
-      $('#statusText').innerText = 'Failed'; 
-      // If failed, give option to retry
-      puzzleWrap.innerHTML = `
-        <div style="text-align:center; padding:30px;">
-          <h3 style="font-size:32px; color:var(--error); margin-bottom:20px;">
-            <i class="fas fa-times-circle"></i> Level Failed!
-          </h3>
-          <p>Don't give up! Try again to conquer this challenge.</p>
-          <div style="margin-top:30px;">
-            <button class="primary" id="retryLevelBtn">
-              <i class="fas fa-redo"></i> Retry Level
-            </button>
-          </div>
-        </div>
-      `;
-      puzzleWrap.querySelector('#retryLevelBtn').onclick = () => startLevel(n);
-    }
-  });
-  
-  // Hint button functionality
-  $('#hintBtn').onclick = () => {
-    state.hintsUsed[n] = (state.hintsUsed[n] || 0) + 1;
-    saveState();
-    // Update hint counter display
-    $('#hintCounter').innerHTML = `<i class="fas fa-lightbulb"></i> Hints: ${state.hintsUsed[n]}`;
-    
-    // Show hint using the unified message box
-    showMessageBox(`Hint for Level ${n}`, levels[n].hint, 'hint');
-  };
-}
-
-/* ------------------------ Initialization ---------------------------- */
-function init() { 
-  renderLevels(); 
-  renderAchievements(); 
-  updateScoreBar(); 
-  
-  if(!state.unlocked.includes(1)) unlockLevel(1); 
-  
-  $('#startBtn').onclick = () => { 
-    startLevel(1); 
-    addAchievement('First Puzzle', 'Started your puzzle journey!');
-  };
-  
-  // Set initial progress
-  updateScoreBar();
-}
-
-init();
-
-/* ------------------------ Extra helpers ----------------------------- */
-function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
-
-// Removed the setTimeout for simulating progress, as it interferes with live gameplay.
-// state.completed = [1, 2, 3];
-// state.scores = {1: 85, 2: 90, 3: 75};
-// state.achievements = ['Welcome!', 'Level 1 Complete', 'Level 2 Complete', 'Level 3 Complete', 'Halfway There'];
-// state.unlocked = [1, 2, 3, 4, 5];
-// saveState();
-// renderLevels();
-// renderAchievements();
-// updateScoreBar();
-</script>
+    </script>
 </body>
 </html>
